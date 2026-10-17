@@ -1,0 +1,22 @@
+{
+  "name": "creofan-reel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reel Creofan : le secret du prompt Google Flow (40 s, 9:16)",
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion render CreofanReel out/creofan-reel.mp4",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.536",
+    "@remotion/fonts": "4.0.536",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.536"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "typescript": "5.8.3"
+  }
+}
