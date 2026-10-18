@@ -1,10 +1,11 @@
-import { Img, interpolate, staticFile } from "remotion";
-import { RED, WHITE } from "../theme";
+import { interpolate } from "remotion";
+import { RosaPost } from "./RosaPost";
+import { WHITE } from "../theme";
 import { C } from "./cues";
 import { BeigeBg, Check, clamp, Cursor, Headline, usePop, useT, Window } from "./ui";
 
 const SELECT = C.modification - 22;
-const NEW_TEXT = "Café du matin";
+const NEW_TEXT = "Édition limitée −20 %";
 
 // L'éditeur Canva : on retouche le design créé par Claude
 export const CanvaEditor: React.FC = () => {
@@ -79,9 +80,9 @@ export const CanvaEditor: React.FC = () => {
               transform: `scale(${pop(t, SELECT, 14)})`,
             }}
           >
-            <span style={{ border: "2px solid #ddd", borderRadius: 8, padding: "4px 14px" }}>Poppins</span>
-            <span style={{ border: "2px solid #ddd", borderRadius: 8, padding: "4px 14px" }}>52</span>
-            <div style={{ width: 40, height: 40, borderRadius: 8, backgroundColor: changing ? RED : WHITE, border: "2px solid #ccc" }} />
+            <span style={{ border: "2px solid #ddd", borderRadius: 8, padding: "4px 14px" }}>Playfair Display</span>
+            <span style={{ border: "2px solid #ddd", borderRadius: 8, padding: "4px 14px" }}>58</span>
+            <div style={{ width: 40, height: 40, borderRadius: 8, backgroundColor: changing ? "#9c6b2c" : "#7a1328", border: "2px solid #ccc" }} />
             <span style={{ fontWeight: 800 }}>B</span>
           </div>
         ) : null}
@@ -90,43 +91,29 @@ export const CanvaEditor: React.FC = () => {
         <div
           style={{
             position: "absolute",
-            top: 230,
-            left: 190,
-            width: 740,
-            height: 740,
+            top: 210,
+            left: 255,
+            width: 600,
+            height: 750,
             backgroundColor: WHITE,
             boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
             overflow: "hidden",
           }}
         >
-          <Img src={staticFile("resultat-flow.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(transparent 55%, rgba(0,0,0,0.6))" }} />
-          <div
-            style={{
-              position: "absolute",
-              left: 40,
-              bottom: 50,
-              padding: "6px 14px",
-              fontSize: 72,
-              fontWeight: 800,
-              color: changing ? RED : WHITE,
-              backgroundColor: changing ? WHITE : "transparent",
-              borderRadius: 12,
-              outline: selected ? "4px solid #8b3dff" : "none",
-              outlineOffset: 8,
-            }}
-          >
-            {changing ? typedNew || " " : "Coffee time"}
-            {changing && t < C.modification + 24 ? "|" : ""}
-          </div>
+          <RosaPost
+            width={600}
+            selected={selected}
+            tagline={changing ? typedNew + (t < C.modification + 24 ? "|" : "") : undefined}
+            taglineColor={changing ? "#9c6b2c" : undefined}
+          />
         </div>
 
         <Cursor
           t={t}
           keys={[
             { t: C.canvaEditor + 6, x: 600, y: 700 },
-            { t: SELECT - 10, x: 380, y: 935 },
-            { t: SELECT, x: 380, y: 935, click: true },
+            { t: SELECT - 10, x: 420, y: 560 },
+            { t: SELECT, x: 420, y: 560, click: true },
             { t: C.modification + 40, x: 820, y: 600 },
           ]}
         />

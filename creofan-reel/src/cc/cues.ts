@@ -1,8 +1,41 @@
 // Synchronisation sur la voix off « Claude × Canva ».
-// Les 1,9 premières secondes du fichier (silence + clic) sont coupées :
-// un mot dit à `s` secondes dans voix-off.mp3 tombe à (s − 1,9) s dans la vidéo.
-export const VOICE_TRIM = 57;
-const v = (s: number) => Math.round((s - 1.9) * 30);
+// Les silences de la voix ont été raccourcis à 0,14 s : SPEECH liste les
+// passages parlés du fichier d'origine (en secondes), et `v` convertit un
+// instant de l'enregistrement d'origine en frame de la vidéo finale.
+const SPEECH: [number, number][] = [
+  [2.0755, 5.4321],
+  [5.8703, 7.4969],
+  [7.739, 8.9425],
+  [9.2413, 10.7377],
+  [11.0503, 12.0172],
+  [12.3561, 13.363],
+  [13.6866, 16.8204],
+  [17.0146, 23.5979],
+  [24.7927, 26.7072],
+  [27.0236, 30.1851],
+  [30.3807, 32.589],
+  [32.7706, 33.7566],
+];
+const GAP = 0.14;
+const LEAD = 0.04;
+
+const toEdited = (s: number) => {
+  let start = LEAD; // instant de début du passage courant dans le fichier coupé
+  for (let i = 0; i < SPEECH.length; i++) {
+    const [a, b] = SPEECH[i];
+    if (s < a) return start - Math.min(a - s, i === 0 ? LEAD : GAP);
+    if (s <= b) return start + (s - a);
+    const next = SPEECH[i + 1];
+    if (!next) return start + (b - a) + (s - b);
+    const gap = Math.min(GAP, next[0] - b);
+    if (s < next[0]) return start + (b - a) + Math.min(s - b, gap);
+    start += b - a + gap;
+  }
+  return start;
+};
+
+export const VOICE_TRIM = 0;
+const v = (s: number) => Math.round(Math.max(0, toEdited(s)) * 30);
 
 export const C = {
   // Accroche
@@ -39,4 +72,4 @@ export const C = {
   follow: v(32.8),
 };
 
-export const CC_DURATION = 1010; // ≈ 33,7 s
+export const CC_DURATION = v(33.7566) + 50; // fin de la voix + 1,7 s

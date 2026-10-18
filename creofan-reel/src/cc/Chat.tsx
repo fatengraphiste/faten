@@ -1,9 +1,10 @@
 import { Img, interpolate, staticFile } from "remotion";
+import { RosaPost } from "./RosaPost";
 import { INK, RED, WHITE } from "../theme";
 import { C } from "./cues";
 import { BeigeBg, CL, clamp, Cursor, FreeChip, Headline, usePop, useT, Window } from "./ui";
 
-const PROMPT = "Crée-moi un post Instagram pour un café";
+const PROMPT = "Crée-moi un post Instagram pro pour ROSA, une marque de parfum";
 const TYPE_FROM = C.chat + 6;
 const TYPE_TO = C.chat + 44;
 const SENT = C.chat + 50;
@@ -70,7 +71,7 @@ export const Chat: React.FC = () => {
             <div
               style={{
                 marginTop: 26,
-                width: 560,
+                width: 330,
                 borderRadius: 24,
                 overflow: "hidden",
                 border: `2px solid ${CL.border}`,
@@ -79,32 +80,16 @@ export const Chat: React.FC = () => {
                 transformOrigin: "left top",
               }}
             >
-              <div style={{ position: "relative", height: 380 }}>
-                <Img src={staticFile("resultat-flow.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <div
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    padding: "60px 30px 24px",
-                    background: "linear-gradient(transparent, rgba(0,0,0,0.65))",
-                    color: WHITE,
-                    fontSize: 52,
-                    fontWeight: 800,
-                  }}
-                >
-                  Coffee time
-                </div>
-              </div>
+              <RosaPost width={330} />
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: 16,
                   padding: "18px 22px",
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: 600,
+                  whiteSpace: "nowrap",
                   backgroundColor: linkGlow > 0 ? `rgba(247,50,42,${0.1 * linkGlow})` : WHITE,
                 }}
               >
@@ -169,9 +154,9 @@ export const Chat: React.FC = () => {
             { t: C.chat, x: 700, y: 900 },
             { t: SENT - 10, x: 900, y: 975 },
             { t: SENT - 2, x: 900, y: 975, click: true },
-            { t: C.lien - 4, x: 250, y: 832 },
-            { t: C.canvaEditor - 14, x: 250, y: 832 },
-            { t: C.canvaEditor - 8, x: 250, y: 832, click: true },
+            { t: C.lien - 4, x: 250, y: 800 },
+            { t: C.canvaEditor - 14, x: 250, y: 800 },
+            { t: C.canvaEditor - 8, x: 250, y: 800, click: true },
           ]}
         />
       </Window>

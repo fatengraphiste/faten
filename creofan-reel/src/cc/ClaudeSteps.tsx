@@ -63,11 +63,11 @@ export const ClaudeSteps: React.FC = () => {
   const doneS = pop(t, C.connected, 9);
 
   const click = (at: number, x: number, y: number) => [
-    { t: at - 12, x, y },
+    { t: at - 10, x, y },
     { t: at, x, y, click: true },
   ];
   const cursorKeys = [
-    { t: C.steps, x: 620, y: 760 },
+    { t: C.steps - 30, x: 620, y: 760 },
     ...click(C.avatarClick, 44, 1000),
     ...click(C.parametres, 150, 742),
     ...click(C.connecteurs, 150, 726),
