@@ -10,7 +10,15 @@ for (const weight of ["400", "600", "800"]) {
   });
 }
 
+// Salma Arabic Bold pour les mots en arabe
+loadFont({
+  family: "Salma",
+  url: staticFile("fonts/salma-arabic-bold.otf"),
+  weight: "700",
+});
+
 export const FONT = "Poppins, sans-serif";
+export const FONT_AR = "Salma, Poppins, sans-serif";
 
 export const RED = "#f7322a";
 export const BEIGE = "#fff5f5";

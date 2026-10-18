@@ -7,103 +7,146 @@ import {
   useVideoConfig,
 } from "remotion";
 import { ONS_TRIM } from "../cues";
-import { LogoCorner, PunchIn } from "../components";
-import { BEIGE, INK, RED, WHITE } from "../theme";
+import { LogoCorner, MixedText, PunchIn } from "../components";
+import { BEIGE, FONT, RED, WHITE } from "../theme";
 
-// 0:00 – 0:10 : le vrai vocal WhatsApp d'Ons (image + son)
+// Zone de la bulle dans l'enregistrement d'écran (1080×206)
+const SRC = { w: 1080, h: 206 };
+const BUBBLE = { x: 48, y: 26, w: 870, h: 172 };
+// « 09:40 » à masquer
+const TIME = { x: 580, y: 146, w: 112, h: 48 };
+
+const HOOK = ["ما", "عندكش", "وقت", "تتعلم", "الـ design ؟"];
+const KEY = "الـ design ؟";
+
+// 0:00 – 0:10 : accroche + vrai vocal WhatsApp d'Ons
 export const OnsVocal: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const titleIn = spring({ frame: frame - 2, fps, config: { damping: 14 } });
-  const cardIn = spring({ frame: frame - 8, fps, config: { damping: 14 } });
-  const bubbleIn = spring({ frame: frame - 18, fps, config: { damping: 12 } });
-  // Respiration légère de la carte pendant le vocal
-  const breathe = 1 + 0.008 * Math.sin(frame / 6);
+  const width = 960;
+  const s = width / BUBBLE.w;
+  const bubbleIn = spring({ frame: frame - 20, fps, config: { damping: 13 } });
+  const labelIn = spring({ frame: frame - 16, fps, config: { damping: 14 } });
+  const line2 = spring({ frame: frame - 48, fps, config: { damping: 10 } });
 
   return (
     <PunchIn bg={RED}>
       <LogoCorner />
 
+      {/* Accroche (lue dans les 3 premières secondes) */}
       <div
         style={{
           position: "absolute",
           top: 300,
-          left: 70,
-          right: 70,
+          left: 60,
+          right: 60,
           textAlign: "center",
-          color: BEIGE,
-          opacity: titleIn,
-          transform: `translateY(${(1 - titleIn) * -40}px)`,
         }}
       >
-        <div style={{ fontSize: 46, fontWeight: 600 }}>Vocal reçu de</div>
-        <div style={{ fontSize: 92, fontWeight: 800, lineHeight: 1.1 }}>Ons</div>
-        <div style={{ fontSize: 40, fontWeight: 600, marginTop: 8 }}>
-          responsable marketing en agence de communication
+        <div dir="rtl">
+          {HOOK.map((w, i) => {
+            const pop = spring({ frame: frame - i * 4, fps, config: { damping: 11 } });
+            return (
+              <span
+                key={i}
+                style={{
+                  display: "inline-block",
+                  margin: "0 10px",
+                  transform: `translateY(${(1 - pop) * 40}px) scale(${pop})`,
+                  opacity: pop,
+                }}
+              >
+                <MixedText
+                  text={w}
+                  size={w === KEY ? 96 : 92}
+                  color={w === KEY ? RED : BEIGE}
+                  style={
+                    w === KEY
+                      ? { backgroundColor: BEIGE, borderRadius: 24, padding: "0 24px" }
+                      : undefined
+                  }
+                />
+              </span>
+            );
+          })}
+        </div>
+        <div
+          style={{
+            marginTop: 30,
+            transform: `scale(${line2})`,
+            opacity: line2,
+          }}
+        >
+          <MixedText text="Flow يحلهالك في دقيقة" size={58} color={BEIGE} />
         </div>
       </div>
 
-      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", paddingTop: 260 }}>
+      {/* Bulle vocale WhatsApp, sans le fond ni l'heure */}
+      <AbsoluteFill style={{ alignItems: "center", top: 1020 }}>
         <div
           style={{
-            width: 940,
-            borderRadius: 48,
-            backgroundColor: BEIGE,
-            overflow: "hidden",
-            transform: `translateY(${(1 - cardIn) * 400}px) scale(${breathe})`,
-            opacity: cardIn,
-            boxShadow: "0 30px 80px rgba(0,0,0,0.25)",
+            width,
+            marginBottom: 22,
+            fontFamily: FONT,
+            fontSize: 36,
+            fontWeight: 600,
+            color: BEIGE,
+            opacity: labelIn,
           }}
         >
+          Ons · responsable marketing
+        </div>
+        <div
+          style={{
+            position: "relative",
+            width,
+            height: BUBBLE.h * s,
+            transform: `scale(${bubbleIn})`,
+            transformOrigin: "left top",
+          }}
+        >
+          {/* Petite pointe de bulle "message reçu" */}
+          <svg
+            width={34}
+            height={30}
+            viewBox="0 0 34 30"
+            style={{ position: "absolute", left: -20, top: 0 }}
+          >
+            <path d="M34 0 H4 Q0 0 3 4 L34 30 Z" fill={WHITE} />
+          </svg>
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 26,
-              padding: "30px 36px",
+              position: "absolute",
+              inset: 0,
+              borderRadius: 36,
+              overflow: "hidden",
               backgroundColor: WHITE,
+              boxShadow: "0 20px 50px rgba(0,0,0,0.2)",
             }}
           >
+            <OffthreadVideo
+              src={staticFile("vocal-ons.mp4")}
+              startFrom={ONS_TRIM}
+              style={{
+                position: "absolute",
+                width: SRC.w * s,
+                height: SRC.h * s,
+                left: -BUBBLE.x * s,
+                top: -BUBBLE.y * s,
+                maxWidth: "none",
+              }}
+            />
             <div
               style={{
-                width: 96,
-                height: 96,
-                borderRadius: 999,
-                backgroundColor: RED,
-                color: BEIGE,
-                fontSize: 48,
-                fontWeight: 800,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                position: "absolute",
+                left: (TIME.x - BUBBLE.x) * s,
+                top: (TIME.y - BUBBLE.y) * s,
+                width: TIME.w * s,
+                height: TIME.h * s,
+                backgroundColor: WHITE,
               }}
-            >
-              O
-            </div>
-            <div>
-              <div style={{ fontSize: 42, fontWeight: 800, color: INK }}>Ons</div>
-              <div style={{ fontSize: 28, color: RED, fontWeight: 600 }}>
-                Responsable marketing · Agence de com
-              </div>
-            </div>
-          </div>
-          <div style={{ padding: "50px 30px 60px" }}>
-            <div
-              style={{
-                borderRadius: 30,
-                overflow: "hidden",
-                transform: `scale(${bubbleIn})`,
-                transformOrigin: "left center",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
-              }}
-            >
-              <OffthreadVideo
-                src={staticFile("vocal-ons.mp4")}
-                startFrom={ONS_TRIM}
-                style={{ width: "100%", display: "block" }}
-              />
-            </div>
+            />
           </div>
         </div>
       </AbsoluteFill>

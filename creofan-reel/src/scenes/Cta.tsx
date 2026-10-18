@@ -1,12 +1,14 @@
 import {
   AbsoluteFill,
+  Img,
   interpolate,
+  staticFile,
   spring,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { CUE } from "../cues";
-import { Logo, PunchIn } from "../components";
+import { MixedText, PunchIn } from "../components";
 import { BEIGE, INK, RED, WHITE } from "../theme";
 
 const LIST = [
@@ -40,39 +42,18 @@ export const Cta: React.FC = () => {
   return (
     <PunchIn bg={RED}>
       <AbsoluteFill style={{ alignItems: "center", paddingTop: 170, gap: 36 }}>
-        <div
+        {/* Logo Creofan complet, en beige */}
+        <Img
+          src={staticFile("logo-creofan-complet.png")}
           style={{
-            transform: `scale(${logoIn}) rotate(${interpolate(logoIn, [0, 1], [-90, 0])}deg)`,
-          }}
-        >
-          <Logo size={240} />
-        </div>
-        <div
-          style={{
-            fontSize: 40,
-            fontWeight: 800,
-            color: BEIGE,
-            letterSpacing: 10,
+            width: 640,
+            transform: `scale(${interpolate(logoIn, [0, 1], [0.7, 1])})`,
             opacity: logoIn,
           }}
-        >
-          CREOFAN
-        </div>
+        />
 
-        <div
-          style={{
-            fontSize: 58,
-            fontWeight: 800,
-            color: BEIGE,
-            textAlign: "center",
-            lineHeight: 1.15,
-            opacity: boxIn,
-            marginTop: 10,
-          }}
-        >
-          Écris « prompt »
-          <br />
-          en commentaire
+        <div style={{ opacity: boxIn, marginTop: 20, textAlign: "center" }}>
+          <MixedText text="اكتب prompt في commentaire" size={62} color={BEIGE} />
         </div>
 
         {/* Champ de commentaire */}
@@ -142,8 +123,8 @@ export const Cta: React.FC = () => {
 
         {/* La liste envoyée */}
         <div style={{ textAlign: "center", opacity: listIn, marginTop: 10 }}>
-          <div style={{ fontSize: 40, fontWeight: 600, color: BEIGE, marginBottom: 20 }}>
-            et je t'envoie la liste :
+          <div style={{ marginBottom: 20 }}>
+            <MixedText text="ونبعثلك liste فيها :" size={42} color={BEIGE} latinWeight={600} />
           </div>
           <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
             {LIST.map((l) => {
@@ -180,7 +161,7 @@ export const Cta: React.FC = () => {
             transform: `scale(${finalIn}) rotate(-3deg)`,
           }}
         >
-          Prompt tayara
+          <MixedText text="prompt طيارة" size={76} />
         </div>
       </AbsoluteFill>
     </PunchIn>

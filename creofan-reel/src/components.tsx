@@ -7,7 +7,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { BEIGE, FONT, RED } from "./theme";
+import { BEIGE, FONT, FONT_AR, RED } from "./theme";
 
 export const Logo: React.FC<{ size?: number; style?: React.CSSProperties }> = ({
   size = 110,
@@ -130,3 +130,39 @@ export const Arrow: React.FC<{ size: number; color: string; rotate?: number }> =
     />
   </svg>
 );
+
+const ARABIC = /[؀-ۿ]/;
+
+// Texte mixte : mots arabes en Salma, mots français en Poppins.
+// Dès qu'il y a de l'arabe, la phrase se lit de droite à gauche.
+export const MixedText: React.FC<{
+  text: string;
+  size: number;
+  color?: string;
+  latinWeight?: number;
+  style?: React.CSSProperties;
+}> = ({ text, size, color, latinWeight = 800, style }) => {
+  const words = text.split(" ");
+  const rtl = words.some((w) => ARABIC.test(w));
+  return (
+    <div dir={rtl ? "rtl" : "ltr"} style={{ color, lineHeight: 1.25, ...style }}>
+      {words.map((w, i) => {
+        const ar = ARABIC.test(w);
+        return (
+          <span
+            key={i}
+            style={{
+              fontFamily: ar ? FONT_AR : FONT,
+              fontWeight: ar ? 700 : latinWeight,
+              // Salma est plus petite à corps égal
+              fontSize: ar ? size * 1.15 : size,
+            }}
+          >
+            {w}
+            {i < words.length - 1 ? " " : ""}
+          </span>
+        );
+      })}
+    </div>
+  );
+};

@@ -8,7 +8,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { CUE } from "../cues";
-import { Arrow, FlowLogo, LogoCorner, PunchIn } from "../components";
+import { Arrow, FlowLogo, LogoCorner, MixedText, PunchIn } from "../components";
 import { BEIGE, RED } from "../theme";
 
 // Couleurs de l'interface Google Flow (thème sombre)
@@ -49,16 +49,16 @@ const typed = (text: string, t: number, from: number, to: number) =>
 type TitleCue = { at: number; title: string; sub?: string; subAt?: number };
 
 const TITLES: TitleCue[] = [
-  { at: CUE.flowIn, title: "Comment parler à Flow", sub: "pour qu'il te comprenne", subAt: CUE.flowWord },
-  { at: CUE.secret, title: "Le secret ?" },
-  { at: CUE.promptWord, title: "Le prompt", sub: "tout se joue ici" },
-  { at: CUE.dont, title: "Pas juste…" },
+  { at: CUE.flowIn, title: "كيفاش تحكي مع Flow ؟", sub: "باش يفهمك", subAt: CUE.flowWord },
+  { at: CUE.secret, title: "السر ؟" },
+  { at: CUE.promptWord, title: "السر في الـ prompt" },
+  { at: CUE.dont, title: "ما تقلوش just…" },
   { at: CUE.badStrike, title: "Trop vague", sub: "= un résultat générique" },
-  { at: CUE.sujet, title: "1. Le sujet", sub: "une description détaillée de la scène", subAt: CUE.detail },
-  { at: CUE.style, title: "2. Le style" },
-  { at: CUE.prise, title: "3. La prise de vue", sub: "+ le mouvement de caméra pour une vidéo", subAt: CUE.mouvement },
-  { at: CUE.photoshop, title: "Sans Photoshop", sub: "sans aucun autre outil", subAt: CUE.outils },
-  { at: CUE.reveal, title: "Le meilleur rendu", sub: "qualité studio", subAt: CUE.rendu },
+  { at: CUE.sujet, title: "1. Sujet", sub: "une description détaillée de la scène", subAt: CUE.detail },
+  { at: CUE.style, title: "2. Style" },
+  { at: CUE.prise, title: "3. Prise de vue", sub: "+ le mouvement de caméra pour une vidéo", subAt: CUE.mouvement },
+  { at: CUE.photoshop, title: "بلا Photoshop", sub: "بلا حتى outils أخرى", subAt: CUE.outils },
+  { at: CUE.reveal, title: "أعز rendu", sub: "qualité studio", subAt: CUE.rendu },
 ];
 
 const STYLES = [
@@ -142,26 +142,24 @@ export const FlowScene: React.FC = () => {
         <div
           key={current.at}
           style={{
-            fontSize: current.at === CUE.promptWord ? 110 : current.at === CUE.flowIn ? 68 : 78,
-            fontWeight: 800,
-            lineHeight: 1.1,
             transform: `scale(${interpolate(titleIn, [0, 1], [0.6, 1])})`,
             opacity: titleIn,
           }}
         >
-          {current.title}
+          <MixedText
+            text={current.title}
+            size={current.at === CUE.promptWord ? 92 : current.at === CUE.flowIn ? 68 : 78}
+          />
         </div>
         {current.sub ? (
           <div
             style={{
-              fontSize: 38,
-              fontWeight: 600,
               marginTop: 14,
               opacity: subIn,
               transform: `translateY(${(1 - subIn) * 20}px)`,
             }}
           >
-            {current.sub}
+            <MixedText text={current.sub} size={38} latinWeight={600} />
           </div>
         ) : null}
         {isStyle ? (
