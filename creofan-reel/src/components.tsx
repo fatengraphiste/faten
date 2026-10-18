@@ -140,8 +140,10 @@ export const MixedText: React.FC<{
   size: number;
   color?: string;
   latinWeight?: number;
+  // Couleur des mots français (par défaut : même couleur que le reste)
+  latinColor?: string;
   style?: React.CSSProperties;
-}> = ({ text, size, color, latinWeight = 800, style }) => {
+}> = ({ text, size, color, latinWeight = 800, latinColor, style }) => {
   const words = text.split(" ");
   const rtl = words.some((w) => ARABIC.test(w));
   return (
@@ -154,6 +156,7 @@ export const MixedText: React.FC<{
             style={{
               fontFamily: ar ? FONT_AR : FONT,
               fontWeight: ar ? 700 : latinWeight,
+              color: !ar && latinColor ? latinColor : undefined,
               // Salma est plus petite à corps égal
               fontSize: ar ? size * 1.15 : size,
             }}
