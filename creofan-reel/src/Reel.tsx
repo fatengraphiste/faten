@@ -1,37 +1,28 @@
 import { Audio, Sequence, staticFile } from "remotion";
+import { CUE, TOTAL_DURATION, VOICE_START, VOICE_TRIM } from "./cues";
 import { Cta } from "./scenes/Cta";
-import { Prompt } from "./scenes/Prompt";
-import { Result } from "./scenes/Result";
-import { Solution } from "./scenes/Solution";
-import { Vocal } from "./scenes/Vocal";
-import { SCENES } from "./theme";
+import { FlowScene } from "./scenes/FlowScene";
+import { OnsVocal } from "./scenes/OnsVocal";
 
-export type ReelProps = {
-  // Fichiers optionnels à mettre dans le dossier public/
-  voiceover: string; // ex. "voix.mp3"
-  facecam: string; // ex. "facecam-1.mp4"
-  resultImage: string; // ex. "resultat-flow.jpg"
-};
-
-export const Reel: React.FC<ReelProps> = ({ voiceover, facecam, resultImage }) => {
+export const Reel: React.FC = () => {
   return (
     <>
-      <Sequence {...SCENES.vocal} name="0:00 Vocal">
-        <Vocal />
+      <Sequence from={0} durationInFrames={VOICE_START} name="Vocal d'Ons">
+        <OnsVocal />
       </Sequence>
-      <Sequence {...SCENES.solution} name="0:08 Solution">
-        <Solution facecam={facecam || undefined} />
+      <Sequence
+        from={CUE.flowIn}
+        durationInFrames={CUE.cta - CUE.flowIn}
+        name="Google Flow"
+      >
+        <FlowScene />
       </Sequence>
-      <Sequence {...SCENES.prompt} name="0:13 Prompt">
-        <Prompt />
-      </Sequence>
-      <Sequence {...SCENES.result} name="0:28 Résultat">
-        <Result resultImage={resultImage || undefined} />
-      </Sequence>
-      <Sequence {...SCENES.cta} name="0:35 CTA">
+      <Sequence from={CUE.cta} durationInFrames={TOTAL_DURATION - CUE.cta} name="CTA">
         <Cta />
       </Sequence>
-      {voiceover ? <Audio src={staticFile(voiceover)} /> : null}
+      <Sequence from={VOICE_START} name="Voix off">
+        <Audio src={staticFile("voix-off.mp3")} startFrom={VOICE_TRIM} />
+      </Sequence>
     </>
   );
 };

@@ -5,54 +5,51 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { Caption, Captions, Logo, PunchIn } from "../components";
+import { CUE } from "../cues";
+import { Logo, PunchIn } from "../components";
 import { BEIGE, INK, RED, WHITE } from "../theme";
 
-const captions: Caption[] = [
-  {
-    from: 0,
-    to: 75,
-    text: "Écris « Prompt » fi commentaire",
-    highlight: ["prompt"],
-  },
-  {
-    from: 75,
-    to: 150,
-    text: "w neb3athlek template wesfa kemla !",
-    highlight: ["template"],
-  },
+const LIST = [
+  { label: "Style", at: CUE.listStyle },
+  { label: "Ambiance", at: CUE.listAmbiance },
+  { label: "Prise de vue", at: CUE.listPrise },
 ];
 
-const WORD = "PROMPT";
-
+// 0:42 – 0:54 : appel à l'action
 export const Cta: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const t = frame + CUE.cta;
+  const sp = (at: number, damping = 12) =>
+    spring({ frame: t - at, fps, config: { damping } });
 
-  const logoIn = spring({ frame, fps, config: { damping: 12 } });
-  const boxIn = spring({ frame: frame - 15, fps, config: { damping: 13 } });
-  const typedWord = WORD.slice(0, Math.max(0, Math.floor((frame - 30) / 4)));
-  const sent = frame > 65;
-  const sentIn = spring({ frame: frame - 65, fps, config: { damping: 11 } });
-  const heart = spring({ frame: frame - 80, fps, config: { damping: 6 } });
-  const giftIn = spring({ frame: frame - 85, fps, config: { damping: 10 } });
-  const pointer = Math.sin(frame / 5) * 14;
+  const logoIn = sp(CUE.cta);
+  const boxIn = sp(CUE.cta + 8, 13);
+  const typedWord = "prompt".slice(
+    0,
+    Math.floor(interpolate(t, [CUE.ctaPrompt - 6, CUE.ctaPrompt + 12], [0, 6], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    })),
+  );
+  const posted = t >= CUE.comment;
+  const postedIn = sp(CUE.comment, 11);
+  const listIn = sp(CUE.liste, 13);
+  const finalIn = sp(CUE.tayara, 10);
 
   return (
     <PunchIn bg={RED}>
-      <AbsoluteFill
-        style={{ alignItems: "center", paddingTop: 220, gap: 50 }}
-      >
+      <AbsoluteFill style={{ alignItems: "center", paddingTop: 170, gap: 36 }}>
         <div
           style={{
             transform: `scale(${logoIn}) rotate(${interpolate(logoIn, [0, 1], [-90, 0])}deg)`,
           }}
         >
-          <Logo size={300} />
+          <Logo size={240} />
         </div>
         <div
           style={{
-            fontSize: 44,
+            fontSize: 40,
             fontWeight: 800,
             color: BEIGE,
             letterSpacing: 10,
@@ -62,11 +59,27 @@ export const Cta: React.FC = () => {
           CREOFAN
         </div>
 
-        {/* Commentaire */}
+        <div
+          style={{
+            fontSize: 58,
+            fontWeight: 800,
+            color: BEIGE,
+            textAlign: "center",
+            lineHeight: 1.15,
+            opacity: boxIn,
+            marginTop: 10,
+          }}
+        >
+          Écris « prompt »
+          <br />
+          en commentaire
+        </div>
+
+        {/* Champ de commentaire */}
         <div
           style={{
             width: 900,
-            padding: 34,
+            padding: 30,
             borderRadius: 36,
             backgroundColor: WHITE,
             transform: `translateY(${(1 - boxIn) * 200}px)`,
@@ -74,43 +87,38 @@ export const Cta: React.FC = () => {
             boxShadow: "0 30px 70px rgba(0,0,0,0.25)",
           }}
         >
-          {sent ? (
+          {posted ? (
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 22,
-                marginBottom: 26,
-                transform: `scale(${sentIn})`,
+                marginBottom: 22,
+                transform: `scale(${postedIn})`,
                 transformOrigin: "left center",
               }}
             >
               <div
                 style={{
-                  width: 74,
-                  height: 74,
+                  width: 70,
+                  height: 70,
                   borderRadius: 999,
                   backgroundColor: BEIGE,
                   border: `3px solid ${RED}`,
-                  flexShrink: 0,
                 }}
               />
-              <div style={{ flex: 1 }}>
+              <div>
                 <div style={{ fontSize: 26, color: `${INK}88`, fontWeight: 600 }}>
                   toi · à l'instant
                 </div>
-                <div style={{ fontSize: 46, fontWeight: 800, color: INK }}>
-                  PROMPT 🙌
-                </div>
+                <div style={{ fontSize: 46, fontWeight: 800, color: INK }}>prompt</div>
               </div>
-              <div style={{ fontSize: 56, transform: `scale(${heart})` }}>❤️</div>
             </div>
           ) : null}
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 18,
               padding: "18px 26px",
               borderRadius: 999,
               backgroundColor: BEIGE,
@@ -119,46 +127,62 @@ export const Cta: React.FC = () => {
             <div
               style={{
                 flex: 1,
-                fontSize: 40,
+                fontSize: 38,
                 fontWeight: 800,
-                color: sent || typedWord.length === 0 ? `${INK}55` : RED,
+                color: posted || !typedWord ? `${INK}55` : RED,
               }}
             >
-              {sent || typedWord.length === 0
+              {posted || !typedWord
                 ? "Ajoute un commentaire…"
-                : typedWord + (Math.floor(frame / 8) % 2 ? "|" : "")}
+                : typedWord + (Math.floor(t / 8) % 2 ? "|" : "")}
             </div>
-            <div style={{ fontSize: 34, fontWeight: 800, color: RED }}>
-              Publier
-            </div>
+            <div style={{ fontSize: 32, fontWeight: 800, color: RED }}>Publier</div>
+          </div>
+        </div>
+
+        {/* La liste envoyée */}
+        <div style={{ textAlign: "center", opacity: listIn, marginTop: 10 }}>
+          <div style={{ fontSize: 40, fontWeight: 600, color: BEIGE, marginBottom: 20 }}>
+            et je t'envoie la liste :
+          </div>
+          <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+            {LIST.map((l) => {
+              const pop = sp(l.at, 9);
+              return (
+                <div
+                  key={l.label}
+                  style={{
+                    fontSize: 38,
+                    fontWeight: 800,
+                    color: RED,
+                    backgroundColor: BEIGE,
+                    padding: "14px 30px",
+                    borderRadius: 999,
+                    transform: `scale(${pop})`,
+                  }}
+                >
+                  {l.label}
+                </div>
+              );
+            })}
           </div>
         </div>
 
         <div
           style={{
-            fontSize: 48,
+            fontSize: 76,
             fontWeight: 800,
             color: RED,
             backgroundColor: BEIGE,
-            padding: "16px 40px",
-            borderRadius: 999,
-            transform: `scale(${giftIn})`,
+            padding: "14px 50px",
+            borderRadius: 30,
+            marginTop: 20,
+            transform: `scale(${finalIn}) rotate(-3deg)`,
           }}
         >
-          🎁 Template offert
-        </div>
-        <div
-          style={{
-            fontSize: 80,
-            transform: `translateY(${pointer}px)`,
-            opacity: giftIn,
-          }}
-        >
-          👇
+          Prompt tayara
         </div>
       </AbsoluteFill>
-
-      <Captions captions={captions} bottom={250} />
     </PunchIn>
   );
 };

@@ -1,12 +1,7 @@
 import { Composition } from "remotion";
-import { Reel, ReelProps } from "./Reel";
-import { FPS, TOTAL_DURATION } from "./theme";
-
-const defaultProps: ReelProps = {
-  voiceover: "",
-  facecam: "",
-  resultImage: "",
-};
+import { TOTAL_DURATION } from "./cues";
+import { Reel } from "./Reel";
+import { FPS } from "./theme";
 
 export const RemotionRoot: React.FC = () => (
   <Composition
@@ -16,6 +11,5 @@ export const RemotionRoot: React.FC = () => (
     fps={FPS}
     width={1080}
     height={1920}
-    defaultProps={defaultProps}
   />
 );
