@@ -3,6 +3,7 @@ import { SafeZoneGuide } from "./components";
 import { CC_DURATION } from "./cc/cues";
 import { ClaudeCanva } from "./cc/ClaudeCanva";
 import { FAIT_DURATION, FaitParClaude } from "./fait/FaitParClaude";
+import { Regard, REGARD_DURATION } from "./regard/Regard";
 import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
 import { FPS } from "./theme";
@@ -20,6 +21,7 @@ const withGuide = (C: React.FC) => {
 const CreofanReelG = withGuide(Reel);
 const ClaudeCanvaG = withGuide(ClaudeCanva);
 const FaitParClaudeG = withGuide(FaitParClaude);
+const RegardG = withGuide(Regard);
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -46,6 +48,15 @@ export const RemotionRoot: React.FC = () => (
     component={FaitParClaudeG}
     defaultProps={{ showSafeZone: false }}
     durationInFrames={FAIT_DURATION}
+    fps={FPS}
+    width={1080}
+    height={1920}
+  />
+  <Composition
+    id="Regard"
+    component={RegardG}
+    defaultProps={{ showSafeZone: false }}
+    durationInFrames={REGARD_DURATION}
     fps={FPS}
     width={1080}
     height={1920}
