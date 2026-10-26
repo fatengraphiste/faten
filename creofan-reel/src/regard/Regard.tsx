@@ -475,6 +475,9 @@ const SCENES: [number, number, React.FC<{ t: number }>][] = [
   [840, 900, Cta],
 ];
 
+// Niveau global des effets (évite la saturation quand ils se superposent à la musique)
+const SFX_GAIN = 0.65;
+
 // Effets sonores : [fichier, frame, durée max en frames, volume]
 const SFX: [string, number, number, number][] = [
   ["regard/sub.wav", 0, 27, 0.7],
@@ -488,21 +491,21 @@ const SFX: [string, number, number, number][] = [
   ["regard/revriser.wav", 135, 15, 0.6],
   ["regard/drone.wav", 150, 86, 0.8],
   ["regard/ticktock.wav", 180, 60, 0.8],
-  ["regard/snap.wav", 240, 3, 0.8],
+  ["regard/snap.wav", 240, 3, 0.45],
   ["regard/bell.wav", 240, 60, 0.9],
   ["cc/whoosh.wav", 268, 15, 0.6],
   ["regard/sub.wav", 274, 15, 0.6],
   ["regard/sub.wav", 284, 15, 0.6],
   ["regard/swish.wav", 306, 12, 0.8],
   ["regard/riser.wav", 345, 15, 0.6],
-  ["regard/snap.wav", 360, 3, 0.8],
+  ["regard/snap.wav", 360, 3, 0.45],
   ["cc/pop.wav", 372, 6, 0.7],
   ["cc/pop.wav", 380, 6, 0.8],
   ["cc/pop.wav", 388, 6, 0.9],
   ["cc/whoosh.wav", 418, 15, 0.5],
   ["regard/drone.wav", 425, 25, 0.25],
   ["cc/whoosh.wav", 450, 30, 0.6],
-  ["regard/snap.wav", 480, 3, 0.8],
+  ["regard/snap.wav", 480, 3, 0.45],
   ["regard/sub.wav", 480, 15, 0.5],
   ["cc/whoosh.wav", 508, 15, 0.5],
   ["regard/heart.wav", 540, 36, 0.75],
@@ -534,7 +537,7 @@ export const Regard: React.FC = () => {
       <Audio src={staticFile("cc/music.mp3")} volume={musicVol} />
       {SFX.map(([file, at, len, vol], i) => (
         <Sequence key={i} from={at} durationInFrames={len}>
-          <Audio src={staticFile(file)} volume={vol} />
+          <Audio src={staticFile(file)} volume={vol * SFX_GAIN} />
         </Sequence>
       ))}
     </>
