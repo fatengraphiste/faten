@@ -20,7 +20,7 @@ export const CanvaEditor: React.FC = () => {
     <BeigeBg>
       <Headline
         t={t}
-        top={260}
+        top={255}
         items={[
           { at: C.canvaEditor, text: "تلقاه directement على Canva" },
           { at: C.modification, text: "اعمل modification كيف ما تحب" },

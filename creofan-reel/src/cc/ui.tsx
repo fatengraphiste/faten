@@ -9,7 +9,9 @@ import {
   useVideoConfig,
 } from "remotion";
 import { MixedText } from "../components";
-import { BEIGE, FONT, INK, RED, WHITE } from "../theme";
+import { BEIGE, FONT, INK, RED, SAFE, WHITE } from "../theme";
+
+const WIN_SCALE = (1080 - SAFE.left - SAFE.right) / 980;
 
 export const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
@@ -88,7 +90,7 @@ export const Headline: React.FC<{
   size?: number;
   color?: string;
   latinColor?: string;
-}> = ({ t, items, top = 250, size = 72, color = INK, latinColor = RED }) => {
+}> = ({ t, items, top = SAFE.top + 5, size = 72, color = INK, latinColor = RED }) => {
   const pop = usePop();
   const cur = [...items].reverse().find((i) => t >= i.at);
   if (!cur) return null;
@@ -99,8 +101,8 @@ export const Headline: React.FC<{
       style={{
         position: "absolute",
         top,
-        left: 50,
-        right: 50,
+        left: SAFE.left,
+        right: SAFE.right,
         textAlign: "center",
       }}
     >
@@ -129,15 +131,15 @@ export const Window: React.FC<{
   height?: number;
   bg?: string;
   children: React.ReactNode;
-}> = ({ t, inAt, top = 560, height = 1060, bg = CL.bg, children }) => {
+}> = ({ t, inAt, top = 540, height = 1060, bg = CL.bg, children }) => {
   const pop = usePop();
   const s = pop(t, inAt, 15);
   return (
+    // Conçue en 980 px de large, réduite pour tenir dans la zone de sécurité
+    <div style={{ position: "absolute", top, left: SAFE.left, transform: `scale(${WIN_SCALE})`, transformOrigin: "0 0" }}>
     <div
       style={{
-        position: "absolute",
-        top,
-        left: 50,
+        position: "relative",
         width: 980,
         height,
         borderRadius: 36,
@@ -151,6 +153,7 @@ export const Window: React.FC<{
       }}
     >
       {children}
+    </div>
     </div>
   );
 };

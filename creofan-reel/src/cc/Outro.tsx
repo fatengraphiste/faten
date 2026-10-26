@@ -1,6 +1,6 @@
 import { AbsoluteFill, Img, interpolate, staticFile } from "remotion";
 import { MixedText } from "../components";
-import { BEIGE, FONT, RED } from "../theme";
+import { BEIGE, FONT, RED, SAFE } from "../theme";
 import { C } from "./cues";
 import { usePop, useT } from "./ui";
 
@@ -13,7 +13,7 @@ export const Outro: React.FC = () => {
   const pill = pop(t, C.follow + 10, 9);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: RED, fontFamily: FONT, alignItems: "center" }}>
+    <AbsoluteFill style={{ backgroundColor: RED, fontFamily: FONT, alignItems: "center", paddingLeft: SAFE.left, paddingRight: SAFE.right }}>
       {/* Icône « enregistrer » dessinée en SVG */}
       <div style={{ marginTop: 300, transform: `scale(${save})` }}>
         <svg width={150} height={150} viewBox="0 0 24 24">

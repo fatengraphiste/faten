@@ -7,7 +7,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { BEIGE, FONT, FONT_AR, RED } from "./theme";
+import { BEIGE, FONT, FONT_AR, RED, SAFE } from "./theme";
 
 export const Logo: React.FC<{ size?: number; style?: React.CSSProperties }> = ({
   size = 110,
@@ -169,3 +169,22 @@ export const MixedText: React.FC<{
     </div>
   );
 };
+
+// Repère visuel de la zone de sécurité (à activer dans le Studio)
+export const SafeZoneGuide: React.FC = () => (
+  <AbsoluteFill style={{ pointerEvents: "none", zIndex: 999 }}>
+    <div
+      style={{
+        position: "absolute",
+        top: SAFE.top,
+        bottom: SAFE.bottom,
+        left: SAFE.left,
+        right: SAFE.right,
+        border: "4px dashed #00e0ff",
+      }}
+    />
+    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: SAFE.top, backgroundColor: "rgba(0,224,255,0.18)" }} />
+    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: SAFE.bottom, backgroundColor: "rgba(0,224,255,0.18)" }} />
+    <div style={{ position: "absolute", top: SAFE.top, bottom: SAFE.bottom, right: 0, width: SAFE.right, backgroundColor: "rgba(0,224,255,0.18)" }} />
+  </AbsoluteFill>
+);

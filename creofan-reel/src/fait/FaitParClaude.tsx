@@ -10,7 +10,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { MixedText } from "../components";
-import { BEIGE, FONT, INK, RED, WHITE } from "../theme";
+import { BEIGE, FONT, INK, RED, SAFE, WHITE } from "../theme";
 import { AppIcon, BeigeBg, CL, Check, clamp } from "../cc/ui";
 
 // Montage rythmé sur la musique (120 BPM → un temps = 15 frames)
@@ -41,7 +41,7 @@ const RedBg: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 const Center: React.FC<{ children: React.ReactNode; gap?: number }> = ({ children, gap = 40 }) => (
-  <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap, padding: 60, textAlign: "center" }}>
+  <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap, padding: `${SAFE.top}px ${SAFE.right}px ${SAFE.bottom}px ${SAFE.left}px`, textAlign: "center" }}>
     {children}
   </AbsoluteFill>
 );
@@ -79,7 +79,7 @@ const Hand: React.FC = () => {
   return (
     <BeigeBg>
       <Center>
-        <div dir="rtl" style={{ maxWidth: 900 }}>
+        <div dir="rtl" style={{ maxWidth: 860 }}>
           {words.map((w, i) => {
             const s = p(5 + i * 12, 10);
             const last = i === words.length - 1;
@@ -108,7 +108,7 @@ const List: React.FC = () => {
   const typed = "Texte".slice(0, Math.floor(interpolate(frame, [T[0], T[0] + 12], [0, 5], clamp)));
   const bounce = spring({ frame: frame - T[1], fps: 30, config: { damping: 4, stiffness: 160 } });
   const wipe = interpolate(frame, [T[2], T[2] + 14], [0, 100], clamp);
-  const style: React.CSSProperties = { fontSize: 110, fontWeight: 800, color: BEIGE, lineHeight: 1.15 };
+  const style: React.CSSProperties = { fontSize: 92, fontWeight: 800, color: BEIGE, lineHeight: 1.15 };
   return (
     <RedBg>
       <Center gap={30}>
@@ -164,7 +164,7 @@ const Modele: React.FC = () => {
   const sent = frame >= 82;
   return (
     <BeigeBg>
-      <div style={{ position: "absolute", top: 260, left: 50, right: 50, textAlign: "center", transform: `scale(${p(4)})` }}>
+      <div style={{ position: "absolute", top: SAFE.top + 10, left: SAFE.left, right: SAFE.right, textAlign: "center", transform: `scale(${p(4)})` }}>
         <MixedText text="عطيتو modèle" size={96} color={INK} latinColor={RED} />
         <div style={{ marginTop: 10, opacity: p(40) }}>
           <MixedText text="وكتبتلو باش يعمل كيفو" size={60} color={INK} />
@@ -174,10 +174,10 @@ const Modele: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          top: 640,
-          left: 70,
-          right: 70,
-          height: 900,
+          top: 600,
+          left: SAFE.left,
+          right: SAFE.right,
+          height: 1920 - SAFE.bottom - 600,
           borderRadius: 36,
           backgroundColor: CL.bg,
           border: `2px solid ${CL.border}`,
@@ -191,8 +191,8 @@ const Modele: React.FC = () => {
             position: "absolute",
             right: 40,
             top: 40,
-            width: 300,
-            height: 420,
+            width: 260,
+            height: 360,
             borderRadius: 24,
             backgroundColor: RED,
             display: "flex",
@@ -210,7 +210,7 @@ const Modele: React.FC = () => {
         {sent ? (
           <div
             dir="rtl"
-            style={{ position: "absolute", right: 40, top: 490, padding: "18px 30px", borderRadius: 24, backgroundColor: "#f0eee6", transform: `scale(${p(82, 12)})`, transformOrigin: "right top" }}
+            style={{ position: "absolute", right: 40, top: 420, padding: "18px 30px", borderRadius: 24, backgroundColor: "#f0eee6", transform: `scale(${p(82, 12)})`, transformOrigin: "right top" }}
           >
             <MixedText text={msg} size={44} color={CL.text} />
           </div>
@@ -258,7 +258,7 @@ const StepHead: React.FC<{ n: number; text: string; at: number }> = ({ n, text, 
   const p = usePop();
   const s = p(at);
   return (
-    <div style={{ position: "absolute", top: 280, left: 40, right: 40, display: "flex", flexDirection: "column", alignItems: "center", gap: 22, opacity: s, transform: `scale(${interpolate(s, [0, 1], [0.6, 1])})` }}>
+    <div style={{ position: "absolute", top: SAFE.top + 30, left: SAFE.left, right: SAFE.right, display: "flex", flexDirection: "column", alignItems: "center", gap: 22, opacity: s, transform: `scale(${interpolate(s, [0, 1], [0.6, 1])})` }}>
       <div style={{ width: 130, height: 130, borderRadius: 99, backgroundColor: RED, color: WHITE, fontSize: 70, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>
         {n}
       </div>
@@ -274,8 +274,8 @@ const Card: React.FC<{ children: React.ReactNode; at: number }> = ({ children, a
       style={{
         position: "absolute",
         top: 760,
-        left: 90,
-        right: 90,
+        left: SAFE.left + 10,
+        right: SAFE.right + 10,
         borderRadius: 36,
         backgroundColor: WHITE,
         padding: 50,
@@ -356,7 +356,7 @@ const Cta: React.FC = () => {
   const sw = Math.floor(Math.max(0, frame - 85) / 8) % swatches.length;
   return (
     <RedBg>
-      <AbsoluteFill style={{ alignItems: "center", paddingTop: 200, gap: 42 }}>
+      <AbsoluteFill style={{ alignItems: "center", paddingTop: SAFE.top, paddingLeft: SAFE.left, paddingRight: SAFE.right, gap: 40 }}>
         <div style={{ transform: `scale(${p(2)})` }}>
           <MixedText text="تحب تجرب ؟" size={120} color={BEIGE} />
         </div>

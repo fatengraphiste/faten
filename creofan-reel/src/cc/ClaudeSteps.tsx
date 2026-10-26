@@ -1,6 +1,6 @@
 import { Img, interpolate, staticFile } from "remotion";
 import { MixedText } from "../components";
-import { INK, RED, WHITE } from "../theme";
+import { INK, RED, SAFE, WHITE } from "../theme";
 import { C } from "./cues";
 import { BeigeBg, CL, Check, clamp, Cursor, usePop, useT, Window } from "./ui";
 
@@ -81,7 +81,7 @@ export const ClaudeSteps: React.FC = () => {
   return (
     <BeigeBg>
       {/* Points de progression (4 étapes) */}
-      <div style={{ position: "absolute", top: 200, left: 0, right: 0, display: "flex", justifyContent: "center", gap: 14 }}>
+      <div style={{ position: "absolute", top: SAFE.top + 8, left: SAFE.left, right: SAFE.right, display: "flex", justifyContent: "center", gap: 14 }}>
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
@@ -99,9 +99,9 @@ export const ClaudeSteps: React.FC = () => {
       <div
         style={{
           position: "absolute",
-          top: 270,
-          left: 40,
-          right: 40,
+          top: SAFE.top + 40,
+          left: SAFE.left,
+          right: SAFE.right,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -112,8 +112,8 @@ export const ClaudeSteps: React.FC = () => {
       >
         <div
           style={{
-            width: 96,
-            height: 96,
+            width: 86,
+            height: 86,
             borderRadius: 99,
             backgroundColor: RED,
             color: WHITE,

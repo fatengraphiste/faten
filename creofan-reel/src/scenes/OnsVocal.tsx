@@ -7,8 +7,8 @@ import {
   useVideoConfig,
 } from "remotion";
 import { ONS_TRIM } from "../cues";
-import { LogoCorner, MixedText, PunchIn } from "../components";
-import { BEIGE, FONT, RED, WHITE } from "../theme";
+import { MixedText, PunchIn } from "../components";
+import { BEIGE, FONT, RED, SAFE, WHITE } from "../theme";
 
 // Zone de la bulle dans l'enregistrement d'écran (1080×206)
 const SRC = { w: 1080, h: 206 };
@@ -24,7 +24,8 @@ export const OnsVocal: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const width = 960;
+  // 24 px de marge à gauche pour la pointe de la bulle
+  const width = 1080 - SAFE.left - SAFE.right - 24;
   const s = width / BUBBLE.w;
   const bubbleIn = spring({ frame: frame - 20, fps, config: { damping: 13 } });
   const labelIn = spring({ frame: frame - 16, fps, config: { damping: 14 } });
@@ -32,15 +33,14 @@ export const OnsVocal: React.FC = () => {
 
   return (
     <PunchIn bg={RED}>
-      <LogoCorner />
 
       {/* Accroche (lue dans les 3 premières secondes) */}
       <div
         style={{
           position: "absolute",
-          top: 300,
-          left: 60,
-          right: 60,
+          top: SAFE.top + 40,
+          left: SAFE.left,
+          right: SAFE.right,
           textAlign: "center",
         }}
       >
@@ -83,7 +83,7 @@ export const OnsVocal: React.FC = () => {
       </div>
 
       {/* Bulle vocale WhatsApp, sans le fond ni l'heure */}
-      <AbsoluteFill style={{ alignItems: "center", top: 1020 }}>
+      <AbsoluteFill style={{ top: 1020, left: SAFE.left + 24, right: SAFE.right }}>
         <div
           style={{
             width,

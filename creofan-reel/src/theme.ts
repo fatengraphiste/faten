@@ -28,3 +28,6 @@ export const INK = "#2a0f0e";
 
 export const FPS = 30;
 
+
+// Zone de sécurité Reels / TikTok (1080×1920) : rien d'important en dehors
+export const SAFE = { top: 250, bottom: 450, left: 70, right: 150 };

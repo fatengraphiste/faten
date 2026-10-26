@@ -1,5 +1,4 @@
 import {
-  AbsoluteFill,
   Img,
   interpolate,
   spring,
@@ -8,8 +7,8 @@ import {
   useVideoConfig,
 } from "remotion";
 import { CUE } from "../cues";
-import { Arrow, FlowLogo, LogoCorner, MixedText, PunchIn } from "../components";
-import { BEIGE, RED } from "../theme";
+import { Arrow, FlowLogo, MixedText, PunchIn } from "../components";
+import { BEIGE, RED, SAFE } from "../theme";
 
 // Couleurs de l'interface Google Flow (thème sombre)
 const UI = {
@@ -40,6 +39,9 @@ const SEGMENTS = [
     to: CUE.prise + 60,
   },
 ];
+
+// La fenêtre (960 px) est réduite pour tenir dans la zone de sécurité
+const WIN_SCALE = (1080 - SAFE.left - SAFE.right) / 960;
 
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
@@ -87,7 +89,7 @@ export const FlowScene: React.FC = () => {
   const zoom = interpolate(
     t,
     [CUE.sujet, CUE.sujet + 20, CUE.send, CUE.send + 20],
-    [1, 1.05, 1.05, 1],
+    [1, 1.02, 1.02, 1],
     clamp,
   );
 
@@ -113,15 +115,14 @@ export const FlowScene: React.FC = () => {
 
   return (
     <PunchIn bg={RED}>
-      <LogoCorner />
 
       {/* Titre synchronisé sur la voix */}
       <div
         style={{
           position: "absolute",
-          top: 250,
-          left: 60,
-          right: 60,
+          top: SAFE.top,
+          left: SAFE.left,
+          right: SAFE.right,
           height: 250,
           textAlign: "center",
           color: BEIGE,
@@ -192,11 +193,19 @@ export const FlowScene: React.FC = () => {
       </div>
 
       {/* Fenêtre Google Flow */}
-      <AbsoluteFill style={{ alignItems: "center" }}>
+      {/* Fenêtre réduite pour tenir dans la zone de sécurité */}
+      <div
+        style={{
+          position: "absolute",
+          top: 490,
+          left: SAFE.left,
+          transform: `scale(${WIN_SCALE})`,
+          transformOrigin: "0 0",
+        }}
+      >
         <div
           style={{
-            position: "absolute",
-            top: 520,
+            position: "relative",
             width: 960,
             height: 1090,
             borderRadius: 44,
@@ -431,7 +440,7 @@ export const FlowScene: React.FC = () => {
             </div>
           </div>
         </div>
-      </AbsoluteFill>
+      </div>
     </PunchIn>
   );
 };

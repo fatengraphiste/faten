@@ -1,6 +1,6 @@
 import { Img, interpolate, staticFile } from "remotion";
 import { RosaPost } from "./RosaPost";
-import { INK, RED, WHITE } from "../theme";
+import { INK, RED, SAFE, WHITE } from "../theme";
 import { C } from "./cues";
 import { BeigeBg, CL, clamp, Cursor, FreeChip, Headline, usePop, useT, Window } from "./ui";
 
@@ -27,13 +27,13 @@ export const Chat: React.FC = () => {
     <BeigeBg>
       <Headline
         t={t}
-        top={240}
+        top={255}
         items={[
           { at: C.chat, text: "اطلب منو أي design" },
           { at: C.lien, text: "تلقاه في الـ lien" },
         ]}
       />
-      <div style={{ position: "absolute", top: 400, left: 0, right: 0, textAlign: "center" }}>
+      <div style={{ position: "absolute", top: 385, left: SAFE.left, right: SAFE.right, textAlign: "center" }}>
         <FreeChip scale={pop(t, C.chat + 4, 12)} />
       </div>
 

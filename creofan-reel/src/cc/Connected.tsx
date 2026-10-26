@@ -1,5 +1,5 @@
 import { interpolate } from "remotion";
-import { INK, RED } from "../theme";
+import { INK, RED, SAFE } from "../theme";
 import { C } from "./cues";
 import { AppIcon, BeigeBg, Check, FreeChip, Headline, usePop, useT } from "./ui";
 
@@ -17,8 +17,8 @@ export const Connected: React.FC = () => {
         style={{
           position: "absolute",
           top: 420,
-          left: 0,
-          right: 0,
+          left: SAFE.left,
+          right: SAFE.right,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -26,7 +26,7 @@ export const Connected: React.FC = () => {
           transform: `scale(${interpolate(s, [0, 1], [0.7, 1])})`,
         }}
       >
-        <AppIcon name="claude" size={260} />
+        <AppIcon name="claude" size={240} />
         <div
           style={{
             width: 130,
@@ -44,7 +44,7 @@ export const Connected: React.FC = () => {
         >
           <Check size={80} stroke={3.2} />
         </div>
-        <AppIcon name="canva" size={260} />
+        <AppIcon name="canva" size={240} />
       </div>
 
       <Headline
@@ -55,7 +55,7 @@ export const Connected: React.FC = () => {
         items={[{ at: C.caYest, text: "ça y est !", sub: "Claude مربوط بـ Canva", subAt: C.caYest + 10 }]}
       />
 
-      <div style={{ position: "absolute", top: 1150, left: 0, right: 0, textAlign: "center" }}>
+      <div style={{ position: "absolute", top: 1150, left: SAFE.left, right: SAFE.right, textAlign: "center" }}>
         <FreeChip scale={chip} />
       </div>
     </BeigeBg>

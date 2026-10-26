@@ -9,7 +9,7 @@ import {
 } from "remotion";
 import { CUE } from "../cues";
 import { MixedText, PunchIn } from "../components";
-import { BEIGE, INK, RED, WHITE } from "../theme";
+import { BEIGE, INK, RED, SAFE, WHITE } from "../theme";
 
 const LIST = [
   { label: "Style", at: CUE.listStyle },
@@ -41,12 +41,12 @@ export const Cta: React.FC = () => {
 
   return (
     <PunchIn bg={RED}>
-      <AbsoluteFill style={{ alignItems: "center", paddingTop: 170, gap: 36 }}>
+      <AbsoluteFill style={{ alignItems: "center", paddingTop: SAFE.top, paddingLeft: SAFE.left, paddingRight: SAFE.right, gap: 30 }}>
         {/* Logo Creofan complet, en beige */}
         <Img
           src={staticFile("logo-creofan-complet.png")}
           style={{
-            width: 640,
+            width: 500,
             transform: `scale(${interpolate(logoIn, [0, 1], [0.7, 1])})`,
             opacity: logoIn,
           }}
@@ -59,7 +59,7 @@ export const Cta: React.FC = () => {
         {/* Champ de commentaire */}
         <div
           style={{
-            width: 900,
+            width: 860,
             padding: 30,
             borderRadius: 36,
             backgroundColor: WHITE,
