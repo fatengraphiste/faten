@@ -6,6 +6,7 @@ import { FAIT_DURATION, FaitParClaude } from "./fait/FaitParClaude";
 import { Regard, REGARD_DURATION } from "./regard/Regard";
 import { Ame, AME_DURATION, AME_FPS } from "./ame/Ame";
 import { CoverAme, CoverClaudeCanva, CoverFait, CoverFlow, CoverRegard } from "./covers/Covers";
+import { Parfum, PARFUM_DURATION } from "./parfum/Parfum";
 import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
 import { FPS } from "./theme";
@@ -24,6 +25,7 @@ const CreofanReelG = withGuide(Reel);
 const ClaudeCanvaG = withGuide(ClaudeCanva);
 const FaitParClaudeG = withGuide(FaitParClaude);
 const RegardG = withGuide(Regard);
+const ParfumG = withGuide(Parfum);
 
 export const RemotionRoot: React.FC = () => (
   <>
@@ -68,6 +70,15 @@ export const RemotionRoot: React.FC = () => (
     component={Ame}
     durationInFrames={AME_DURATION}
     fps={AME_FPS}
+    width={1080}
+    height={1920}
+  />
+  <Composition
+    id="Parfum"
+    component={ParfumG}
+    defaultProps={{ showSafeZone: false }}
+    durationInFrames={PARFUM_DURATION}
+    fps={FPS}
     width={1080}
     height={1920}
   />
