@@ -126,3 +126,19 @@ export const CoverClaudeCanva: React.FC = () => (
     </div>
   </AbsoluteFill>
 );
+
+// « Parfum » : le flacon rouge plein cadre, l'accroche et la réponse
+export const CoverParfum: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: INK, alignItems: "center" }}>
+    <Img src={staticFile("parfum/cover-bg.jpg")} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(42,15,14,0.92) 0%, rgba(42,15,14,0.7) 32%, rgba(42,15,14,0) 48%)" }} />
+    <div style={{ position: "absolute", top: 330, left: 70, right: 70, textAlign: "center" }}>
+      <MixedText text="فيبالك هذا تصوير ستوديو ؟" size={88} color={"#fff5f5"} />
+    </div>
+    <div style={{ position: "absolute", top: 560, left: 0, right: 0, textAlign: "center" }}>
+      <div style={{ display: "inline-block", backgroundColor: RED, borderRadius: 30, padding: "0 50px 26px", transform: "rotate(-3deg)", boxShadow: "0 20px 50px rgba(0,0,0,0.35)" }}>
+        <MixedText text="لا، بالذكاء الاصطناعي" size={80} color={WHITE} />
+      </div>
+    </div>
+  </AbsoluteFill>
+);
