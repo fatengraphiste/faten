@@ -13,12 +13,55 @@ import {
 import { MixedText } from "../components";
 import { BEIGE, FONT, INK, RED, SAFE, WHITE } from "../theme";
 
+const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
+
 // « عينيك ليك ولا للـ IA ؟ » — typographie cinétique, 30 s, 120 BPM (1 temps = 15 frames)
-export const REGARD_DURATION = 900;
+// Les animations sont écrites sur une base de 900 frames ; HOLDS rallonge
+// seulement les moments de lecture (texte déjà affiché), sans ralentir les animations.
+// [début, fin] en frames de la base → durée réelle en frames
+const HOLDS: [number, number, number][] = [
+  [6, 30, 50], // phrase 1 de l'accroche
+  [38, 60, 50], // phrase 2
+  [81, 90, 45], // phrase 3
+  [144, 150, 55], // « صدّقني، الـ IA… »
+  [170, 180, 25], // lire le titre de la grille
+  [254, 262, 30], // « لقيتها؟ »
+  [268, 270, 45], // « بطبيعة لا. »
+  [282, 300, 30], // « خاطر الـ Hierarchy… »
+  [318, 330, 50], // « نتحكّمو فيهم إحنا. »
+  [345, 360, 35], // Hierarchy : état plat
+  [396, 420, 50], // Hierarchy : résultat
+  [425, 450, 45], // Contrast : titre
+  [490, 510, 50], // « اللي يبان، يتقرا »
+  [556, 600, 70], // Focus
+  [680, 720, 60], // Negative Space
+  [740, 780, 75], // écran partagé
+  [817, 840, 60], // « إنتَ تتحكّم. »
+  [882, 885, 48], // CTA
+];
+const BASE = 900;
+// Points de passage (temps réel → temps de base)
+const KEYS: [number, number][] = (() => {
+  const k: [number, number][] = [[0, 0]];
+  let real = 0;
+  let base = 0;
+  for (const [a, b, len] of HOLDS) {
+    real += a - base;
+    k.push([real, a]);
+    real += len;
+    k.push([real, b]);
+    base = b;
+  }
+  real += BASE - base;
+  k.push([real, BASE]);
+  return k;
+})();
+const toBase = (f: number) => interpolate(f, KEYS.map((k) => k[0]), KEYS.map((k) => k[1]), clamp);
+const toReal = (b: number) => Math.round(interpolate(b, KEYS.map((k) => k[1]), KEYS.map((k) => k[0]), clamp));
+export const REGARD_DURATION = KEYS[KEYS.length - 1][0];
 const GREY = "#8a7f7e";
 const ZONE_W = 1080 - SAFE.left - SAFE.right; // 860
 const CX = SAFE.left + ZONE_W / 2; // 500 : centre optique horizontal
-const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 
 const snap = (t: number, at: number, dur = 10) =>
   interpolate(t, [at, at + dur], [0, 1], { ...clamp, easing: Easing.bezier(0.7, 0, 0.2, 1) });
@@ -61,13 +104,13 @@ const Hook: React.FC<{ t: number }> = ({ t }) => {
   const o1 = t >= 68 ? 0.3 : t >= 30 ? 0.6 : 1;
   const s2 = snap(t, 30, 8);
   const s3 = pop(t, 60, 9);
-  const shake = t >= 75 && t < 81 ? (t % 2 ? 6 : -6) : 0;
+  const shake = t >= 75 && t < 81 ? (Math.floor(t) % 2 ? 6 : -6) : 0;
   return (
     <Bg color={INK}>
       <SafeBox top={SAFE.top}>
         <div style={{ opacity: o1 }}>
         <div style={{ transform: `scale(${zoom})`, maxWidth: 820, textAlign: "center" }}>
-          <MixedText text="عينيك توّة هابطة على هذي." size={130} color={t === 8 ? RED : WHITE} />
+          <MixedText text="عينيك توّة هابطة على هذي." size={130} color={Math.floor(t) === 8 ? RED : WHITE} />
         </div>
       </div>
       </SafeBox>
@@ -141,15 +184,15 @@ const Grid: React.FC<{ t: number }> = ({ t }) => {
   const cellH = 92;
   const chrono = interpolate(t, [180, 240], [1, 0], clamp);
   const count = t < 210 ? "2" : "1";
-  const found = t >= 255;
-  const no = snap(t, 265, 8);
+  const found = t >= 252;
+  const no = snap(t, 262, 6);
   return (
     <Bg color={INK}>
       {/* Titre puis question */}
       <Line top={SAFE.top + 10}>
         {!found ? (
           <MixedText text="شوف الـ IA كيفاش يشوف الديزاين" size={46} color={WHITE} />
-        ) : t < 265 ? (
+        ) : t < 262 ? (
           <MixedText text="لقيتها؟" size={62} color={WHITE} />
         ) : (
           <div style={{ clipPath: `inset(0 0 0 ${(1 - no) * 100}%)` }}>
@@ -525,18 +568,18 @@ const SFX: [string, number, number, number][] = [
 ];
 
 export const Regard: React.FC = () => {
-  const t = useCurrentFrame();
+  const t = toBase(useCurrentFrame());
   const scene = SCENES.find(([a, b]) => t >= a && t < b) ?? SCENES[SCENES.length - 1];
   const Scene = scene[2];
   // Musique : coupée pendant la grille (tension), reprise au plan 7
   const musicVol = (f: number) =>
-    interpolate(f, [0, 6, 140, 150, 266, 272, 880, 899], [0, 0.32, 0.32, 0, 0, 0.32, 0.32, 0], clamp);
+    interpolate(toBase(f), [0, 6, 140, 150, 266, 272, 880, 899], [0, 0.32, 0.32, 0, 0, 0.32, 0.32, 0], clamp);
   return (
     <>
       <Scene t={t} />
       <Audio src={staticFile("cc/music.mp3")} volume={musicVol} />
       {SFX.map(([file, at, len, vol], i) => (
-        <Sequence key={i} from={at} durationInFrames={len}>
+        <Sequence key={i} from={toReal(at)} durationInFrames={Math.max(1, toReal(at + len) - toReal(at))}>
           <Audio src={staticFile(file)} volume={vol * SFX_GAIN} />
         </Sequence>
       ))}
