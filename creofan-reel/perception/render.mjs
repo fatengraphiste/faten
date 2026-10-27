@@ -24,7 +24,7 @@ const BEAT = await page.evaluate(() => window.BEAT);
 
 if (audit) {
   // Images clés : temps structurels 4, 8, 9, 12, 16 (1 temps structurel = 2 battements)
-  const keys = { "beat04": 6.5, "beat08": 15.3, "beat09": 16.6, "beat12": 22.5, "beat13": 25.8, "beat15": 29.6, "beat16": 30.6, "loop-end": 31.98 };
+  const keys = { "beat04": 6.5, "beat08": 15.3, "beat09": 16.6, "beat12": 22.5, "beat13": 25.8, "beat15": 29.6, "beat16": 34.7, "punch": 32.6, "loop-end": 35.98 };
   for (const [name, b] of Object.entries(keys)) {
     await page.evaluate((t) => window.seek(t), b * BEAT);
     await page.screenshot({ path: path.join(here, `out/audit-${name}.png`) });
