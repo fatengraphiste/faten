@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>Perception Inversion — Creofan</title>
+<style>
+  @font-face { font-family: "SalmaB"; src: url(data:font/otf;base64,{{SALMA_BOLD}}) format("opentype"); font-weight: 700; }
+  @font-face { font-family: "SalmaL"; src: url(data:font/otf;base64,{{SALMA_LIGHT}}) format("opentype"); font-weight: 300; }
+  @font-face { font-family: "Poppins"; src: url(data:font/woff2;base64,{{POPPINS_800}}) format("woff2"); font-weight: 800; }
+  html, body { margin: 0; padding: 0; background: #000; }
+  canvas { display: block; width: 1080px; height: 1920px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+"use strict";
+/* =====================================================================
+   PERCEPTION INVERSION — « الإطار يقود العقل »
+   Une seule forme ne quitte jamais l'écran (boîte → cercle retourné →
+   point focal → anneaux → pastille CTA → boîte). Aucune coupe, aucun fondu.
+   Tout est une fonction pure du temps t : window.seek(t).
+   125 BPM → 1 temps = 0,48 s · 32 temps = 15,36 s · boucle parfaite.
+   ===================================================================== */
+const W = 1080, H = 1920;
+const BEAT = 0.48, BEATS = 32, DURATION = BEAT * BEATS; // 15.36 s
+
+// Charte Creofan
+const RED = "#f7322a", BEIGE = "#fff5f5", WHITE = "#ffffff", INK = "#1a0d0c";
+
+// Zone de sécurité : haut/bas 250, droite 120 (+70 à gauche par prudence)
+const SAFE = { left: 70, right: W - 120, top: 250, bottom: H - 250 };
+const CX = (SAFE.left + SAFE.right) / 2; // 515
+const CY = (SAFE.top + SAFE.bottom) / 2; // 960
+
+const cv = document.getElementById("c");
+const ctx = cv.getContext("2d");
+
+/* ---------- Mathématiques d'animation ---------- */
+const clamp01 = (x) => Math.max(0, Math.min(1, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const seg = (bt, a, b) => clamp01((bt - a) / (b - a));
+const outExpo = (k) => (k >= 1 ? 1 : 1 - Math.pow(2, -10 * k));
+const inExpo = (k) => (k <= 0 ? 0 : Math.pow(2, 10 * k - 10));
+const inOutCubic = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+// Bézier cubique (x1,y1,x2,y2) résolue par Newton — « snap » agressif
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx;
+  const cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = (u) => ((ax * u + bx) * u + cx) * u;
+  const sy = (u) => ((ay * u + by) * u + cy) * u;
+  const dx = (u) => (3 * ax * u + 2 * bx) * u + cx;
+  return (x) => {
+    if (x <= 0) return 0;
+    if (x >= 1) return 1;
+    let u = x;
+    for (let i = 0; i < 8; i++) { const e = sx(u) - x; const d = dx(u); if (Math.abs(e) < 1e-6 || d === 0) break; u -= e / d; }
+    return sy(clamp01(u));
+  };
+}
+const snapE = bezier(0.85, 0, 0.12, 1);     // snap violent
+const decel = bezier(0.05, 0.9, 0.1, 1);    // décélération brutale
+const mix = (c1, c2, k) => {
+  const p = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+  const a = p(c1), b = p(c2);
+  return `rgb(${a.map((v, i) => Math.round(lerp(v, b[i], k))).join(",")})`;
+};
+// Pseudo-aléatoire déterministe
+const rnd = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+
+/* ---------- Typographie mixte arabe (Salma) / latin (Poppins) ---------- */
+const AR = /[؀-ۿ]/;
+function fontFor(tok, size, light) {
+  return AR.test(tok) ? `${light ? 300 : 700} ${size}px ${light ? "SalmaL" : "SalmaB"}` : `800 ${Math.round(size * 0.82)}px Poppins`;
+}
+// Mesure une ligne (mots séparés par des espaces), lecture droite → gauche
+function measureLine(text, size, light) {
+  const toks = text.split(" ");
+  const ws = toks.map((tk) => { ctx.font = fontFor(tk, size, light); return ctx.measureText(tk).width; });
+  const gap = size * 0.28;
+  return { toks, ws, gap, total: ws.reduce((a, b) => a + b, 0) + gap * (toks.length - 1) };
+}
+// Dessine une ligne centrée en (x, y). colorOf(tok, i) → couleur. visible(i) → [échelle, décalageY] ou null
+function drawLine(text, x, y, size, colorOf, opts = {}) {
+  const m = measureLine(text, size, opts.light);
+  let cursor = x + m.total / 2;
+  m.toks.forEach((tk, i) => {
+    const w = m.ws[i];
+    const v = opts.visible ? opts.visible(i) : [1, 0];
+    if (v) {
+      const [s, dy] = v;
+      const mid = cursor - w / 2;
+      ctx.save();
+      ctx.translate(mid, y + dy);
+      ctx.scale(s, s);
+      ctx.font = fontFor(tk, size, opts.light);
+      ctx.fillStyle = colorOf(tk, i);
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.direction = AR.test(tk) ? "rtl" : "ltr";
+      ctx.fillText(tk, 0, 0);
+      ctx.restore();
+    }
+    cursor -= w + m.gap;
+  });
+  return m;
+}
+// Un mot seul, centré, avec échelle
+function drawWord(tk, x, y, size, color, scale = 1, light = false) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+  ctx.font = fontFor(tk, size, light);
+  ctx.fillStyle = color;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.direction = AR.test(tk) ? "rtl" : "ltr";
+  ctx.fillText(tk, 0, 0);
+  ctx.restore();
+}
+function roundRect(x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+/* ---------- Logo Creofan (signature) ---------- */
+const logo = new Image();
+logo.src = "data:image/png;base64,{{LOGO}}";
+
+/* ---------- Données de la chorégraphie ---------- */
+const BOX = { x: CX, y: 1080, s: 380, r: 30 }; // état de départ = état final (boucle)
+const CASCADE = [
+  { w: "ماتحاولش", size: 186, slotY: 380, slotK: 0.64 },
+  { w: "تقنعهم", size: 140, slotY: 515, slotK: 0.7 },
+  { w: "بأفكارك", size: 108, slotY: 625, slotK: 0.74 },
+  { w: "العقول", size: 80, slotY: 715, slotK: 0.78 },
+];
+// Grappes d'anneaux concentriques (positions dispersées dans la zone)
+const CLUSTERS = Array.from({ length: 10 }, (_, i) => ({
+  x: SAFE.left + 180 + rnd(i + 1) * (SAFE.right - SAFE.left - 360),
+  y: 900 + rnd(i + 21) * 560,
+  rings: 3 + Math.floor(rnd(i + 41) * 3),
+  base: 22 + rnd(i + 61) * 30,
+  at: 19 + Math.floor(i / 2) + (i % 2) * 0.5, // 2 grappes par temps, temps 19 → 23
+}));
+const FOCAL = { x: CX, y: 1180 };
+const L13 = [
+  { text: "مش الـ IA اللي", y: 440 },
+  { text: "خلّاك تحسّ", y: 580 },
+];
+const PUNCH = [
+  "الـ Designer هو اللي يخليك تحسّ",
+  "بكل كلمة، هو اللي يعطي للكلام",
+  "روح بالألوان والتفاصيل",
+];
+const PUNCH_Y = [500, 600, 700];
+
+/* =====================================================================
+   RENDU D'UNE IMAGE — fonction pure de t (secondes)
+   ===================================================================== */
+function render(t) {
+  t = ((t % DURATION) + DURATION) % DURATION;
+  const bt = t / BEAT; // temps en battements (0 → 32)
+
+  /* ---------- Fond ---------- */
+  // Rouge instantané au climax (temps 16), retour au beige par un disque qui s'étend (temps 28)
+  const redBg = bt >= 16 && bt < 28;
+  ctx.fillStyle = redBg ? RED : BEIGE;
+  ctx.fillRect(0, 0, W, H);
+
+  /* =========== MESURE 1 — Le piège (temps 0 → 8) =========== */
+  if (bt < 8.2) {
+    // La boîte : dérive continue (jamais immobile), pas sur chaque temps
+    const steps = [0, 0, 0, seg(bt, 3, 3.2), seg(bt, 4, 4.2), seg(bt, 5, 5.25)];
+    const rot = bt < 5 ? lerp(0, 7, snapE(steps[3])) + lerp(0, -14, snapE(steps[4])) : lerp(-7, 0, snapE(steps[5]));
+    const toCircle = snapE(seg(bt, 5, 5.3));
+    const drift = 1 + 0.025 * Math.sin(Math.PI * Math.min(bt, 6) / 6);
+    let size = BOX.s * drift * (1 + 0.06 * snapE(seg(bt, 4, 4.2)));
+    // Erreur au temps 2 : secousse horizontale amortie
+    const err = bt >= 2 && bt < 2.7 ? Math.sin((bt - 2) * 70) * 18 * (1 - seg(bt, 2, 2.7)) : 0;
+    const inside = seg(bt, 6, 6.14); // retournement instantané
+    const ringOut = decel(seg(bt, 6, 6.6));
+    // Sortie : le disque rouge se contracte en point focal au centre (temps 7.2 → 8)
+    const shrink = inOutCubic(seg(bt, 7.2, 8));
+    const cx = lerp(BOX.x + err, CX, shrink);
+    const cy = lerp(BOX.y, CY, shrink);
+    if (bt < 6) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate((rot * Math.PI) / 180);
+      ctx.fillStyle = INK;
+      roundRect(-size / 2, -size / 2, size, size, lerp(BOX.r, size / 2, toCircle));
+      ctx.fill();
+      ctx.restore();
+    } else {
+      const R = size / 2;
+      const red = R * outExpo(inside) * lerp(1, 0.94, snapE(seg(bt, 7, 7.15)));
+      const rFinal = lerp(red, 16, shrink);
+      // l'enveloppe noire se retourne vers l'extérieur et s'amincit jusqu'à disparaître
+      const outer = lerp(R, R * 1.35, ringOut);
+      const inner = lerp(red, outer, ringOut);
+      if (inner < outer - 0.5) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, outer, 0, Math.PI * 2);
+        ctx.arc(cx, cy, inner, 0, Math.PI * 2, true);
+        ctx.fillStyle = INK;
+        ctx.fill("evenodd");
+      }
+      ctx.beginPath();
+      ctx.arc(cx, cy, rFinal, 0, Math.PI * 2);
+      ctx.fillStyle = RED;
+      ctx.fill();
+    }
+    // Le texte « هذا أحمر » : entre au temps 1, faux pendant 5 temps, vrai au temps 6
+    if (bt >= 1) {
+      const enter = decel(seg(bt, 1, 1.35));
+      const exit = inExpo(seg(bt, 7.2, 7.7));
+      const tx = lerp(W + 500, CX, enter) + err * 1.4;
+      const ty = lerp(660, -200, exit);
+      const truth = bt >= 6;
+      const k = 1 + 0.03 * Math.sin(bt * Math.PI); // micro-respiration
+      drawWord("هذا أحمر", tx, ty, 136, truth ? RED : INK, k * (truth ? lerp(1.18, 1, decel(seg(bt, 6, 6.4))) : 1));
+    }
+  }
+
+  /* =========== MESURE 2 — Cascade d'échelle (temps 8 → 16) =========== */
+  if (bt >= 7.9 && bt < 16.08) {
+    // Zoom de caméra au climax : la cascade est éjectée hors cadre
+    const z = bt >= 16 ? 1 + 14 * outExpo(seg(bt, 16, 16.08)) : 1;
+    ctx.save();
+    ctx.translate(CX, CY);
+    ctx.scale(z, z);
+    ctx.translate(-CX, -CY);
+    // Point focal rouge : la source d'où naissent les mots
+    const dotR = bt < 15.5 ? 16 * (1 + 0.35 * Math.max(0, Math.cos(((bt % 1) * Math.PI) / 2) ** 8)) : 16 * (1 - snapE(seg(bt, 15.5, 15.65)));
+    if (dotR > 0.5) { ctx.beginPath(); ctx.arc(CX, CY + 150, dotR, 0, Math.PI * 2); ctx.fillStyle = RED; ctx.fill(); }
+    CASCADE.forEach((c, i) => {
+      const a = 8 + i * 2;
+      if (bt < a) return;
+      const born = decel(seg(bt, a, a + 0.28));
+      const move = snapE(seg(bt, a + 1, a + 1.22));
+      const creep = 1 + 0.015 * (bt - a); // jamais immobile
+      const y = lerp(CY, c.slotY, move);
+      const k = born * lerp(1, c.slotK, move) * creep;
+      drawWord(c.w, CX, y, c.size, INK, k);
+    });
+    // « تختلف » minuscule au centre (temps 15.5)
+    if (bt >= 15.5 && bt < 16) {
+      const k = decel(seg(bt, 15.5, 15.7));
+      drawWord("تختلف", CX, CY, 30, INK, k);
+    }
+    ctx.restore();
+  }
+
+  /* =========== MESURE 3 — Climax / inversion (temps 16 → 24) =========== */
+  if (bt >= 16 && bt < 24.6) {
+    const snapK = outExpo(seg(bt, 16, 16.12));
+    let scale = lerp(30 / 236, 1, snapK);
+    scale *= lerp(1, 0.93, snapE(seg(bt, 17, 17.15)));             // temps 17 : compression
+    const up = snapE(seg(bt, 18, 18.25));                             // temps 18 : monte en haut
+    const exit = inExpo(seg(bt, 24, 24.45));                          // temps 24 : sort par le haut
+    const y = lerp(lerp(CY, 590, up), -260, exit);
+    scale *= lerp(1, 0.6, up);
+    const col = bt >= 19 && Math.floor(bt) % 2 === 1 ? WHITE : BEIGE; // alternance sur chaque temps
+    // Flou directionnel (zoom) pendant le snap : copies radiales décroissantes
+    if (bt < 16.16) {
+      for (let i = 6; i >= 1; i--) {
+        ctx.globalAlpha = 0.11;
+        drawWord("تختلف", CX, y, 236, BEIGE, scale * (1 - i * 0.07 * (1 - seg(bt, 16.08, 16.16))));
+      }
+      ctx.globalAlpha = 1;
+    }
+    drawWord("تختلف", CX, y, 236, col, scale);
+  }
+
+  /* ---------- Anneaux : apparition dispersée (19 → 24), effondrement (24 → 24.5) ---------- */
+  if (bt >= 19 && bt < 28.4) {
+    const gather = inOutCubic(seg(bt, 24, 24.55));
+    let ringIndex = 0;
+    CLUSTERS.forEach((cl, ci) => {
+      if (bt < cl.at) return;
+      const born = decel(seg(bt, cl.at, cl.at + 0.25));
+      const driftX = 12 * Math.sin(bt * 1.3 + ci);
+      const driftY = 10 * Math.cos(bt * 1.1 + ci * 2);
+      const x = lerp(cl.x + driftX, FOCAL.x, gather);
+      const y = lerp(cl.y + driftY, FOCAL.y, gather);
+      for (let r = 0; r < cl.rings; r++) {
+        const rad0 = cl.base * (1 + r * 0.55) * born;
+        const radF = 16 + ringIndex * 7; // anneaux denses autour du point focal
+        // Respiration du point focal sur chaque temps (26, 27, 28)
+        const breathe = bt >= 26 ? 1 - 0.08 * Math.max(0, 1 - (bt % 1) * 4) : 1;
+        const rad = lerp(rad0, radF, gather) * breathe;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(0.5, rad), 0, Math.PI * 2);
+        ctx.strokeStyle = BEIGE;
+        ctx.lineWidth = lerp(4, 2.5, gather);
+        ctx.stroke();
+        ringIndex++;
+      }
+    });
+    if (gather > 0.98) { ctx.beginPath(); ctx.arc(FOCAL.x, FOCAL.y, 10, 0, Math.PI * 2); ctx.fillStyle = WHITE; ctx.fill(); }
+  }
+
+  /* ---------- « مش الـ IA اللي خلّاك تحسّ » (24.5 → 28) ---------- */
+  if (bt >= 24.5 && bt < 28.4) {
+    const slams = [24.5, 25, 25.25, 25.5, 26, 26.5]; // un impact par croche
+    let idx = 0;
+    L13.forEach((ln) => {
+      const base = idx;
+      drawLine(ln.text, CX, ln.y, 112, (tk) => (tk === "تحسّ" ? WHITE : tk === "IA" ? WHITE : BEIGE), {
+        visible: (i) => {
+          const at = slams[base + i];
+          if (bt < at) return null;
+          const k = decel(seg(bt, at, at + 0.18));
+          return [lerp(1.7, 1, k), 0];
+        },
+      });
+      idx += ln.text.split(" ").length;
+    });
+  }
+
+  /* =========== Retour au beige : le point focal s'ouvre (temps 28) =========== */
+  if (bt >= 28 && bt < 28.45) {
+    const k = inExpo(seg(bt, 28, 28.4));
+    ctx.beginPath();
+    ctx.arc(FOCAL.x, FOCAL.y, lerp(10, 2400, k), 0, Math.PI * 2);
+    ctx.fillStyle = BEIGE;
+    ctx.fill();
+  }
+
+  /* =========== Punchline + CTA (28.4 → 31) puis retour à la boîte (31 → 32) =========== */
+  if (bt >= 28.4) {
+    const back = inOutCubic(seg(bt, 31, 32)); // morphing final vers l'état de départ
+    const exitUp = inExpo(seg(bt, 31, 31.6));
+    let n = 0;
+    PUNCH.forEach((ln, li) => {
+      const start = n;
+      const y = lerp(PUNCH_Y[li], -250 - (2 - li) * 100, exitUp);
+      drawLine(ln, CX, y, 62, (tk) => (tk === "Designer" || tk === "روح" || tk === "بالألوان" ? RED : INK), {
+        visible: (i) => {
+          const at = 28.45 + (start + i) * 0.11; // un mot par double-croche
+          if (bt < at) return null;
+          const k = decel(seg(bt, at, at + 0.2));
+          return [lerp(0.85, 1, k), lerp(26, 0, k)];
+        },
+      });
+      n += ln.split(" ").length;
+    });
+
+    // Pastille CTA : naît d'un point, puis redevient la boîte noire du début
+    if (bt >= 30) {
+      const born = decel(seg(bt, 30, 30.3));
+      const pw = lerp(lerp(40, 640, born), BOX.s, back);
+      const ph = lerp(lerp(40, 160, born), BOX.s, back);
+      const px = CX;
+      const py = lerp(1130, BOX.y, back);
+      const pr = lerp(ph / 2, BOX.r, back);
+      ctx.fillStyle = mix(RED, INK, back);
+      roundRect(px - pw / 2, py - ph / 2, pw, ph, pr);
+      ctx.fill();
+      const tk = 1 - snapE(seg(bt, 31, 31.35));
+      if (tk > 0.01) drawLine("شنوّة حسّيت؟", px, py + 4, 92, () => BEIGE, { visible: () => [born * tk, 0] });
+      // Signature Creofan : monte du bas, redescend au retour
+      if (logo.complete && logo.naturalWidth) {
+        const lw = 270, lh = (lw * logo.naturalHeight) / logo.naturalWidth;
+        const ly = lerp(lerp(H + 250, 1420, decel(seg(bt, 30.25, 30.6))), H + 250, inExpo(seg(bt, 31, 31.5)));
+        ctx.drawImage(logo, CX - lw / 2, ly - lh / 2, lw, lh);
+      }
+    }
+  }
+}
+
+/* =====================================================================
+   AUDIO — synthèse hors ligne (OfflineAudioContext) → WAV
+   ===================================================================== */
+async function renderAudioWav() {
+  const SR = 48000;
+  const ac = new OfflineAudioContext(2, Math.ceil(DURATION * SR), SR);
+  const master = ac.createGain();
+  const LEVEL = 0.55;
+  master.gain.value = LEVEL;
+  // Coupure nette de tout le son juste avant le dernier temps (30.5 → 31)
+  master.gain.setValueAtTime(LEVEL, 30.5 * BEAT - 0.001);
+  master.gain.setValueAtTime(0, 30.5 * BEAT);
+  master.gain.setValueAtTime(LEVEL, 31 * BEAT);
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -14; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.12;
+  // Limiteur final : rien ne dépasse −1 dB
+  const lim = ac.createDynamicsCompressor();
+  lim.threshold.value = -3; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = 0.001; lim.release.value = 0.05;
+  const ceiling = ac.createGain(); ceiling.gain.value = 0.89;
+  master.connect(comp).connect(lim).connect(ceiling).connect(ac.destination);
+
+  const shaper = (amount) => {
+    const ws = ac.createWaveShaper();
+    const n = 2048, curve = new Float32Array(n);
+    for (let i = 0; i < n; i++) { const x = (i / (n - 1)) * 2 - 1; curve[i] = Math.tanh(amount * x) / Math.tanh(amount); }
+    ws.curve = curve;
+    return ws;
+  };
+  const noiseBuf = (() => {
+    const b = ac.createBuffer(1, SR * 2, SR), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = rnd(i * 0.37) * 2 - 1;
+    return b;
+  })();
+
+  // Kick analogique : sinus avec chute de hauteur + saturation
+  function kick(t, gain = 0.9) {
+    const o = ac.createOscillator(), g = ac.createGain(), sh = shaper(2.2);
+    o.frequency.setValueAtTime(160, t);
+    o.frequency.exponentialRampToValueAtTime(42, t + 0.09);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+    o.connect(sh).connect(g).connect(master);
+    o.start(t); o.stop(t + 0.45);
+  }
+  // Bruit filtré (charleston, clap, clic, whoosh)
+  function noise(t, dur, type, freq, gain, q = 0.8, attack = 0.002) {
+    const s = ac.createBufferSource(); s.buffer = noiseBuf;
+    const f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; f.Q.value = q;
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    s.connect(f).connect(g).connect(master);
+    s.start(t, rnd(t) * 1.5); s.stop(t + dur + 0.02);
+  }
+  function tone(t, f0, f1, dur, gain, type = "sine") {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f0, t);
+    if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(master);
+    o.start(t); o.stop(t + dur + 0.02);
+  }
+  const at = (b) => b * BEAT;
+
+  // Kick sur chaque temps (sauf pendant la coupure)
+  for (let b = 0; b < BEATS; b++) kick(at(b), b === 16 ? 1 : 0.75);
+  // Charleston en croches et clap sur les contretemps à partir de la mesure 2
+  for (let b = 8; b < 30; b++) {
+    noise(at(b + 0.5), 0.05, "highpass", 7000, 0.12);
+    if (b % 2 === 1 && b !== 15) noise(at(b), 0.16, "bandpass", 1500, 0.35, 1.2);
+  }
+  // Buzz d'erreur au temps 2
+  {
+    const t = at(2);
+    [110, 113.5].forEach((f) => {
+      const o = ac.createOscillator(), g = ac.createGain(), sh = shaper(4);
+      o.type = "square"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      for (let i = 0; i < 6; i++) { // bégaiement
+        g.gain.setValueAtTime(0.18, t + i * 0.055);
+        g.gain.setValueAtTime(0.0001, t + i * 0.055 + 0.035);
+      }
+      o.connect(sh).connect(g).connect(master);
+      o.start(t); o.stop(t + 0.36);
+    });
+  }
+  // Retournement de la boîte (temps 6) : claquement sec + tonalité qui remonte
+  noise(at(6), 0.08, "bandpass", 2500, 0.6, 1.5, 0.001);
+  tone(at(6), 220, 660, 0.18, 0.25, "triangle");
+  // Mots de la cascade : clic à la naissance, souffle au glissement
+  for (let i = 0; i < 4; i++) {
+    noise(at(8 + i * 2), 0.03, "highpass", 3000, 0.5 - i * 0.08, 0.7, 0.001);
+    noise(at(9 + i * 2), 0.22, "bandpass", 900 + i * 400, 0.25, 0.6, 0.06);
+  }
+  // Riser inversé vers le temps 16 (bruit + dent de scie qui monte)
+  {
+    const t0 = at(13.5), t1 = at(16);
+    const s = ac.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+    const f = ac.createBiquadFilter(); f.type = "bandpass"; f.Q.value = 2;
+    f.frequency.setValueAtTime(300, t0); f.frequency.exponentialRampToValueAtTime(9000, t1);
+    const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.55, t1 - 0.01); g.gain.setValueAtTime(0.0001, t1);
+    s.connect(f).connect(g).connect(master); s.start(t0); s.stop(t1);
+    const o = ac.createOscillator(); o.type = "sawtooth";
+    o.frequency.setValueAtTime(80, t0); o.frequency.exponentialRampToValueAtTime(880, t1);
+    const g2 = ac.createGain(); g2.gain.setValueAtTime(0.0001, t0); g2.gain.exponentialRampToValueAtTime(0.12, t1 - 0.01); g2.gain.setValueAtTime(0.0001, t1);
+    o.connect(g2).connect(master); o.start(t0); o.stop(t1);
+  }
+  // Sub-drop à l'inversion (temps 16)
+  {
+    const t = at(16);
+    const o = ac.createOscillator(), g = ac.createGain(), sh = shaper(3);
+    o.frequency.setValueAtTime(70, t); o.frequency.exponentialRampToValueAtTime(28, t + 1.4);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.95, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+    o.connect(sh).connect(g).connect(master); o.start(t); o.stop(t + 1.65);
+    noise(t, 0.35, "lowpass", 1200, 0.5, 0.7, 0.001);
+  }
+  // Grappes d'anneaux : « plink » à chaque apparition
+  CLUSTERS.forEach((cl, i) => tone(at(cl.at), 880 + i * 110, 880 + i * 110, 0.25, 0.12));
+  // Effondrement géométrique (temps 24) : souffle aspiré + impacts des mots
+  noise(at(24), 0.5, "bandpass", 600, 0.35, 0.8, 0.4);
+  [24.5, 25, 25.25, 25.5, 26, 26.5].forEach((b) => { noise(at(b), 0.05, "highpass", 2500, 0.45, 0.7, 0.001); tone(at(b), 120, 60, 0.12, 0.35); });
+  // Ouverture du disque beige (temps 28)
+  noise(at(28), 0.4, "highpass", 1200, 0.3, 0.6, 0.3);
+  // Punchline : clics de frappe sur chaque mot
+  let k = 0;
+  PUNCH.forEach((ln) => ln.split(" ").forEach(() => { noise(at(28.45 + k * 0.11), 0.025, "highpass", 4000, 0.22, 0.7, 0.001); k++; }));
+  // CTA (temps 30) : accord bref
+  [523.25, 659.25, 783.99].forEach((f) => tone(at(30), f, f, 0.45, 0.08, "triangle"));
+
+  const buf = await ac.startRendering();
+  // Encodage WAV PCM 16 bits stéréo
+  const n = buf.length, out = new DataView(new ArrayBuffer(44 + n * 4));
+  const wr = (o, s) => { for (let i = 0; i < s.length; i++) out.setUint8(o + i, s.charCodeAt(i)); };
+  wr(0, "RIFF"); out.setUint32(4, 36 + n * 4, true); wr(8, "WAVE"); wr(12, "fmt ");
+  out.setUint32(16, 16, true); out.setUint16(20, 1, true); out.setUint16(22, 2, true);
+  out.setUint32(24, SR, true); out.setUint32(28, SR * 4, true); out.setUint16(32, 4, true); out.setUint16(34, 16, true);
+  wr(36, "data"); out.setUint32(40, n * 4, true);
+  const L = buf.getChannelData(0), R = buf.getChannelData(1);
+  for (let i = 0; i < n; i++) {
+    out.setInt16(44 + i * 4, Math.max(-1, Math.min(1, L[i])) * 32767, true);
+    out.setInt16(46 + i * 4, Math.max(-1, Math.min(1, R[i])) * 32767, true);
+  }
+  let bin = ""; const bytes = new Uint8Array(out.buffer);
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+/* ---------- API publique ---------- */
+window.DURATION = DURATION;
+window.seek = (t) => render(t);
+window.renderAudioWav = renderAudioWav;
+window.ready = Promise.all([
+  document.fonts.load('700 100px SalmaB'),
+  document.fonts.load('300 100px SalmaL'),
+  document.fonts.load('800 100px Poppins'),
+  new Promise((r) => (logo.complete ? r() : (logo.onload = r))),
+]).then(() => { render(0); return true; });
+</script>
+</body>
+</html>
