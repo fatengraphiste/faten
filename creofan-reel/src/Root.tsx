@@ -4,6 +4,7 @@ import { CC_DURATION } from "./cc/cues";
 import { ClaudeCanva } from "./cc/ClaudeCanva";
 import { FAIT_DURATION, FaitParClaude } from "./fait/FaitParClaude";
 import { Regard, REGARD_DURATION } from "./regard/Regard";
+import { Ame, AME_DURATION, AME_FPS } from "./ame/Ame";
 import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
 import { FPS } from "./theme";
@@ -58,6 +59,14 @@ export const RemotionRoot: React.FC = () => (
     defaultProps={{ showSafeZone: false }}
     durationInFrames={REGARD_DURATION}
     fps={FPS}
+    width={1080}
+    height={1920}
+  />
+  <Composition
+    id="Ame"
+    component={Ame}
+    durationInFrames={AME_DURATION}
+    fps={AME_FPS}
     width={1080}
     height={1920}
   />
