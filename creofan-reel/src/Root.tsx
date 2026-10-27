@@ -5,6 +5,7 @@ import { ClaudeCanva } from "./cc/ClaudeCanva";
 import { FAIT_DURATION, FaitParClaude } from "./fait/FaitParClaude";
 import { Regard, REGARD_DURATION } from "./regard/Regard";
 import { Ame, AME_DURATION, AME_FPS } from "./ame/Ame";
+import { CoverAme, CoverRegard } from "./covers/Covers";
 import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
 import { FPS } from "./theme";
@@ -70,5 +71,7 @@ export const RemotionRoot: React.FC = () => (
     width={1080}
     height={1920}
   />
+  <Composition id="CoverRegard" component={CoverRegard} durationInFrames={1} fps={30} width={1080} height={1920} />
+  <Composition id="CoverAme" component={CoverAme} durationInFrames={1} fps={30} width={1080} height={1920} />
   </>
 );
