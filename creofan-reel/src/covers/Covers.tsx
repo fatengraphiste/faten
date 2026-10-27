@@ -62,3 +62,22 @@ export const CoverAme: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+// « Fait par Claude » : l'accroche + le tampon + le logo Claude
+export const CoverFait: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: RED, alignItems: "center" }}>
+    <div style={{ position: "absolute", top: 360, left: 70, right: 70, textAlign: "center" }}>
+      <MixedText text="الـ vidéo هذي" size={130} color={"#fff5f5"} />
+    </div>
+    <div style={{ position: "absolute", top: 560, left: 0, right: 0, textAlign: "center" }}>
+      <div style={{ display: "inline-block", backgroundColor: "#fff5f5", borderRadius: 30, padding: "6px 50px", transform: "rotate(-6deg)" }}>
+        <MixedText text="ما عملتهاش أنا" size={104} color={RED} />
+      </div>
+    </div>
+    <Img src={staticFile("cc/claude-icon.png")} style={{ position: "absolute", top: 830, width: 330, height: 330, filter: "drop-shadow(0 24px 40px rgba(0,0,0,0.25))" }} />
+    <div style={{ position: "absolute", top: 1230, left: 70, right: 70, textAlign: "center" }}>
+      <MixedText text="كلها خدمها Claude" size={84} color={"#fff5f5"} latinColor={INK} />
+    </div>
+    <Img src={staticFile("logo-creofan-complet.png")} style={{ position: "absolute", top: 1440, width: 260 }} />
+  </AbsoluteFill>
+);
