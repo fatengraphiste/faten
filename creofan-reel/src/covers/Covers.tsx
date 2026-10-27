@@ -81,3 +81,48 @@ export const CoverFait: React.FC = () => (
     <Img src={staticFile("logo-creofan-complet.png")} style={{ position: "absolute", top: 1440, width: 260 }} />
   </AbsoluteFill>
 );
+
+// « Google Flow » : l'accroche, le rendu café, le secret du prompt
+export const CoverFlow: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: RED, alignItems: "center" }}>
+    <div style={{ position: "absolute", top: 330, left: 70, right: 70, textAlign: "center" }}>
+      <MixedText text="ما عندكش وقت" size={78} color={"#fff5f5"} />
+      <MixedText text="تتعلم الـ design ؟" size={78} color={"#fff5f5"} latinColor={INK} />
+    </div>
+    <div style={{ position: "absolute", top: 610, width: 560, height: 560, borderRadius: 40, overflow: "hidden", border: "10px solid #fff5f5", transform: "rotate(-3deg)", boxShadow: "0 30px 70px rgba(0,0,0,0.3)" }}>
+      <Img src={staticFile("resultat-flow.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <Img src={staticFile("flow-logo.png")} style={{ position: "absolute", top: 22, left: 22, width: 90, height: 90, borderRadius: 22 }} />
+    </div>
+    <div style={{ position: "absolute", top: 1235, left: 0, right: 0, textAlign: "center" }}>
+      <div style={{ display: "inline-block", backgroundColor: "#fff5f5", borderRadius: 30, padding: "4px 46px", transform: "rotate(-2deg)" }}>
+        <MixedText text="السر في الـ prompt" size={88} color={INK} latinColor={RED} />
+      </div>
+    </div>
+    <Img src={staticFile("logo-creofan-complet.png")} style={{ position: "absolute", top: 1440, width: 240 }} />
+  </AbsoluteFill>
+);
+
+// « Claude × Canva » : les deux logos reliés, la question, le post ROSA
+export const CoverClaudeCanva: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: "#fff5f5", alignItems: "center" }}>
+    <div style={{ position: "absolute", top: 330, display: "flex", alignItems: "center" }}>
+      <Img src={staticFile("cc/claude-icon.png")} style={{ width: 230, height: 230, transform: "rotate(-6deg)" }} />
+      <div style={{ width: 110, height: 10, backgroundColor: RED, borderRadius: 9, position: "relative" }}>
+        <div style={{ position: "absolute", left: 40, top: -10, width: 30, height: 30, borderRadius: 99, backgroundColor: RED }} />
+      </div>
+      <Img src={staticFile("cc/canva-icon.png")} style={{ width: 230, height: 230, transform: "rotate(6deg)" }} />
+    </div>
+    <div style={{ position: "absolute", top: 640, left: 70, right: 70, textAlign: "center" }}>
+      <MixedText text="كيفاش تربط Claude بـ Canva ؟" size={64} color={INK} latinColor={RED} />
+    </div>
+    <div style={{ position: "absolute", top: 790, left: 0, right: 0, textAlign: "center" }}>
+      <div style={{ display: "inline-block", backgroundColor: RED, borderRadius: 999, padding: "4px 44px" }}>
+        <MixedText text="في 4 étapes" size={62} color={"#fff5f5"} />
+      </div>
+    </div>
+    <div style={{ position: "absolute", top: 960, width: 520, height: 520, borderRadius: 36, overflow: "hidden", boxShadow: "0 30px 70px rgba(42,15,14,0.2)", transform: "rotate(2deg)" }}>
+      <Img src={staticFile("cc/rosa-photo.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 60%" }} />
+      <div style={{ position: "absolute", left: 30, top: 30, fontFamily: "Georgia, serif", fontWeight: 700, fontSize: 88, color: "#7a1328", letterSpacing: 4 }}>ROSA</div>
+    </div>
+  </AbsoluteFill>
+);
