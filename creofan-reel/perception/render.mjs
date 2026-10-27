@@ -20,7 +20,7 @@ const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, de
 await page.goto("file://" + path.join(here, "perception.html"));
 await page.evaluate(() => window.ready);
 const DURATION = await page.evaluate(() => window.DURATION);
-const BEAT = 0.48;
+const BEAT = await page.evaluate(() => window.BEAT);
 
 if (audit) {
   // Images clés : temps structurels 4, 8, 9, 12, 16 (1 temps structurel = 2 battements)

@@ -20,10 +20,10 @@
    Une seule forme ne quitte jamais l'écran (boîte → cercle retourné →
    point focal → anneaux → pastille CTA → boîte). Aucune coupe, aucun fondu.
    Tout est une fonction pure du temps t : window.seek(t).
-   125 BPM → 1 temps = 0,48 s · 32 temps = 15,36 s · boucle parfaite.
+   1 temps visuel = 0,96 s (pulsation 125 BPM en double-croches) · 32 temps = 30,72 s · boucle parfaite.
    ===================================================================== */
 const W = 1080, H = 1920;
-const BEAT = 0.48, BEATS = 32, DURATION = BEAT * BEATS; // 15.36 s
+const BEAT = 0.96, BEATS = 32, DURATION = BEAT * BEATS; // 30.72 s (rythme posé)
 
 // Charte Creofan
 const RED = "#f7322a", BEIGE = "#fff5f5", WHITE = "#ffffff", INK = "#1a0d0c";
@@ -134,7 +134,7 @@ const logo = new Image();
 logo.src = "data:image/png;base64,{{LOGO}}";
 
 /* ---------- Données de la chorégraphie ---------- */
-const BOX = { x: CX, y: 1080, s: 380, r: 30 }; // état de départ = état final (boucle)
+const BOX = { x: CX, y: 1080, s: 380, r: 190 }; // cercle noir : état de départ = état final (boucle)
 const CASCADE = [
   { w: "ماتحاولش", size: 186, slotY: 380, slotK: 0.64 },
   { w: "تقنعهم", size: 140, slotY: 515, slotK: 0.7 },
@@ -176,56 +176,30 @@ function render(t) {
 
   /* =========== MESURE 1 — Le piège (temps 0 → 8) =========== */
   if (bt < 8.2) {
-    // La boîte : dérive continue (jamais immobile), pas sur chaque temps
-    const steps = [0, 0, 0, seg(bt, 3, 3.2), seg(bt, 4, 4.2), seg(bt, 5, 5.25)];
-    const rot = bt < 5 ? lerp(0, 7, snapE(steps[3])) + lerp(0, -14, snapE(steps[4])) : lerp(-7, 0, snapE(steps[5]));
-    const toCircle = snapE(seg(bt, 5, 5.3));
-    const drift = 1 + 0.025 * Math.sin(Math.PI * Math.min(bt, 6) / 6);
-    let size = BOX.s * drift * (1 + 0.06 * snapE(seg(bt, 4, 4.2)));
+    // Le cercle respire et grossit d'un cran sur chaque temps (jamais immobile)
+    const steps = snapE(seg(bt, 3, 3.2)) + snapE(seg(bt, 4, 4.2)) + snapE(seg(bt, 5, 5.2));
+    const breathe = 1 + 0.02 * Math.sin(Math.PI * Math.min(bt, 6) / 6);
     // Erreur au temps 2 : secousse horizontale amortie
     const err = bt >= 2 && bt < 2.7 ? Math.sin((bt - 2) * 70) * 18 * (1 - seg(bt, 2, 2.7)) : 0;
-    const inside = seg(bt, 6, 6.14); // retournement instantané
-    const ringOut = decel(seg(bt, 6, 6.6));
-    // Sortie : le disque rouge se contracte en point focal au centre (temps 7.2 → 8)
+    // Temps 6 : le cercle prend simplement sa vraie couleur, rouge (+ petite impulsion d'échelle)
+    const toRed = outExpo(seg(bt, 6, 6.35));
+    const pulse = 1 + 0.08 * Math.sin(Math.PI * seg(bt, 6, 6.35));
+    // Sortie : il se contracte en point focal au centre (temps 7.2 → 8)
     const shrink = inOutCubic(seg(bt, 7.2, 8));
-    const cx = lerp(BOX.x + err, CX, shrink);
-    const cy = lerp(BOX.y, CY, shrink);
-    if (bt < 6) {
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate((rot * Math.PI) / 180);
-      ctx.fillStyle = INK;
-      roundRect(-size / 2, -size / 2, size, size, lerp(BOX.r, size / 2, toCircle));
-      ctx.fill();
-      ctx.restore();
-    } else {
-      const R = size / 2;
-      const red = R * outExpo(inside) * lerp(1, 0.94, snapE(seg(bt, 7, 7.15)));
-      const rFinal = lerp(red, 16, shrink);
-      // l'enveloppe noire se retourne vers l'extérieur et s'amincit jusqu'à disparaître
-      const outer = lerp(R, R * 1.35, ringOut);
-      const inner = lerp(red, outer, ringOut);
-      if (inner < outer - 0.5) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, outer, 0, Math.PI * 2);
-        ctx.arc(cx, cy, inner, 0, Math.PI * 2, true);
-        ctx.fillStyle = INK;
-        ctx.fill("evenodd");
-      }
-      ctx.beginPath();
-      ctx.arc(cx, cy, rFinal, 0, Math.PI * 2);
-      ctx.fillStyle = RED;
-      ctx.fill();
-    }
+    const R0 = (BOX.s / 2) * breathe * (1 + 0.04 * steps) * pulse * lerp(1, 0.94, snapE(seg(bt, 7, 7.15)));
+    const R = lerp(R0, 16, shrink);
+    ctx.beginPath();
+    ctx.arc(lerp(BOX.x + err, CX, shrink), lerp(BOX.y, CY, shrink), R, 0, Math.PI * 2);
+    ctx.fillStyle = mix(INK, RED, toRed);
+    ctx.fill();
     // Le texte « هذا أحمر » : entre au temps 1, faux pendant 5 temps, vrai au temps 6
     if (bt >= 1) {
       const enter = decel(seg(bt, 1, 1.35));
       const exit = inExpo(seg(bt, 7.2, 7.7));
       const tx = lerp(W + 500, CX, enter) + err * 1.4;
       const ty = lerp(660, -200, exit);
-      const truth = bt >= 6;
-      const k = 1 + 0.03 * Math.sin(bt * Math.PI); // micro-respiration
-      drawWord("هذا أحمر", tx, ty, 136, truth ? RED : INK, k * (truth ? lerp(1.18, 1, decel(seg(bt, 6, 6.4))) : 1));
+      const k = 1 + 0.03 * Math.sin(bt * Math.PI);
+      drawWord("هذا أحمر", tx, ty, 136, mix(INK, RED, toRed), k * lerp(1, 1.12, Math.sin(Math.PI * seg(bt, 6, 6.35))));
     }
   }
 
@@ -450,6 +424,8 @@ async function renderAudioWav() {
   // Charleston en croches et clap sur les contretemps à partir de la mesure 2
   for (let b = 8; b < 30; b++) {
     noise(at(b + 0.5), 0.05, "highpass", 7000, 0.12);
+    noise(at(b + 0.25), 0.03, "highpass", 9000, 0.05);
+    noise(at(b + 0.75), 0.03, "highpass", 9000, 0.05);
     if (b % 2 === 1 && b !== 15) noise(at(b), 0.16, "bandpass", 1500, 0.35, 1.2);
   }
   // Buzz d'erreur au temps 2
@@ -468,8 +444,8 @@ async function renderAudioWav() {
     });
   }
   // Retournement de la boîte (temps 6) : claquement sec + tonalité qui remonte
-  noise(at(6), 0.08, "bandpass", 2500, 0.6, 1.5, 0.001);
-  tone(at(6), 220, 660, 0.18, 0.25, "triangle");
+  tone(at(6), 220, 440, 0.45, 0.22, "triangle");
+  noise(at(6), 0.35, "bandpass", 1800, 0.25, 0.8, 0.12);
   // Mots de la cascade : clic à la naissance, souffle au glissement
   for (let i = 0; i < 4; i++) {
     noise(at(8 + i * 2), 0.03, "highpass", 3000, 0.5 - i * 0.08, 0.7, 0.001);
@@ -530,6 +506,7 @@ async function renderAudioWav() {
 
 /* ---------- API publique ---------- */
 window.DURATION = DURATION;
+window.BEAT = BEAT;
 window.seek = (t) => render(t);
 window.renderAudioWav = renderAudioWav;
 window.ready = Promise.all([
