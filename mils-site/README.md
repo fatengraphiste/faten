@@ -10,8 +10,12 @@ Page interactive en 10 écrans, protégée par mot de passe, pour l'offre techni
 
 ## Construire
 ```bash
+cd mils-site && npm install
+```
+```bash
 MILS_PASSWORD="mot-de-passe-de-l-offre" node mils-site/build.mjs
 ```
+La scène 3D de l'accroche (`src/hero3d.js`, Three.js) est regroupée en un seul script et intégrée dans la page chiffrée. La page est compressée avant le chiffrement (environ 200 Ko au total).
 `dist/index.html` contient la page chiffrée (AES-GCM 256, clé PBKDF2-SHA256, 310 000 itérations). Sans le mot de passe, le contenu est illisible, même en lisant le code source. Choisir un mot de passe long (12 caractères ou plus).
 
 ## Mettre en ligne
@@ -21,7 +25,6 @@ Attention : les images de `assets/` ne sont pas chiffrées. Ne mettre aucune don
 
 ## Captures attendues (`mils-site/assets/`)
 WebP, moins de 300 Ko, 2400 px de large (desktop) :
-- `logo-cca.svg`, `logo-salesfactory.svg`
 - `ecran-3-charte-abcd.webp`
 - `ecran-4-site-comptoir-gep.webp`, `ecran-4-demo-accueil-mils.webp`
 - `ecran-5-demo-fiche-engin.webp`, `ecran-5-formulaire-location.webp`
@@ -31,6 +34,5 @@ WebP, moins de 300 Ko, 2400 px de large (desktop) :
 Tant qu'une image manque, un emplacement hachuré s'affiche à sa place.
 
 ## À remplacer avant envoi
-- Couleurs CCA officielles : variables `--orange`, `--orange-2`, `--blue` en haut de `src/content.html` et `src/login.html`.
 - Coordonnées CCA : bloc `#contact` dans `src/content.html`.
 - Logo MILS : laisser l'emplacement « LOGO MILS » ou utiliser le logo fourni par MILS tel quel.

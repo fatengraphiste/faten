@@ -1,0 +1,7 @@
+{
+  "name": "mils-site",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node build.mjs" },
+  "devDependencies": { "three": "0.160.0", "esbuild": "0.21.5" }
+}
