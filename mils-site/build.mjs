@@ -17,18 +17,31 @@ if (!password || password.length < 10) {
 const ITER = 310000;
 const enc = new TextEncoder();
 const b64 = (u8) => Buffer.from(u8).toString("base64");
+const read = (p) => readFileSync(join(root, p), "utf8");
 
 // Three.js et la scène 3D : un seul script minifié, intégré dans la page chiffrée.
 const bundle = await build({
-  entryPoints: [join(root, "src/hero3d.js")], bundle: true, minify: true, write: false,
+  entryPoints: [join(root, "src/scene3d.js")], bundle: true, minify: true, write: false,
   format: "iife", globalName: "MILS3D", target: "es2019", legalComments: "none"
 });
-const hero = bundle.outputFiles[0].text.replace(/<\/script/gi, "<\\/script");
-const logo = readFileSync(join(root, "assets/logo-cca.svg"), "utf8")
-  .replace(/<\?xml[^>]*>\s*/, "").replace(/<defs>[\s\S]*?<\/defs>\s*/, "")
-  .replace(/class="cls-1"/g, 'fill="#0058a5"').replace(/class="cls-2"/g, 'fill="#ef791f"')
-  .replace(/<svg [^>]*viewBox="([^"]+)">/, '<svg viewBox="$1" role="img" aria-label="CCA">').replace(/\s+/g, " ");
-const html = readFileSync(join(root, "src/content.html"), "utf8").replace("/*__HERO3D__*/", () => hero);
+const scene3d = bundle.outputFiles[0].text.replace(/<\/script/gi, "<\\/script");
+
+// Logos intégrés en ligne (SVG) ou en data URI (MILS, fourni en image).
+const inlineSvg = (file, label, fills) => {
+  let s = read(file).replace(/<\?xml[^>]*>\s*/, "").replace(/<defs>[\s\S]*?<\/defs>\s*/, "");
+  for (const [cls, color] of Object.entries(fills)) s = s.replace(new RegExp(`class="${cls}"`, "g"), `fill="${color}"`);
+  return s.replace(/<svg [^>]*viewBox="([^"]+)">/, `<svg viewBox="$1" role="img" aria-label="${label}">`).replace(/\s+/g, " ");
+};
+const ccaLogo = inlineSvg("assets/logo-cca.svg", "CCA", { "cls-1": "#0058a5", "cls-2": "#ef791f" });
+const sfLogo = inlineSvg("assets/logo-salesfactory-white.svg", "CCA Salesfactory", { "cls-1": "#ffffff", "cls-2": "#ee781e" });
+const milsLogo = "data:image/webp;base64," + readFileSync(join(root, "assets/logo-mils.webp")).toString("base64");
+
+const html = read("src/content.html")
+  .replace("/*__SCENE3D__*/", () => scene3d)
+  .replaceAll("<!--__CCA_LOGO__-->", () => ccaLogo)
+  .replace("<!--__SF_LOGO__-->", () => sfLogo)
+  .replace("__MILS_LOGO__", () => milsLogo);
+
 const salt = crypto.getRandomValues(new Uint8Array(16));
 const iv = crypto.getRandomValues(new Uint8Array(12));
 const base = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
@@ -39,15 +52,17 @@ const key = await crypto.subtle.deriveKey(
 // compressé avant chiffrement (un contenu chiffré ne se compresse plus)
 const data = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, gzipSync(enc.encode(html), { level: 9 })));
 
-const login = readFileSync(join(root, "src/login.html"), "utf8")
-  .replace("<!--__LOGO__-->", () => logo)
+const login = read("src/login.html")
+  .replace("<!--__LOGO__-->", () => ccaLogo)
+  .replace("<!--__SF_LOGO__-->", () => sfLogo)
   .replace("__PAYLOAD__", JSON.stringify({ s: b64(salt), i: b64(iv), d: b64(data), n: ITER }));
 
 const out = join(root, "dist");
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, "index.html"), login);
+// seules les captures de preuve sont servies à part ; les logos sont déjà intégrés
 if (existsSync(join(root, "assets"))) cpSync(join(root, "assets"), join(out, "assets"), {
-  recursive: true, filter: (f) => !/logo-cca/.test(f) // logos déjà intégrés
+  recursive: true, filter: (f) => !/logo-/.test(f)
 });
 cpSync(join(root, "src/vercel.json"), join(out, "vercel.json"));
-console.log(`3D : ${(hero.length / 1024).toFixed(0)} Ko · dist/index.html : ${(login.length / 1024).toFixed(0)} Ko`);
+console.log(`3D : ${(scene3d.length / 1024).toFixed(0)} Ko · dist/index.html : ${(login.length / 1024).toFixed(0)} Ko`);

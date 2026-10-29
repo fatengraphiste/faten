@@ -15,7 +15,7 @@ cd mils-site && npm install
 ```bash
 MILS_PASSWORD="mot-de-passe-de-l-offre" node mils-site/build.mjs
 ```
-La scène 3D de l'accroche (`src/hero3d.js`, Three.js) est regroupée en un seul script et intégrée dans la page chiffrée. La page est compressée avant le chiffrement (environ 200 Ko au total).
+La scène 3D de toute la page (`src/scene3d.js`, Three.js : rampe, portails, rack, machine) est regroupée en un seul script et intégrée dans la page chiffrée. La page est compressée avant le chiffrement (environ 200 Ko au total).
 `dist/index.html` contient la page chiffrée (AES-GCM 256, clé PBKDF2-SHA256, 310 000 itérations). Sans le mot de passe, le contenu est illisible, même en lisant le code source. Choisir un mot de passe long (12 caractères ou plus).
 
 ## Mettre en ligne
@@ -35,4 +35,4 @@ Tant qu'une image manque, un emplacement hachuré s'affiche à sa place.
 
 ## À remplacer avant envoi
 - Coordonnées CCA : bloc `#contact` dans `src/content.html`.
-- Logo MILS : laisser l'emplacement « LOGO MILS » ou utiliser le logo fourni par MILS tel quel.
+- Logo MILS : `assets/logo-mils.webp` (fourni en basse définition ; le remplacer par la version HD de MILS si possible).
