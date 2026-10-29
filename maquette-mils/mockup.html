@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Maquette MILS × CCA</title>
+<style>
+:root{
+  --paper:#F1EFEA; --ink:#14161A; --dim:rgba(20,22,26,.5); --line:rgba(20,22,26,.09);
+  --orange:#F26B1D; --blue:#1F5FBF; --green:#1E9E63;
+  --grad:linear-gradient(100deg,var(--orange),#FF9A3D 45%,var(--blue));
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --sans:"Inter","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#ddd;font-family:var(--sans);color:var(--ink)}
+.frame{position:relative;width:1440px;height:900px;background:var(--paper);overflow:hidden;margin:0 0 40px}
+.grid i{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.grid i:nth-child(1){left:17%}.grid i:nth-child(2){left:50%}.grid i:nth-child(3){left:83%}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+nav{position:absolute;top:0;left:0;right:0;height:56px;display:grid;grid-template-columns:17% 1fr 17%;align-items:center;border-bottom:1px solid var(--line);background:rgba(241,239,234,.86)}
+.logo{display:flex;align-items:center;gap:10px;padding-left:28px;font-weight:700;font-size:18px;letter-spacing:-.02em}
+.logo b{width:26px;height:26px;border-radius:7px;background:var(--grad)}
+.menu{display:flex;gap:34px;padding-left:28px;color:var(--dim)}
+.menu span.on{color:var(--ink)}
+.cta{justify-self:end;margin-right:28px;height:32px;padding:0 16px;display:flex;align-items:center;gap:8px;border:1px solid var(--ink);border-radius:2px}
+.cta:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange)}
+.rail{position:absolute;right:28px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:9px;align-items:flex-end}
+.rail i{width:4px;height:4px;border-radius:50%;background:var(--dim)}
+.rail i.on{background:var(--orange);width:6px;height:6px}
+.progress{position:absolute;top:76px;left:calc(17% + 24px);display:flex;align-items:center;gap:12px}
+.progress .bar{width:180px;height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+.progress .bar u{display:block;height:100%;background:var(--grad)}
+/* Hero */
+.prompt{position:absolute;left:calc(17% + 24px);top:27%;width:290px}
+.prompt .tab{width:40px;height:40px;border:1px solid var(--ink);display:grid;place-items:center;font:700 26px Georgia,serif;border-bottom:0}
+.prompt .box{border:1px solid var(--ink);padding:14px 16px;line-height:1.5;position:relative}
+.prompt .box:after{content:"";display:inline-block;width:6px;height:11px;background:var(--orange);vertical-align:-1px;margin-left:3px}
+.prompt .next{margin-top:10px;color:rgba(20,22,26,.25)}
+.feat{position:absolute;left:calc(50% + 200px);top:27%;width:260px}
+.feat div{height:24px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.feat div:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ink)}
+.feat div.dim{color:var(--dim)}
+.eyebrow{position:absolute;left:28px;bottom:262px}
+h1.out{position:absolute;left:28px;bottom:70px;font-weight:400;font-size:84px;line-height:1.08;letter-spacing:-.03em}
+h1.out span{display:inline-block;padding:2px 22px 8px;border:2px solid transparent;background:linear-gradient(var(--paper),var(--paper)) padding-box,var(--grad) border-box;margin-bottom:10px}
+h1.out span.b{background:linear-gradient(var(--paper),var(--paper)) padding-box,linear-gradient(100deg,var(--blue),var(--orange)) border-box}
+.sub{position:absolute;left:calc(62% + 18px);bottom:40px;width:300px;font-size:15px;line-height:1.5}
+.scroll{position:absolute;right:28px;bottom:30px}
+.machine{position:absolute;left:50%;top:150px;transform:translateX(-50%)}
+/* Assembly */
+.title2{position:absolute;left:28px;top:120px;font-size:44px;font-weight:400;letter-spacing:-.03em;line-height:1.1;width:420px}
+.title2 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;color:transparent}
+.pieces{position:absolute;left:28px;top:330px;width:420px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.piece{height:92px;border:1px solid var(--ink);padding:12px;display:flex;flex-direction:column;justify-content:space-between;background:#fff}
+.piece small{color:var(--dim)}
+.piece.ok{border-color:var(--green);background:rgba(30,158,99,.06)}
+.piece.ok small{color:var(--green)}
+.piece.drag{transform:translate(380px,-60px) rotate(-3deg);box-shadow:0 18px 40px rgba(0,0,0,.12);border-color:var(--orange);position:relative;z-index:3}
+.piece.ghost{border-style:dashed;border-color:rgba(20,22,26,.25);background:transparent;color:rgba(20,22,26,.3)}
+.proof{position:absolute;right:28px;top:130px;width:380px}
+.proof .shot{height:250px;border:1px solid var(--ink);background:#fff;overflow:hidden}
+.proof .shot .bar{height:24px;border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center;padding:0 10px}
+.proof .shot .bar i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.proof .shot .img{height:226px;background:repeating-linear-gradient(135deg,#ece9e3 0 10px,#e4e1da 10px 20px);display:grid;place-items:center;color:var(--dim)}
+.proof .tag{margin-top:12px;display:inline-flex;gap:8px;align-items:center;padding:6px 10px;background:var(--ink);color:#fff}
+.proof .tag:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange)}
+.proof p{margin-top:14px;font-size:20px;line-height:1.3;letter-spacing:-.01em}
+/* Launch */
+.title3{position:absolute;left:calc(17% + 24px);top:100px;font-size:48px;font-weight:400;letter-spacing:-.03em;line-height:1.05}
+.title3 i{font-style:italic;color:var(--dim)}
+.para3{position:absolute;right:calc(17% + 24px);top:112px;width:330px;font-size:15px;line-height:1.55}
+.belt{position:absolute;left:0;right:0;top:330px;height:300px}
+.card{position:absolute;top:30px;width:400px;height:240px;border-radius:14px;overflow:hidden}
+.rfq{background:#fff;border:1px solid var(--line);padding:22px}
+.rfq h4{font-weight:500;font-size:22px;margin:14px 0 10px;letter-spacing:-.02em}
+.rfq .row{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:7px 0;font-size:13px}
+.quote{background:var(--ink);color:#fff;padding:22px}
+.quote h4{font-weight:500;font-size:22px;margin:14px 0 10px}
+.quote .row{display:flex;justify-content:space-between;border-top:1px solid rgba(255,255,255,.15);padding:7px 0;font-size:13px}
+.quote .ok{display:inline-flex;align-items:center;gap:8px;color:#7BE0AE}
+.scan{position:absolute;left:50%;top:-10px;bottom:0;width:4px;margin-left:-2px;border-radius:4px;background:var(--orange);box-shadow:0 0 10px 2px rgba(242,107,29,.85),0 0 34px 10px rgba(242,107,29,.35)}
+.dots{position:absolute;left:50%;top:30px;width:120px;height:240px;background-image:radial-gradient(circle,var(--orange) 1.2px,transparent 1.6px);background-size:6px 6px;-webkit-mask:linear-gradient(90deg,#000,transparent);mask:linear-gradient(90deg,#000,transparent)}
+.badge{position:absolute;left:50%;top:-52px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px}
+.pill{display:flex;height:26px;border-radius:13px;overflow:hidden;font-family:var(--mono);font-size:12.5px;box-shadow:0 0 18px rgba(242,107,29,.35)}
+.pill b{background:var(--orange);color:#fff;padding:0 12px;display:flex;align-items:center;font-weight:500}
+.pill s{text-decoration:none;background:#FFE3D2;color:#C24E0F;padding:0 12px;display:flex;align-items:center}
+.lost{position:absolute;left:calc(17% + 24px);bottom:70px;display:flex;gap:16px;align-items:center;color:var(--dim)}
+.lost .c{width:150px;height:80px;border:1px dashed rgba(20,22,26,.3);border-radius:10px;transform:rotate(-8deg) translateY(16px);opacity:.5;display:grid;place-items:center}
+.stats{position:absolute;right:calc(17% + 24px);bottom:60px;display:flex;gap:40px}
+.stats div{border-left:1px solid var(--ink);padding-left:14px}
+.stats strong{display:block;font-weight:300;font-size:46px;letter-spacing:-.04em;line-height:1}
+.note{position:absolute;left:28px;bottom:24px;color:var(--dim)}
+</style>
+</head>
+<body>
+
+<!-- ===== ÉCRAN 1 : ACCROCHE ===== -->
+<section class="frame" id="f1">
+  <div class="grid"><i></i><i></i><i></i></div>
+  <nav><div class="logo"><b></b>CCA</div>
+    <div class="menu mono"><span class="on">01 Accroche</span><span>02 Défi</span><span>03 Pièces</span><span>04 Lancement</span><span>05 Planning</span></div>
+    <div class="cta mono">Démonstration</div></nav>
+  <div class="rail"><span class="mono" style="margin-bottom:6px">Intro</span><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+  <div class="prompt mono">
+    <div class="tab">“</div>
+    <div class="box">Demande de location : 2 chargeuses, chantier minier, 3 mois, livraison sous 10 jours</div>
+    <div class="next">Devis pour une grue mobile, BTP Ouagadougou…</div>
+  </div>
+  <div class="feat mono">
+    <div>Marque</div><div>Site B2B</div><div>Formulaires RFQ</div><div>CRM</div><div>Visibilité</div><div>Prospection</div><div class="dim">= Demandes de devis</div>
+  </div>
+
+  <svg class="machine" width="420" height="560" viewBox="0 0 420 560" aria-hidden="true">
+    <defs>
+      <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#F26B1D"/><stop offset=".5" stop-color="#FF9A3D"/><stop offset="1" stop-color="#1F5FBF"/></linearGradient>
+      <linearGradient id="shell" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#E7E4DE"/></linearGradient>
+      <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity=".12"/></filter>
+    </defs>
+    <!-- trémie d'entrée -->
+    <path d="M150 40h120l-22 60h-76z" fill="url(#shell)" stroke="#14161A" stroke-width="1.2"/>
+    <rect x="178" y="8" width="64" height="40" rx="4" fill="#fff" stroke="#F26B1D" stroke-width="1.5" transform="rotate(-6 210 28)"/>
+    <text x="210" y="33" font-family="IBM Plex Mono,monospace" font-size="9" text-anchor="middle" fill="#F26B1D" transform="rotate(-6 210 28)">RFQ #0427</text>
+    <!-- corps -->
+    <g filter="url(#sh)">
+      <rect x="60" y="100" width="300" height="330" rx="28" fill="url(#shell)" stroke="#14161A" stroke-width="1.2"/>
+    </g>
+    <rect x="72" y="112" width="276" height="306" rx="20" fill="none" stroke="url(#g)" stroke-width="3"/>
+    <!-- voyants -->
+    <g><circle cx="120" cy="140" r="5" fill="#F26B1D"/><circle cx="140" cy="140" r="5" fill="#FF9A3D"/><circle cx="160" cy="140" r="5" fill="#1F5FBF"/></g>
+    <text x="330" y="144" font-family="IBM Plex Mono,monospace" font-size="10" text-anchor="end" fill="#14161A">MACHINE · 0/6</text>
+    <!-- 6 emplacements -->
+    <g font-family="IBM Plex Mono,monospace" font-size="9.5" fill="rgba(20,22,26,.45)" text-anchor="middle" letter-spacing=".6">
+      <rect x="96" y="168" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="148" y="205">MARQUE</text>
+      <rect x="220" y="168" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="272" y="205">SITE B2B</text>
+      <rect x="96" y="250" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="148" y="287">RFQ</text>
+      <rect x="220" y="250" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="272" y="287">CRM</text>
+      <rect x="96" y="332" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="148" y="369">VISIBILITÉ</text>
+      <rect x="220" y="332" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="272" y="369">PROSPECTION</text>
+    </g>
+    <!-- sortie -->
+    <path d="M300 430h40l30 40h-50z" fill="#14161A"/>
+    <!-- socle -->
+    <rect x="40" y="430" width="340" height="110" rx="6" fill="#2A2928"/>
+    <text x="210" y="492" font-family="IBM Plex Mono,monospace" font-size="11" fill="rgba(255,255,255,.55)" text-anchor="middle" letter-spacing="2">[ LOGO MILS ]</text>
+  </svg>
+
+  <div class="eyebrow mono">Proposition CCA pour MILS</div>
+  <h1 class="out"><span>Assemblez</span><br><span class="b">la machine</span></h1>
+  <p class="sub">Une machine à demandes de devis se construit en 10 semaines.</p>
+  <div class="scroll mono">[ Commencer ↓ ]</div>
+</section>
+
+<!-- ===== ÉCRANS 3-7 : PIÈCES ===== -->
+<section class="frame" id="f2">
+  <div class="grid"><i></i><i></i><i></i></div>
+  <nav><div class="logo"><b></b>CCA</div>
+    <div class="menu mono"><span>01 Accroche</span><span>02 Défi</span><span class="on">03 Pièces</span><span>04 Lancement</span><span>05 Planning</span></div>
+    <div class="cta mono">Démonstration</div></nav>
+  <div class="rail"><span class="mono" style="margin-bottom:6px">Pièces</span><i></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="progress mono">Pièces 3/6 <span class="bar"><u style="width:50%"></u></span></div>
+
+  <h2 class="title2">Chaque demande reçoit <em>un numéro et un commercial.</em></h2>
+  <div class="pieces mono">
+    <div class="piece ok">Marque<small>✓ Installée</small></div>
+    <div class="piece ok">Site B2B<small>✓ Installée</small></div>
+    <div class="piece drag">Formulaires RFQ<small>Glisser vers la machine →</small></div>
+    <div class="piece">CRM<small>Installer</small></div>
+    <div class="piece">Visibilité<small>Installer</small></div>
+    <div class="piece">Prospection<small>Installer</small></div>
+  </div>
+
+  <svg class="machine" style="top:170px;left:56%" width="340" height="460" viewBox="60 100 300 440" aria-hidden="true">
+    <use href="#none"/>
+    <rect x="60" y="100" width="300" height="330" rx="28" fill="#fff" stroke="#14161A" stroke-width="1.2"/>
+    <rect x="72" y="112" width="276" height="306" rx="20" fill="none" stroke="url(#g)" stroke-width="3"/>
+    <g><circle cx="120" cy="140" r="5" fill="#1E9E63"/><circle cx="140" cy="140" r="5" fill="#1E9E63"/><circle cx="160" cy="140" r="5" fill="#FF9A3D"/></g>
+    <g font-family="IBM Plex Mono,monospace" font-size="9.5" text-anchor="middle" letter-spacing=".6">
+      <rect x="96" y="168" width="104" height="66" rx="10" fill="rgba(30,158,99,.1)" stroke="#1E9E63"/><text x="148" y="205" fill="#1E9E63">MARQUE ✓</text>
+      <rect x="220" y="168" width="104" height="66" rx="10" fill="rgba(30,158,99,.1)" stroke="#1E9E63"/><text x="272" y="205" fill="#1E9E63">SITE B2B ✓</text>
+      <rect x="96" y="250" width="104" height="66" rx="10" fill="rgba(242,107,29,.08)" stroke="#F26B1D" stroke-width="2"/><text x="148" y="287" fill="#F26B1D">RFQ ⟵</text>
+      <rect x="220" y="250" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="272" y="287" fill="rgba(20,22,26,.45)">CRM</text>
+      <rect x="96" y="332" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="148" y="369" fill="rgba(20,22,26,.45)">VISIBILITÉ</text>
+      <rect x="220" y="332" width="104" height="66" rx="10" fill="none" stroke="rgba(20,22,26,.3)" stroke-dasharray="4 4"/><text x="272" y="369" fill="rgba(20,22,26,.45)">PROSPECTION</text>
+    </g>
+    <rect x="40" y="430" width="340" height="110" rx="6" fill="#2A2928"/>
+    <text x="210" y="492" font-family="IBM Plex Mono,monospace" font-size="11" fill="rgba(255,255,255,.55)" text-anchor="middle" letter-spacing="2">[ LOGO MILS ]</text>
+  </svg>
+
+  <div class="proof">
+    <div class="mono" style="margin-bottom:10px;color:var(--dim)">Preuve · pièce 02</div>
+    <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img mono">Capture comptoir-gep.tn</div></div>
+    <span class="tag mono">Déjà fait par CCA</span>
+    <p>Un catalogue d'engins en français et en anglais.</p>
+  </div>
+  <div class="note mono">Clic ou glisser-déposer · 0,6 s emboîtement + 0,4 s volet de preuve</div>
+</section>
+
+<!-- ===== ÉCRAN 8 : LANCEMENT ===== -->
+<section class="frame" id="f3">
+  <div class="grid"><i></i><i></i><i></i></div>
+  <nav><div class="logo"><b></b>CCA</div>
+    <div class="menu mono"><span>01 Accroche</span><span>02 Défi</span><span>03 Pièces</span><span class="on">04 Lancement</span><span>05 Planning</span></div>
+    <div class="cta mono">Démonstration</div></nav>
+  <div class="rail"><span class="mono" style="margin-bottom:6px">Lancement</span><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="on"></i><i></i></div>
+  <div class="progress mono">Pièces 6/6 <span class="bar"><u style="width:100%"></u></span> <span style="color:var(--green)">● Machine prête</span></div>
+
+  <h2 class="title3">Une demande entre.<br><i>Un devis sort.</i></h2>
+  <p class="para3">La machine numérote chaque demande, l'attribue à un commercial et relance jusqu'au devis. Sans dispositif, la même demande se perd.</p>
+
+  <div class="belt">
+    <div class="card quote" style="left:216px">
+      <div class="mono" style="opacity:.6">Devis · MILS-0427</div>
+      <h4>Devis envoyé</h4>
+      <div class="row"><span>Engins</span><span>2 chargeuses</span></div>
+      <div class="row"><span>Commercial</span><span>Attribué</span></div>
+      <div class="row"><span>Statut</span><span class="ok">● Envoyé en 24 h</span></div>
+    </div>
+    <div class="card rfq" style="left:720px">
+      <div class="mono" style="color:var(--dim)">Demande de devis · RFQ #0427</div>
+      <h4>Location 2 chargeuses</h4>
+      <div class="row"><span>Chantier</span><span>Mine · Burkina Faso</span></div>
+      <div class="row"><span>Durée</span><span>3 mois</span></div>
+      <div class="row"><span>Reçue</span><span>J+0</span></div>
+    </div>
+    <div class="card rfq" style="left:1180px;opacity:.6">
+      <div class="mono" style="color:var(--dim)">RFQ #0428</div>
+      <h4>Grue mobile</h4>
+    </div>
+    <div class="dots"></div>
+    <div class="scan"></div>
+    <div class="badge"><span class="mono" style="color:var(--dim)">Délai de réponse</span><span class="pill"><b>24 h</b><s>scénario type</s></span></div>
+  </div>
+
+  <div class="lost mono"><span class="c">RFQ sans dispositif</span><span>Perdue à J+6</span></div>
+  <div class="stats">
+    <div><strong>≈ 100</strong><span class="mono">leads / mois · GEP</span></div>
+    <div><strong>+500 000 DT</strong><span class="mono">CA annuel · GEP</span></div>
+  </div>
+  <div class="note mono">Bouton « Lancer la machine » · 4 à 5 s</div>
+</section>
+</body>
+</html>
