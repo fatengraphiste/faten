@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<title>Proposition CCA pour MILS</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ---------- Charte : remplacer par les codes officiels CCA ---------- */
+:root{
+  --paper:#F1EFEA; --paper-2:#E9E6E0; --white:#fff; --ink:#14161A; --dim:rgba(20,22,26,.55); --faint:rgba(20,22,26,.28); --line:rgba(20,22,26,.1);
+  --orange:#F26B1D; --orange-2:#FF9A3D; --blue:#1F5FBF; --green:#1E9E63; --amber:#FFB020; --dark:#2A2928;
+  --grad:linear-gradient(100deg,var(--orange),var(--orange-2) 45%,var(--blue));
+  --sans:"Inter","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --out:cubic-bezier(.2,.7,.2,1); --spring:cubic-bezier(.34,1.56,.64,1);
+  --gut:clamp(16px,2vw,28px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{max-width:100%;display:block;color:transparent}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.dim{color:var(--dim)}
+.grad-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+:focus-visible{outline:2px solid var(--orange);outline-offset:3px}
+
+/* ---------- Chrome fixe ---------- */
+.guides{position:fixed;inset:0;pointer-events:none;z-index:0}
+.guides i{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.guides i:nth-child(1){left:17%}.guides i:nth-child(2){left:50%}.guides i:nth-child(3){left:83%}
+header.nav{position:fixed;top:0;left:0;right:0;height:56px;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 var(--gut);background:rgba(241,239,234,.86);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;letter-spacing:-.02em}
+.brand b{width:24px;height:24px;border-radius:7px;background:var(--grad)}
+.brand .x{color:var(--faint);font-weight:400}
+.brand .mils{font-family:var(--mono);font-size:10px;letter-spacing:.12em;border:1px dashed var(--faint);padding:4px 8px;color:var(--dim);font-weight:400}
+.meter{display:flex;align-items:center;gap:10px}
+.meter .bar{width:clamp(70px,14vw,180px);height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.meter .bar u{display:block;height:100%;width:0;background:var(--grad);transition:width .6s var(--out)}
+.meter.full .lbl{color:var(--green)}
+.cta-mini{height:32px;padding:0 14px;display:flex;align-items:center;gap:8px;border:1px solid var(--ink)}
+.cta-mini:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--orange)}
+.rail{position:fixed;right:calc(var(--gut) - 4px);top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.rail a{display:flex;align-items:center;gap:10px;padding:4px;text-decoration:none;color:var(--dim)}
+.rail a span{opacity:0;transform:translateX(6px);transition:.3s var(--out)}
+.rail a i{width:5px;height:5px;border-radius:50%;background:var(--faint);transition:.3s var(--out)}
+.rail a:hover span,.rail a:focus-visible span{opacity:1;transform:none}
+.rail a.on{color:var(--ink)}
+.rail a.on i{background:var(--orange);transform:scale(1.5)}
+
+/* ---------- Sections ---------- */
+section.s{position:relative;z-index:1;min-height:100vh;min-height:100svh;scroll-snap-align:start;padding:96px var(--gut) 56px;display:flex;flex-direction:column;justify-content:center}
+.wrap{width:100%;max-width:1240px;margin:0 auto;position:relative}
+.eyebrow{margin-bottom:18px;display:flex;gap:10px;align-items:center}
+.eyebrow:before{content:"";width:18px;height:1px;background:var(--ink)}
+h1,h2{font-weight:400;letter-spacing:-.035em;line-height:1.04}
+h2{font-size:clamp(34px,4.4vw,64px)}
+h2 em{font-style:normal}
+.lead{font-size:clamp(15px,1.15vw,18px);line-height:1.55;max-width:44ch;color:#2A2E35}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .9s var(--out),transform .9s var(--out)}
+.in .rv{opacity:1;transform:none}
+.in .rv:nth-child(2){transition-delay:.08s}.in .rv:nth-child(3){transition-delay:.16s}.in .rv:nth-child(4){transition-delay:.24s}.in .rv:nth-child(5){transition-delay:.32s}
+
+/* Boutons */
+.btn{display:inline-flex;align-items:center;gap:12px;height:48px;padding:0 22px;background:var(--ink);color:#fff;font-weight:500;font-size:15px;transition:transform .35s var(--out),background .3s}
+.btn:hover{transform:translateY(-2px)}
+.btn .dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.btn.hot{background:var(--orange)}
+.btn[disabled]{background:var(--paper-2);color:var(--faint);cursor:not-allowed;transform:none}
+.btn[disabled] .dot{background:var(--faint)}
+
+/* ---------- 1. Accroche ---------- */
+#s1 .wrap{display:grid;grid-template-columns:1fr minmax(220px,300px) 1fr;gap:clamp(12px,2.4vw,40px);align-items:center}
+#s1 .machine svg{max-height:min(46vh,420px);width:auto;margin:0 auto}
+.prompt{align-self:start;margin-top:6vh}
+.prompt .tab{width:40px;height:40px;border:1px solid var(--ink);border-bottom:0;display:grid;place-items:center;font:700 26px Georgia,serif}
+.prompt .box{border:1px solid var(--ink);padding:14px 16px;line-height:1.55;min-height:90px;background:rgba(255,255,255,.5)}
+.caret{display:inline-block;width:6px;height:11px;background:var(--orange);vertical-align:-1px;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.prompt .next{margin-top:10px;color:var(--faint)}
+.feat{align-self:start;margin-top:6vh}
+.feat li{list-style:none;height:26px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.feat li:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--ink)}
+.feat li.res{color:var(--dim)}
+.feat li.res:before{background:var(--orange)}
+.hero-title{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+h1.out{font-size:clamp(44px,5.6vw,92px)}
+h1.out span{display:inline-block;padding:0 .22em .1em;border:2px solid transparent;background:linear-gradient(var(--paper),var(--paper)) padding-box,var(--grad) border-box;margin-top:.12em}
+h1.out span+br+span{background:linear-gradient(var(--paper),var(--paper)) padding-box,linear-gradient(100deg,var(--blue),var(--orange)) border-box}
+h1.out .ln{display:inline-block;clip-path:inset(0 0 100% 0);transform:translateY(20px);transition:clip-path .9s var(--out),transform .9s var(--out)}
+.in h1.out .ln{clip-path:inset(-10% 0 -10% 0);transform:none}
+.in h1.out span:last-of-type .ln{transition-delay:.25s}
+.hero-side{max-width:320px;display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+#s1 .dust{position:absolute;inset:0;pointer-events:none;z-index:0}
+
+/* ---------- Machine ---------- */
+.machine{width:100%;max-width:380px;margin:0 auto;position:relative}
+.machine svg{width:100%;height:auto;display:block;overflow:visible}
+.slot rect{fill:transparent;stroke:var(--faint);stroke-dasharray:4 4;transition:fill .3s,stroke .3s}
+.slot text{fill:var(--faint);font-family:var(--mono);font-size:9.5px;letter-spacing:.6px;text-anchor:middle;transition:fill .3s}
+.slot.on rect{fill:rgba(30,158,99,.1);stroke:var(--green);stroke-dasharray:0}
+.slot.on text{fill:var(--green)}
+.slot.flash rect{animation:flash .6s ease-out}
+@keyframes flash{0%{stroke:var(--amber);stroke-width:4;filter:drop-shadow(0 0 8px var(--amber))}100%{stroke-width:1}}
+.slot.target rect{stroke:var(--orange);stroke-dasharray:0;fill:rgba(242,107,29,.06)}
+.led{fill:var(--faint);transition:fill .25s}
+.led.on{fill:var(--orange)}
+.led.go{fill:var(--green);filter:drop-shadow(0 0 4px var(--green))}
+.m-count{font-family:var(--mono);font-size:10px;fill:var(--ink);text-anchor:end}
+.hopper-card{transform-box:fill-box;transform-origin:center;animation:hop 3.2s var(--out) infinite}
+@keyframes hop{0%{transform:translateY(-14px) rotate(-6deg);opacity:0}25%,70%{transform:translateY(0) rotate(-6deg);opacity:1}100%{transform:translateY(34px) rotate(-2deg);opacity:0}}
+.machine.drop-ok svg .frame{stroke-width:5}
+
+/* ---------- 2. Défi ---------- */
+#s2 .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(24px,5vw,72px);align-items:center}
+.stats{display:flex;gap:clamp(20px,4vw,56px);margin-top:36px;flex-wrap:wrap}
+.stat{border-left:1px solid var(--ink);padding-left:16px}
+.stat strong{display:block;font-weight:300;font-size:clamp(48px,6vw,92px);letter-spacing:-.05em;line-height:.95;font-variant-numeric:tabular-nums}
+.stat strong small{font-size:.4em;letter-spacing:-.02em}
+.stat.txt strong{font-size:clamp(20px,1.8vw,26px);font-weight:400;letter-spacing:-.02em;line-height:1.2;max-width:15ch}
+.map{position:relative}
+.map svg{width:100%;height:auto;overflow:visible}
+.map .outline{fill:none;stroke:var(--ink);stroke-width:1.4;stroke-linejoin:round}
+.map .fill{fill:url(#mapgrad);opacity:0;transition:opacity 1s .9s}
+.in .map .fill{opacity:.12}
+.map .pin{fill:var(--orange);opacity:0;transition:opacity .4s}
+.in .map .pin{opacity:1}
+.map .pin-ring{fill:none;stroke:var(--orange);opacity:0}
+.in .map .pin-ring{animation:ring 2.4s ease-out infinite}
+@keyframes ring{0%{r:3;opacity:.8}100%{r:16;opacity:0}}
+
+/* ---------- 3-7. Pièces ---------- */
+.piece-s .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,360px) minmax(0,1fr);gap:clamp(20px,3vw,48px);align-items:center}
+.piece-s .copy .num{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px}
+.piece-s .copy .num b{display:inline-grid;place-items:center;width:26px;height:26px;border:1px solid var(--ink);font-weight:500}
+.piece-s h2{font-size:clamp(30px,3.4vw,52px)}
+.piece-s .lead{margin-top:16px}
+.cards{display:grid;gap:12px;margin-top:28px}
+.pc{position:relative;display:flex;flex-direction:column;justify-content:space-between;text-align:left;min-height:96px;padding:14px;border:1px solid var(--ink);background:var(--white);touch-action:none;user-select:none;-webkit-user-select:none;transition:border-color .3s,background .3s,box-shadow .3s,transform .3s var(--out)}
+.pc:hover{box-shadow:0 12px 30px rgba(0,0,0,.08);transform:translateY(-2px)}
+.pc .k{font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;font-size:12px;font-weight:500}
+.pc .h{font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;font-size:10px;color:var(--dim);display:flex;align-items:center;gap:8px}
+.pc .h:before{content:"";width:12px;height:12px;border:1px solid currentColor;border-radius:50%}
+.pc.dragging{z-index:60;box-shadow:0 22px 50px rgba(0,0,0,.18);border-color:var(--orange);transition:none;cursor:grabbing}
+.pc.ok{border-color:var(--green);background:rgba(30,158,99,.06);cursor:default;transform:none;box-shadow:none}
+.pc.ok .h{color:var(--green)}
+.pc.ok .h:before{background:var(--green);border-color:var(--green)}
+.pc.ghost{visibility:hidden}
+.flyer{position:fixed;z-index:80;pointer-events:none;margin:0}
+.proof{position:relative;clip-path:inset(0 100% 0 0);opacity:.3;transition:clip-path .45s var(--out),opacity .45s}
+.proof.open{clip-path:inset(0 0 0 0);opacity:1}
+.proof .lock{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:var(--dim)}
+.proof.open .lock{display:none}
+.shot{border:1px solid var(--ink);background:var(--white);overflow:hidden}
+.shot .bar{height:22px;border-bottom:1px solid var(--line);display:flex;gap:6px;align-items:center;padding:0 10px}
+.shot .bar i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.shot .img{aspect-ratio:16/10;position:relative;background:repeating-linear-gradient(135deg,#efece6 0 10px,#e7e4dd 10px 20px)}
+.shot .img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.shot .img .ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:16px;color:var(--dim)}
+.shot+.shot{margin-top:10px}
+.shots-2{display:grid;grid-template-columns:1.4fr 1fr;gap:10px}
+.shots-2 .shot+.shot{margin-top:0}
+.tag{margin-top:12px;display:inline-flex;gap:8px;align-items:center;padding:6px 10px;background:var(--ink);color:#fff}
+.tag:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--grad);background:var(--orange)}
+.proof figcaption{margin-top:10px;color:var(--dim)}
+#s7 .cards{grid-template-columns:1fr 1fr}
+
+/* ---------- 8. Lancement ---------- */
+#s8 .wrap{display:flex;flex-direction:column;gap:clamp(12px,2.2vh,26px)}
+.l-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.l-head .side{display:flex;flex-direction:column;gap:16px;align-items:flex-start;max-width:360px}
+.missing{color:var(--dim)}
+.missing a{color:var(--orange)}
+.leds{display:flex;gap:10px;align-items:center}
+.leds i{width:10px;height:10px;border-radius:50%;background:var(--line);transition:background .2s,box-shadow .2s}
+.leds i.on{background:var(--green);box-shadow:0 0 10px var(--green)}
+.track{position:relative;border-top:1px solid var(--line);padding-top:14px}
+.track .lbl{display:flex;justify-content:space-between;margin-bottom:10px}
+.lane{position:relative;height:clamp(140px,19vh,190px);overflow:hidden}
+.scan{position:absolute;left:50%;top:0;bottom:0;width:4px;margin-left:-2px;border-radius:4px;background:var(--orange);box-shadow:0 0 10px 2px rgba(242,107,29,.8),0 0 34px 10px rgba(242,107,29,.3);z-index:3}
+.badge{position:absolute;left:50%;top:6px;transform:translate(-50%,0);z-index:4;display:flex;height:24px;border-radius:12px;overflow:hidden;font-family:var(--mono);font-size:11.5px;box-shadow:0 0 16px rgba(242,107,29,.35);opacity:0;transition:opacity .3s}
+.badge b{background:var(--orange);color:#fff;padding:0 10px;display:flex;align-items:center;font-weight:500;min-width:6ch;justify-content:flex-end;font-variant-numeric:tabular-nums}
+.badge s{text-decoration:none;background:#FFE3D2;color:#C24E0F;padding:0 10px;display:flex;align-items:center}
+.lane canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.card{position:absolute;top:36px;left:0;width:clamp(200px,30%,320px);height:calc(100% - 40px);border-radius:12px;will-change:transform}
+.card .face{position:absolute;inset:0;border-radius:12px;padding:12px 16px;overflow:hidden}
+.card .rfq{background:var(--white);border:1px solid var(--line)}
+.card .dev{background:var(--ink);color:#fff;clip-path:inset(0 0 0 100%)}
+.card h4{font-weight:500;font-size:clamp(15px,1.3vw,19px);letter-spacing:-.02em;margin:4px 0 6px}
+.card .row{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding:5px 0;font-size:12px}
+.card .dev .row{border-color:rgba(255,255,255,.15)}
+.card .okc{color:#7BE0AE}
+.card.lost .rfq{transition:filter .6s,opacity .6s}
+.card.lost.grey .rfq{filter:grayscale(1);opacity:.55}
+.days{position:absolute;left:0;right:0;top:10px;display:flex;justify-content:space-between;padding:0 4px;z-index:1}
+.days span{color:var(--faint);transition:color .2s}
+.days span.on{color:var(--ink)}
+.days span.bad{color:#C0392B}
+.result{display:grid;grid-template-columns:auto auto 1fr;gap:clamp(20px,4vw,56px);align-items:end;opacity:.25;transition:opacity .6s}
+.result.on{opacity:1}
+.result .stat strong{font-size:clamp(40px,5vw,76px)}
+.result .src{justify-self:end;max-width:260px;color:var(--dim)}
+.disclaimer{color:var(--dim)}
+
+/* ---------- 9. Conclusion ---------- */
+#s9 h2{max-width:16ch}
+.frise{position:relative;margin:clamp(28px,6vh,64px) 0 clamp(24px,5vh,48px)}
+.frise svg{width:100%;height:90px;overflow:visible}
+.frise .base{stroke:var(--line);stroke-width:2}
+.frise .run{stroke:url(#fgrad);stroke-width:3;stroke-linecap:round}
+.frise text{font-family:var(--mono);font-size:11px;letter-spacing:.06em;fill:var(--ink)}
+.frise text.d{fill:var(--dim)}
+.frise circle{fill:var(--paper);stroke:var(--ink);stroke-width:1.5}
+.frise circle.big{fill:var(--orange);stroke:var(--orange)}
+.end{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.breathe{animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:0 0 0 10px rgba(242,107,29,.12)}}
+.contact{display:flex;flex-direction:column;gap:8px}
+.contact button{display:flex;gap:14px;align-items:center;justify-content:space-between;min-width:280px;border-bottom:1px solid var(--line);padding:8px 0;text-align:left}
+.contact button span:last-child{color:var(--dim)}
+.contact button.done span:last-child{color:var(--green)}
+footer{position:relative;z-index:1;padding:28px var(--gut);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--dim);border-top:1px solid var(--line)}
+.logos{display:flex;gap:18px;align-items:center}
+.logos img{height:22px;width:auto}
+
+/* ---------- Mobile ---------- */
+@media (max-width:900px){
+  html{scroll-snap-type:y proximity}
+  .guides i:nth-child(1),.guides i:nth-child(3),.rail{display:none}
+  .meter .lbl-long,.cta-mini span{display:none}
+  .brand .x,.brand .mils{display:none}
+  #s1 .wrap{grid-template-columns:1fr;min-height:0;gap:22px}
+  #s1 .machine{max-width:230px;order:-1}
+  .prompt,.feat{margin-top:0}
+  .feat{display:none}
+  #s2 .wrap{grid-template-columns:1fr}
+  .map{max-width:300px;margin:0 auto;order:-1}
+  .piece-s .wrap{grid-template-columns:1fr}
+  .piece-s .machine{max-width:200px;order:2}
+  #s1 .machine svg{max-height:34vh}
+  .piece-s .copy{order:1}
+  .piece-s .proof{order:3}
+  .cards{grid-template-columns:1fr 1fr}
+  .result{grid-template-columns:1fr 1fr}
+  .result .src{grid-column:1/-1;justify-self:start}
+  .card{width:44%}
+  .contact button{min-width:0;width:100%}
+}
+@media (max-width:420px){ .card{width:46%;padding:0} .card .row:nth-of-type(n+3){display:none} }
+
+/* ---------- Mouvement réduit : état final direct ---------- */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*:before,*:after{animation:none!important;transition:none!important}
+  .rv,h1.out .ln{opacity:1!important;transform:none!important;clip-path:none!important}
+  .proof{clip-path:none}
+}
+</style>
+</head>
+<body>
+<div class="guides" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="nav">
+  <div class="brand"><b aria-hidden="true"></b>CCA <span class="x">×</span> <span class="mils">LOGO MILS</span></div>
+  <div class="meter mono" id="meter" aria-live="polite"><span class="lbl">Pièces <span id="cnt">0</span>/6</span><span class="bar"><u id="bar"></u></span></div>
+  <a class="cta-mini mono" href="#s9" style="text-decoration:none;color:inherit"><span>Démonstration</span></a>
+</header>
+
+<nav class="rail mono" id="rail" aria-label="Sections"></nav>
+
+<main>
+<!-- 1. ACCROCHE -->
+<section class="s" id="s1" data-label="Accroche">
+  <canvas class="dust" id="dust" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="prompt mono rv" aria-hidden="true">
+      <div class="tab">“</div>
+      <div class="box"><span id="typed"></span><span class="caret"></span></div>
+      <div class="next" id="typedNext"></div>
+    </div>
+    <div class="machine rv" data-machine></div>
+    <ul class="feat mono rv">
+      <li>Marque</li><li>Site B2B</li><li>Formulaires RFQ</li><li>CRM</li><li>Visibilité</li><li>Prospection</li><li class="res">= Demandes de devis</li>
+    </ul>
+    <div class="hero-title">
+      <div>
+        <p class="mono eyebrow rv">Proposition CCA pour MILS</p>
+        <h1 class="out" aria-label="Assemblez la machine"><span><i class="ln" style="font-style:normal">Assemblez</i></span><br><span><i class="ln" style="font-style:normal">la machine</i></span></h1>
+      </div>
+      <div class="hero-side rv">
+        <p class="lead">Une machine à demandes de devis se construit en 10 semaines.</p>
+        <a class="btn" href="#s2" style="text-decoration:none"><span class="dot"></span>Commencer</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. LE DÉFI -->
+<section class="s" id="s2" data-label="Le défi">
+  <div class="wrap">
+    <div>
+      <p class="mono eyebrow rv">Le défi</p>
+      <h2 class="rv">Peu de décideurs.<br><span class="dim">Difficiles à atteindre.</span></h2>
+      <div class="stats rv">
+        <div class="stat"><strong><span data-count="94">0</span><small> t</small></strong><span class="mono">d'or en 2025</span></div>
+        <div class="stat"><strong data-count="15">0</strong><span class="mono">mines en activité</span></div>
+        <div class="stat txt"><strong>Des décideurs peu nombreux et difficiles à atteindre.</strong></div>
+      </div>
+    </div>
+    <div class="map rv" aria-hidden="true"><svg id="bf" viewBox="0 0 420 300"></svg><p class="mono dim" style="text-align:center;margin-top:8px">Burkina Faso</p></div>
+  </div>
+</section>
+
+<!-- 3. MARQUE -->
+<section class="s piece-s" id="s3" data-label="Marque">
+  <div class="wrap">
+    <div class="copy">
+      <p class="mono num rv"><b>1</b>Pièce Marque</p>
+      <h2 class="rv">Une marque qui inspire confiance <span class="grad-text">aux mines.</span></h2>
+      <p class="lead rv">Charte, brand book, branding terrain.</p>
+      <div class="cards rv" style="grid-template-columns:1fr"><button class="pc" data-piece="marque"><span class="k">Marque</span><span class="h">Installer · glisser vers la machine</span></button></div>
+    </div>
+    <div class="machine" data-machine></div>
+    <figure class="proof" data-proof="marque">
+      <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-3-charte-abcd.webp" alt="Planche de charte ABCD (Burundi) réalisée par CCA"><span class="ph mono">Planche de charte ABCD (Burundi)</span></div></div>
+      <span class="tag mono">Déjà fait par CCA</span>
+      <figcaption class="mono">Charte ABCD · Burundi</figcaption>
+      <div class="lock mono">Installez la pièce pour voir la preuve</div>
+    </figure>
+  </div>
+</section>
+
+<!-- 4. SITE B2B -->
+<section class="s piece-s" id="s4" data-label="Site B2B">
+  <div class="wrap">
+    <div class="copy">
+      <p class="mono num rv"><b>2</b>Pièce Site B2B</p>
+      <h2 class="rv">Un catalogue d'engins <span class="grad-text">en français et en anglais.</span></h2>
+      <div class="cards rv" style="grid-template-columns:1fr"><button class="pc" data-piece="site"><span class="k">Site B2B</span><span class="h">Installer · glisser vers la machine</span></button></div>
+    </div>
+    <div class="machine" data-machine></div>
+    <figure class="proof" data-proof="site">
+      <div class="shots-2">
+        <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-4-site-comptoir-gep.webp" alt="Site comptoir-gep.tn réalisé par CCA"><span class="ph mono">comptoir-gep.tn</span></div></div>
+        <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-4-demo-accueil-mils.webp" alt="Écran de démonstration : accueil MILS"><span class="ph mono">Démo accueil MILS</span></div></div>
+      </div>
+      <span class="tag mono">Déjà fait par CCA</span>
+      <figcaption class="mono">comptoir-gep.tn · démo MILS</figcaption>
+      <div class="lock mono">Installez la pièce pour voir la preuve</div>
+    </figure>
+  </div>
+</section>
+
+<!-- 5. FORMULAIRES -->
+<section class="s piece-s" id="s5" data-label="Formulaires">
+  <div class="wrap">
+    <div class="copy">
+      <p class="mono num rv"><b>3</b>Pièce Formulaires RFQ</p>
+      <h2 class="rv">Chaque demande reçoit <span class="grad-text">un numéro et un commercial.</span></h2>
+      <div class="cards rv" style="grid-template-columns:1fr"><button class="pc" data-piece="rfq"><span class="k">Formulaires RFQ</span><span class="h">Installer · glisser vers la machine</span></button></div>
+    </div>
+    <div class="machine" data-machine></div>
+    <figure class="proof" data-proof="rfq">
+      <div class="shots-2">
+        <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-5-demo-fiche-engin.webp" alt="Écran de démonstration : fiche engin MILS"><span class="ph mono">Démo fiche engin</span></div></div>
+        <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-5-formulaire-location.webp" alt="Formulaire de demande de location"><span class="ph mono">Formulaire location</span></div></div>
+      </div>
+      <span class="tag mono">Déjà fait par CCA</span>
+      <figcaption class="mono">Fiche engin · formulaire de location</figcaption>
+      <div class="lock mono">Installez la pièce pour voir la preuve</div>
+    </figure>
+  </div>
+</section>
+
+<!-- 6. CRM -->
+<section class="s piece-s" id="s6" data-label="CRM">
+  <div class="wrap">
+    <div class="copy">
+      <p class="mono num rv"><b>4</b>Pièce CRM</p>
+      <h2 class="rv">Aucune demande <span class="grad-text">ne se perd.</span></h2>
+      <p class="lead rv">CRM Twenty, propriété de MILS.</p>
+      <div class="cards rv" style="grid-template-columns:1fr"><button class="pc" data-piece="crm"><span class="k">CRM</span><span class="h">Installer · glisser vers la machine</span></button></div>
+    </div>
+    <div class="machine" data-machine></div>
+    <figure class="proof" data-proof="crm">
+      <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-6-crm-leads.webp" alt="Tableau de bord de leads, données anonymisées"><span class="ph mono">Tableau de bord de leads (anonymisé)</span></div></div>
+      <span class="tag mono">Déjà fait par CCA</span>
+      <figcaption class="mono">Noms et coordonnées floutés</figcaption>
+      <div class="lock mono">Installez la pièce pour voir la preuve</div>
+    </figure>
+  </div>
+</section>
+
+<!-- 7. VISIBILITÉ + PROSPECTION -->
+<section class="s piece-s" id="s7" data-label="Visibilité">
+  <div class="wrap">
+    <div class="copy">
+      <p class="mono num rv"><b>5</b>Pièces Visibilité + Prospection</p>
+      <h2 class="rv">MILS visible là où <span class="grad-text">cherchent les décideurs.</span></h2>
+      <p class="lead rv">On va chercher les comptes qui ne cherchent pas.</p>
+      <div class="cards rv">
+        <button class="pc" data-piece="visi"><span class="k">Visibilité</span><span class="h">Installer</span></button>
+        <button class="pc" data-piece="prosp"><span class="k">Prospection</span><span class="h">Installer</span></button>
+      </div>
+    </div>
+    <div class="machine" data-machine></div>
+    <figure class="proof" data-proof="visi prosp">
+      <div class="shots-2">
+        <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-7-linkedin-client.webp" alt="Page LinkedIn d'un client B2B animée par CCA"><span class="ph mono">Page LinkedIn client</span></div></div>
+        <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-7-salesfactory.webp" alt="Visuel CCA Salesfactory"><span class="ph mono">Visuel Salesfactory</span></div></div>
+      </div>
+      <span class="tag mono">Déjà fait par CCA</span>
+      <figcaption class="mono">LinkedIn client · CCA Salesfactory</figcaption>
+      <div class="lock mono">Installez une pièce pour voir la preuve</div>
+    </figure>
+  </div>
+</section>
+
+<!-- 8. LANCEMENT -->
+<section class="s" id="s8" data-label="Lancement">
+  <div class="wrap">
+    <div class="l-head">
+      <div>
+        <p class="mono eyebrow rv">Lancement</p>
+        <h2 class="rv">Une demande entre.<br><span class="dim" style="font-style:italic">Un devis sort.</span></h2>
+      </div>
+      <div class="side rv">
+        <div class="leds" id="leds" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <button class="btn hot" id="launch" disabled><span class="dot"></span>Lancer la machine</button>
+        <p class="mono missing" id="missing"></p>
+      </div>
+    </div>
+
+    <div class="track rv">
+      <div class="lbl mono"><span>Avec la machine</span><span class="dim">Scénario type</span></div>
+      <div class="lane" id="laneA">
+        <canvas id="fx"></canvas>
+        <div class="scan" aria-hidden="true"></div>
+        <div class="badge" id="badge"><b id="clock">0 h</b><s>délai</s></div>
+        <div class="card" id="cardA">
+          <div class="face rfq"><span class="mono dim">Demande de devis · RFQ-0427</span><h4>Location de 2 chargeuses</h4><div class="row"><span>Chantier</span><span>Mine</span></div><div class="row"><span>Reçue</span><span>J+0</span></div></div>
+          <div class="face dev"><span class="mono" style="opacity:.6">Devis · RFQ-0427</span><h4>Devis envoyé</h4><div class="row"><span>Commercial</span><span>Attribué</span></div><div class="row"><span>Délai</span><span class="okc">● 24 h</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="track rv">
+      <div class="lbl mono"><span>Sans dispositif</span><span class="dim">Scénario type</span></div>
+      <div class="lane" id="laneB">
+        <div class="days mono" id="days"><span>J+0</span><span>J+1</span><span>J+2</span><span>J+3</span><span>J+4</span><span>J+5</span><span>J+6</span></div>
+        <div class="card lost" id="cardB">
+          <div class="face rfq"><span class="mono dim">Demande de devis</span><h4>Location de 2 chargeuses</h4><div class="row"><span>Suivi</span><span>Aucun</span></div><div class="row"><span>Statut</span><span id="lostStatus">En attente</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="stat"><strong>≈ <span data-gep="100">0</span></strong><span class="mono">leads par mois</span></div>
+      <div class="stat"><strong>+<span data-gep="500000">0</span> DT</strong><span class="mono">de CA annuel</span></div>
+      <p class="src mono">Comptoir GEP · déjà fait par CCA</p>
+    </div>
+    <p class="mono disclaimer">Chronologie J+0 à J+6 et devis en 24 h : scénario type, pas une mesure.</p>
+  </div>
+</section>
+
+<!-- 9. CONCLUSION -->
+<section class="s" id="s9" data-label="Planning">
+  <div class="wrap">
+    <p class="mono eyebrow rv">Planning</p>
+    <h2 class="rv">10 semaines pour lancer, <span class="grad-text">12 mois pour faire croître.</span></h2>
+    <div class="frise rv" aria-label="Frise : semaine 1, semaine 10, mois 12"><svg id="frise" viewBox="0 0 1000 90" preserveAspectRatio="none"></svg></div>
+    <div class="end">
+      <div class="rv" style="display:flex;flex-direction:column;gap:18px;align-items:flex-start">
+        <p class="lead" style="font-size:clamp(18px,1.6vw,24px);letter-spacing:-.01em">Rencontrons-nous pour la démonstration.</p>
+        <a class="btn hot breathe" id="demoBtn" href="#" style="text-decoration:none"><span class="dot" style="background:#fff"></span>Demander la démonstration</a>
+      </div>
+      <div class="contact rv mono" id="contact">
+        <!-- Remplacer par les coordonnées CCA officielles -->
+        <button data-copy="contact@cca.tn"><span>contact@cca.tn</span><span>Copier</span></button>
+        <button data-copy="+216 00 000 000"><span>+216 00 000 000</span><span>Copier</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="mono">
+  <div class="logos"><img data-src="assets/logo-cca.svg" alt="CCA"><img data-src="assets/logo-salesfactory.svg" alt="CCA Salesfactory"></div>
+  <span>Document confidentiel · offre technique · aucun prix</span>
+</footer>
+
+<script>
+(()=>{
+"use strict";
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const sleep=ms=>new Promise(r=>setTimeout(r,RM?0:ms));
+const PIECES=[["marque","MARQUE"],["site","SITE B2B"],["rfq","RFQ"],["crm","CRM"],["visi","VISIBILITÉ"],["prosp","PROSPECTION"]];
+const installed=new Set();
+
+/* Images : chargées seulement si présentes */
+$$('img[data-src]').forEach(img=>{
+  img.onload=()=>{const ph=img.nextElementSibling; if(ph&&ph.classList.contains('ph')) ph.remove();};
+  img.onerror=()=>img.remove();
+  img.loading='lazy'; img.decoding='async'; img.src=img.dataset.src;
+});
+
+/* ---------- Machine (SVG partagé) ---------- */
+function machineSVG(hopper){
+  const slots=PIECES.map(([k,l],i)=>{const x=i%2?220:96,y=168+Math.floor(i/2)*82;
+    return `<g class="slot" data-slot="${k}"><rect x="${x}" y="${y}" width="104" height="66" rx="10"/><text x="${x+52}" y="${y+37}">${l}</text></g>`}).join('');
+  const leds=[0,1,2,3,4,5].map(i=>`<circle class="led" cx="${112+i*18}" cy="140" r="4.5"/>`).join('');
+  return `<svg viewBox="30 0 360 560" role="img" aria-label="Machine à demandes de devis">
+  <defs><linearGradient id="mg" x1="0" x2="1"><stop offset="0" stop-color="#F26B1D"/><stop offset=".5" stop-color="#FF9A3D"/><stop offset="1" stop-color="#1F5FBF"/></linearGradient>
+  <linearGradient id="ms" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#E7E4DE"/></linearGradient></defs>
+  <path d="M150 40h120l-22 60h-76z" fill="url(#ms)" stroke="#14161A" stroke-width="1.2"/>
+  ${hopper?`<g class="hopper-card"><rect x="178" y="6" width="64" height="38" rx="4" fill="#fff" stroke="#F26B1D" stroke-width="1.5"/><text x="210" y="29" font-family="IBM Plex Mono,monospace" font-size="9" text-anchor="middle" fill="#F26B1D">RFQ</text></g>`:''}
+  <rect x="60" y="100" width="300" height="330" rx="28" fill="url(#ms)" stroke="#14161A" stroke-width="1.2" style="filter:drop-shadow(0 18px 24px rgba(0,0,0,.1))"/>
+  <rect class="frame" x="72" y="112" width="276" height="306" rx="20" fill="none" stroke="url(#mg)" stroke-width="3"/>
+  ${leds}<text class="m-count" x="330" y="144">MACHINE · <tspan data-mc>0</tspan>/6</text>
+  ${slots}
+  <path d="M300 430h40l30 40h-50z" fill="#14161A"/>
+  <rect x="40" y="430" width="340" height="110" rx="6" fill="#2A2928"/>
+  <text x="210" y="492" font-family="IBM Plex Mono,monospace" font-size="11" fill="rgba(255,255,255,.55)" text-anchor="middle" letter-spacing="2">[ LOGO MILS ]</text></svg>`;
+}
+$$('[data-machine]').forEach((m,i)=>m.innerHTML=machineSVG(i===0));
+
+function refresh(){
+  const n=installed.size;
+  $('#cnt').textContent=n; $('#bar').style.width=(n/6*100)+'%';
+  $('#meter').classList.toggle('full',n===6);
+  $$('[data-mc]').forEach(t=>t.textContent=n);
+  $$('.led').forEach(l=>{const i=[...l.parentNode.querySelectorAll('.led')].indexOf(l);l.classList.toggle('on',i<n);});
+  const left=PIECES.filter(([k])=>!installed.has(k));
+  const btn=$('#launch'); btn.disabled=n<6;
+  const map={marque:'s3',site:'s4',rfq:'s5',crm:'s6',visi:'s7',prosp:'s7'};
+  $('#missing').innerHTML=n<6?`Il manque ${6-n} pièce${6-n>1?'s':''} : `+left.map(([k,l])=>`<a href="#${map[k]}">${l.toLowerCase()}</a>`).join(', '):'Machine prête.';
+}
+
+/* ---------- Installation d'une pièce ---------- */
+async function install(btn){
+  const k=btn.dataset.piece; if(installed.has(k)) return;
+  const sec=btn.closest('section'), slot=$(`[data-slot="${k}"] rect`,sec);
+  const from=btn.getBoundingClientRect(), to=slot.getBoundingClientRect();
+  if(!RM){
+    const fl=btn.cloneNode(true); fl.classList.add('flyer'); fl.classList.remove('dragging'); fl.removeAttribute('style');
+    Object.assign(fl.style,{left:from.left+'px',top:from.top+'px',width:from.width+'px',height:from.height+'px'});
+    document.body.appendChild(fl); btn.classList.add('ghost');
+    const dx=to.left+to.width/2-(from.left+from.width/2), dy=to.top+to.height/2-(from.top+from.height/2);
+    const s=Math.min(to.width/from.width,to.height/from.height);
+    await fl.animate([{transform:btn.style.transform||'none'},{transform:`translate(${dx}px,${dy}px) scale(${s})`,opacity:.9}],{duration:600,easing:'cubic-bezier(.34,1.56,.64,1)',fill:'forwards'}).finished;
+    fl.remove(); btn.classList.remove('ghost');
+  }
+  btn.style.transform='';
+  installed.add(k);
+  $$(`[data-slot="${k}"]`).forEach(g=>{g.classList.add('on');g.classList.remove('flash');void g.getBBox();g.classList.add('flash');});
+  btn.classList.add('ok'); btn.disabled=true; $('.h',btn).textContent='Installée';
+  $$('[data-proof]',sec).forEach(p=>{ if(p.dataset.proof.split(' ').includes(k)) p.classList.add('open'); });
+  refresh();
+}
+
+/* Clic, clavier et glisser-déposer */
+$$('.pc').forEach(btn=>{
+  let sx,sy,drag=false,id=null;
+  btn.addEventListener('pointerdown',e=>{ if(btn.disabled) return; sx=e.clientX; sy=e.clientY; drag=false; id=e.pointerId; btn.setPointerCapture(id); });
+  btn.addEventListener('pointermove',e=>{
+    if(id!==e.pointerId) return; const dx=e.clientX-sx, dy=e.clientY-sy;
+    if(!drag && Math.hypot(dx,dy)>6){drag=true;btn.classList.add('dragging');}
+    if(drag){ btn.style.transform=`translate(${dx}px,${dy}px) rotate(${Math.max(-4,Math.min(4,dx/40))}deg)`;
+      const m=$('[data-machine]',btn.closest('section')).getBoundingClientRect();
+      const over=e.clientX>m.left&&e.clientX<m.right&&e.clientY>m.top&&e.clientY<m.bottom;
+      $(`[data-slot="${btn.dataset.piece}"]`,btn.closest('section')).classList.toggle('target',over); }
+  });
+  const end=e=>{
+    if(id!==e.pointerId) return; id=null;
+    const slot=$(`[data-slot="${btn.dataset.piece}"]`,btn.closest('section')); const hit=slot.classList.contains('target'); slot.classList.remove('target');
+    btn.classList.remove('dragging');
+    if(drag){ if(hit) install(btn); else { btn.animate([{transform:btn.style.transform},{transform:'none'}],{duration:RM?0:400,easing:'cubic-bezier(.2,.7,.2,1)'}); btn.style.transform=''; } }
+    else if(e.type==='pointerup') install(btn);
+  };
+  btn.addEventListener('pointerup',end); btn.addEventListener('pointercancel',end);
+  btn.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); install(btn);} });
+});
+
+/* ---------- Navigation et révélations ---------- */
+const secs=$$('section.s'), rail=$('#rail');
+secs.forEach((s,i)=>{const a=document.createElement('a');a.href='#'+s.id;a.innerHTML=`<span>${String(i+1).padStart(2,'0')} ${s.dataset.label}</span><i></i>`;rail.appendChild(a);});
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){ e.target.classList.add('in');
+    if(e.intersectionRatio>.5){ const i=secs.indexOf(e.target); $$('a',rail).forEach((a,j)=>a.classList.toggle('on',i===j)); }
+    if(e.target.id==='s2') counters(); if(e.target.id==='s9') drawFrise();
+  }}),{threshold:[.15,.55]});
+secs.forEach(s=>io.observe(s));
+
+/* Compteurs */
+function countTo(el,to,ms){ if(el.dataset.done) return; el.dataset.done=1;
+  const fmt=n=>Math.round(n).toLocaleString('fr-FR');
+  if(RM){el.textContent=fmt(to);return;}
+  const t0=performance.now(); const f=t=>{const p=Math.min(1,(t-t0)/ms); el.textContent=fmt(to*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(f);}; requestAnimationFrame(f); }
+function counters(){ $$('#s2 [data-count]').forEach(el=>countTo(el,+el.dataset.count,1200)); }
+
+/* ---------- 1. Frappe automatique + poussière ---------- */
+const PROMPTS=["Demande de location : 2 chargeuses, chantier minier, 3 mois.","Besoin d'une grue mobile pour un chantier BTP à Ouagadougou.","Devis pour un chariot élévateur, plateforme logistique.","Location longue durée : camions-bennes, exploitation aurifère."];
+(function type(){ const el=$('#typed'), nx=$('#typedNext'); let p=0,i=0,del=false;
+  if(RM){el.textContent=PROMPTS[0];nx.textContent=PROMPTS[1];return;}
+  (function step(){ const s=PROMPTS[p]; nx.textContent=PROMPTS[(p+1)%PROMPTS.length];
+    if(!del){ el.textContent=s.slice(0,++i); if(i===s.length){del=true;return setTimeout(step,2600);} return setTimeout(step,38); }
+    i=Math.max(0,i-2); el.textContent=s.slice(0,i); if(i===0){del=false;p=(p+1)%PROMPTS.length;return setTimeout(step,250);} setTimeout(step,14); })(); })();
+(function dust(){ if(RM) return; const c=$('#dust'),x=c.getContext('2d'); let w,h,pts=[];
+  const rs=()=>{const d=Math.min(2,devicePixelRatio||1);w=c.clientWidth;h=c.clientHeight;c.width=w*d;c.height=h*d;x.setTransform(d,0,0,d,0,0);
+    pts=Array.from({length:Math.round(w*h/18000)},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+.3,v:Math.random()*.15+.05,o:Math.random()*.35+.1}));};
+  rs(); addEventListener('resize',rs);
+  let on=true; new IntersectionObserver(e=>on=e[0].isIntersecting).observe($('#s1'));
+  (function f(){ if(on){ x.clearRect(0,0,w,h); pts.forEach(p=>{p.y-=p.v;p.x+=Math.sin(p.y/40)*.1; if(p.y<0)p.y=h; x.fillStyle=`rgba(20,22,26,${p.o})`; x.fillRect(p.x,p.y,p.r,p.r);}); } requestAnimationFrame(f); })(); })();
+
+/* ---------- 2. Silhouette du Burkina Faso (tracé simplifié) ---------- */
+(function map(){
+  const P=[[-5.5,10.4],[-4.8,9.9],[-4.3,9.6],[-3.6,9.9],[-2.8,9.6],[-2.7,10.4],[-2.9,11.0],[-1.5,11.0],[-0.6,11.0],[0.0,11.1],[0.4,11.0],[0.9,11.0],[1.4,11.4],[2.1,11.6],[2.4,12.3],[2.1,12.7],[1.6,12.6],[1.0,13.0],[0.5,13.6],[0.2,14.5],[-0.5,15.1],[-1.1,15.0],[-2.0,14.2],[-2.9,13.6],[-3.4,13.3],[-4.1,13.2],[-4.4,12.6],[-5.0,11.9],[-5.4,11.4]];
+  const pt=([lo,la])=>[(lo+5.7)*48+20,(15.3-la)*48+20];
+  const d='M'+P.map(p=>pt(p).map(v=>v.toFixed(1)).join(' ')).join('L')+'Z';
+  const [ox,oy]=pt([-1.52,12.37]);
+  const svg=$('#bf');
+  svg.innerHTML=`<defs><linearGradient id="mapgrad" x1="0" x2="1"><stop offset="0" stop-color="#F26B1D"/><stop offset="1" stop-color="#1F5FBF"/></linearGradient></defs>
+  <path class="fill" d="${d}"/><path class="outline" id="bfo" d="${d}"/>
+  <circle class="pin-ring" cx="${ox}" cy="${oy}" r="3"/><circle class="pin" cx="${ox}" cy="${oy}" r="4"/>
+  <text x="${ox+10}" y="${oy+4}" font-family="IBM Plex Mono,monospace" font-size="10" fill="#14161A">OUAGADOUGOU</text>`;
+  const o=$('#bfo'), L=o.getTotalLength(); o.style.strokeDasharray=L; o.style.strokeDashoffset=RM?0:L;
+  if(!RM) new IntersectionObserver((e,ob)=>{ if(e[0].isIntersecting){ o.animate([{strokeDashoffset:L},{strokeDashoffset:0}],{duration:1200,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'}); ob.disconnect(); }},{threshold:.4}).observe($('#s2'));
+})();
+
+/* ---------- 8. Lancement ---------- */
+const laneA=$('#laneA'), cardA=$('#cardA'), laneB=$('#laneB'), cardB=$('#cardB'), fx=$('#fx'), ctx=fx.getContext('2d');
+const PAL=['#FF4A12','#F26B1D','#FF6B2C','#FF8A3D','#FFB06A','#FFD9B5','#FFF3E6'];
+let sparks=[];
+function sizeFx(){const d=Math.min(2,devicePixelRatio||1);fx.width=laneA.clientWidth*d;fx.height=laneA.clientHeight*d;ctx.setTransform(d,0,0,d,0,0);}
+// La carte va de gauche à droite : la partie déjà passée (à droite de la ligne) devient le devis.
+function placeA2(x){
+  const W=laneA.clientWidth, cw=cardA.offsetWidth, L=W/2, cut=Math.max(0,Math.min(cw,x+cw-L));
+  cardA.style.transform=`translate3d(${x}px,0,0)`;
+  $('.rfq',cardA).style.clipPath=`inset(0 ${cut}px 0 0 round 12px)`;
+  $('.dev',cardA).style.clipPath=`inset(0 0 0 ${cw-cut}px round 12px)`;
+  return {cut,cw,L,x};
+}
+function drawFx(st,t){
+  const W=laneA.clientWidth,H=laneA.clientHeight; ctx.clearRect(0,0,W,H);
+  if(st&&st.cut>0&&st.cut<st.cw){
+    const top=cardA.offsetTop,ch=cardA.offsetHeight, L=st.L;
+    for(let gx=0;gx<26;gx++){ const sx=L-gx*3, p=Math.pow(1-gx/26,1.7);
+      for(let gy=-2;gy<ch/3+2;gy++){ if(Math.random()>p*.85) continue;
+        const near=gx<4; ctx.fillStyle=PAL[near?4+Math.floor(Math.random()*3):Math.floor(Math.random()**2*7)];
+        const s=1.1+Math.random()*1.5; ctx.fillRect(sx-Math.random()*1.6,top+gy*3+Math.random()*1.6,s,s);} }
+    for(let i=0;i<3;i++) if(Math.random()<.7) sparks.push({x:L-Math.random()*20,y:top+Math.random()*ch,vx:-20-Math.random()*50,vy:(Math.random()-.5)*50,l:.3+Math.random()*.8,c:PAL[Math.floor(Math.random()*7)],s:.8+Math.random()*1.8});
+  }
+  sparks=sparks.filter(s=>(s.l-=1/60)>0); sparks.forEach(s=>{s.x+=s.vx/60;s.y+=s.vy/60;ctx.globalAlpha=Math.min(1,s.l*2.2);ctx.fillStyle=s.c;ctx.fillRect(s.x,s.y,s.s,s.s);}); ctx.globalAlpha=1;
+}
+function resetLaunch(){ sizeFx(); const cw=cardA.offsetWidth; placeA2(-cw-10); cardB.style.transform=`translate3d(${-cw-10}px,0,0)`; cardB.style.opacity=1; cardB.classList.remove('grey');
+  $$('#days span').forEach(s=>s.className=''); $('#lostStatus').textContent='En attente'; $('#badge').style.opacity=0; $('#clock').textContent='0 h'; $('#result').classList.remove('on'); }
+function finalState(){ sizeFx(); const W=laneA.clientWidth,cw=cardA.offsetWidth; placeA2(W-cw-8); $('#badge').style.opacity=1; $('#clock').textContent='24 h';
+  cardB.style.transform=`translate3d(${W*.32}px,40px,0) rotate(8deg)`; cardB.classList.add('grey'); cardB.style.opacity=.35;
+  $$('#days span').forEach((s,i)=>s.className=i<6?'on':'bad'); $('#lostStatus').textContent='Perdue à J+6';
+  $('#result').classList.add('on'); $$('[data-gep]').forEach(el=>{el.dataset.done='';countTo(el,+el.dataset.gep,0)}); }
+addEventListener('resize',()=>{ if(launched) finalState(); else resetLaunch(); });
+let launched=false, running=false;
+$('#launch').addEventListener('click',async()=>{
+  if(running||installed.size<6) return; running=true; launched=true;
+  if(RM){ $$('#leds i').forEach(i=>i.classList.add('on')); finalState(); running=false; return; }
+  resetLaunch();
+  for(const l of $$('#leds i')){ l.classList.add('on'); await sleep(110); }
+  $$('.led').forEach(l=>l.classList.add('go'));
+  $('#badge').style.opacity=1;
+  const W=laneA.clientWidth, cw=cardA.offsetWidth, x0=-cw-10, x1=W-cw-8, xB=W*.32, T=3200, t0=performance.now();
+  const ease=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+  await new Promise(done=>{ (function f(t){ const p=Math.min(1,(t-t0)/T);
+    const st=placeA2(x0+(x1-x0)*ease(p)); drawFx(st,t);
+    $('#clock').textContent=Math.round(24*Math.min(1,st.cut/st.cw))+' h';
+    // voie B : ralentit puis s'arrête, les jours passent
+    const pb=1-Math.pow(1-Math.min(1,p*1.25),3); cardB.style.transform=`translate3d(${x0+(xB-x0)*pb}px,0,0)`;
+    const day=Math.min(6,Math.floor(p*7)); $$('#days span').forEach((s,i)=>s.className=i<=day?(i===6?'bad':'on'):'');
+    if(p>.55) cardB.classList.add('grey');
+    if(p<1) requestAnimationFrame(f); else done(); })(t0); });
+  $('#lostStatus').textContent='Perdue à J+6';
+  // la demande perdue tombe après le devis
+  await cardB.animate([{transform:`translate3d(${xB}px,0,0)`,opacity:1},{transform:`translate3d(${xB+10}px,60px,0) rotate(10deg)`,opacity:.35}],{duration:700,easing:'cubic-bezier(.5,0,.75,0)',fill:'forwards'}).finished;
+  cardB.style.transform=`translate3d(${xB+10}px,60px,0) rotate(10deg)`; cardB.style.opacity=.35;
+  (function fade(){ if(sparks.length){drawFx(null);requestAnimationFrame(fade);} else ctx.clearRect(0,0,fx.width,fx.height); })();
+  $('#result').classList.add('on'); $$('[data-gep]').forEach(el=>countTo(el,+el.dataset.gep,1100));
+  running=false;
+});
+requestAnimationFrame(resetLaunch);
+
+/* ---------- 9. Frise + coordonnées ---------- */
+let friseDone=false;
+function drawFrise(){ if(friseDone) return; friseDone=true; const svg=$('#frise');
+  const wk=[...Array(10)].map((_,i)=>{const x=40+i*52;return `<circle cx="${x}" cy="40" r="${i===0||i===9?7:4}" class="${i===9?'big':''}"/>${i===0||i===9?`<text x="${x}" y="72" text-anchor="middle">S${i+1}</text>`:''}`}).join('');
+  svg.innerHTML=`<defs><linearGradient id="fgrad" x1="0" x2="1"><stop offset="0" stop-color="#F26B1D"/><stop offset=".55" stop-color="#FF9A3D"/><stop offset="1" stop-color="#1F5FBF"/></linearGradient></defs>
+  <line class="base" x1="40" y1="40" x2="960" y2="40"/><line class="run" id="frun" x1="40" y1="40" x2="960" y2="40"/>
+  ${wk}<circle cx="960" cy="40" r="9" style="fill:#1F5FBF;stroke:#1F5FBF"/>
+  <text x="508" y="18" text-anchor="middle" class="d">LANCEMENT · 10 SEMAINES</text><text x="760" y="18" text-anchor="middle" class="d">CROISSANCE · 12 MOIS</text><text x="960" y="72" text-anchor="middle">M12</text>`;
+  const r=$('#frun'), L=920; r.style.strokeDasharray=L;
+  if(RM){r.style.strokeDashoffset=0;return;} r.animate([{strokeDashoffset:L},{strokeDashoffset:0}],{duration:1500,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'});
+}
+$$('#contact button').forEach(b=>b.addEventListener('click',async()=>{
+  try{ await navigator.clipboard.writeText(b.dataset.copy); b.classList.add('done'); b.lastElementChild.textContent='Copié'; setTimeout(()=>{b.classList.remove('done');b.lastElementChild.textContent='Copier';},1800);}catch(e){}
+}));
+$('#demoBtn').addEventListener('click',e=>{e.preventDefault(); $('#contact button').focus(); $('#contact button').click();});
+
+refresh();
+})();
+</script>
+</body>
+</html>
