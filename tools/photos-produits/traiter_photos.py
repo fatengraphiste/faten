@@ -2,13 +2,15 @@
 
 Pour chaque image : détecte si le fond est uni et clair (blanc, gris, beige).
 - Fond uni  -> recadrage, produit centré sur un carré blanc (ombre en option).
-- Fond décoré / mise en situation -> image ignorée (listée dans rapport.csv).
+- Fond décoré / mise en situation -> image copiée telle quelle dans le dossier de sortie
+  (convertie en .webp si besoin), pour que chaque dossier produit reste complet.
 
 Usage :
     python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE [--taille 1200] [--fond FFFFFF] [--ombre]
 """
 import argparse
 import csv
+import shutil
 from pathlib import Path
 
 import cv2
@@ -119,6 +121,15 @@ def composer(rgb, masque, dist, fond_src, taille, gris, marge, ombre):
     return Image.fromarray(np.clip(toile, 0, 255).astype(np.uint8))
 
 
+def copier_sans_retouche(src, out, qualite):
+    """Photo d'ambiance : même place dans l'arborescence, aucune modification."""
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if src.suffix.lower() == ".webp":
+        shutil.copy2(src, out)
+    else:
+        Image.open(src).convert("RGB").save(out, "WEBP", quality=qualite, method=6)
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("source", type=Path)
@@ -139,21 +150,24 @@ def main():
         try:
             rgb = np.asarray(Image.open(f).convert("RGB"), dtype=np.float32)
             fond = analyser_fond(rgb)
+            out = args.sortie / rel.with_suffix(".webp")
             if fond is None:
-                rapport.append((rel, "ignorée", "fond non uni"))
+                copier_sans_retouche(f, out, args.qualite)
+                rapport.append((rel, "copiée sans retouche", "fond décoré / ambiance"))
                 continue
             masque, dist = masque_produit(rgb, fond)
             if masque.sum() < 0.01 * masque.size:
-                rapport.append((rel, "ignorée", "produit non détecté"))
+                copier_sans_retouche(f, out, args.qualite)
+                rapport.append((rel, "copiée sans retouche", "produit non détecté"))
                 continue
             img = composer(rgb, masque, dist, fond, args.taille, gris, args.marge, args.ombre)
-            out = args.sortie / rel.with_suffix(".webp")
             out.parent.mkdir(parents=True, exist_ok=True)
             img.save(out, "WEBP", quality=args.qualite, method=6)
             rapport.append((rel, "traitée", "fond %d,%d,%d" % tuple(fond)))
         except Exception as e:  # une image cassée ne bloque pas le lot
             rapport.append((rel, "erreur", str(e)))
-        print(*rapport[-1], sep=" | ")
+        finally:
+            print(*rapport[-1], sep=" | ")
 
     # utf-8-sig + « ; » : s'ouvre directement en colonnes avec les accents dans Excel (FR)
     with open(args.sortie / "rapport.csv", "w", newline="", encoding="utf-8-sig") as fh:

@@ -5,8 +5,9 @@ produit centré avec la même marge de 8 % sur toutes les photos, export `.webp`
 Sur une photo déjà sur fond blanc, le produit n'est pas retouché : il est seulement recadré et centré.
 
 - Les photos sur **fond uni clair** (blanc, gris, beige) sont traitées.
-- Les photos sur **fond décoré / mise en situation** sont ignorées (laissées telles quelles)
-  et listées dans `rapport.csv`.
+- Les photos sur **fond décoré / mise en situation** sont copiées telles quelles (sans retouche)
+  au même endroit dans le dossier de sortie, pour que chaque dossier produit reste complet.
+  Elles sont listées dans `rapport.csv` avec le statut « copiée sans retouche ».
 - Le nom de fichier et l'arborescence des dossiers sont conservés.
 
 ## Installation
