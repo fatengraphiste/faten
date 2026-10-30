@@ -155,8 +155,9 @@ def main():
             rapport.append((rel, "erreur", str(e)))
         print(*rapport[-1], sep=" | ")
 
-    with open(args.sortie / "rapport.csv", "w", newline="", encoding="utf-8") as fh:
-        csv.writer(fh).writerows([("fichier", "statut", "détail"), *rapport])
+    # utf-8-sig + « ; » : s'ouvre directement en colonnes avec les accents dans Excel (FR)
+    with open(args.sortie / "rapport.csv", "w", newline="", encoding="utf-8-sig") as fh:
+        csv.writer(fh, delimiter=";").writerows([("fichier", "statut", "détail"), *rapport])
 
 
 if __name__ == "__main__":
