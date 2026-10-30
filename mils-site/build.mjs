@@ -62,7 +62,7 @@ mkdirSync(out, { recursive: true });
 writeFileSync(join(out, "index.html"), login);
 // seules les captures de preuve sont servies à part ; les logos sont déjà intégrés
 if (existsSync(join(root, "assets"))) cpSync(join(root, "assets"), join(out, "assets"), {
-  recursive: true, filter: (f) => !/logo-/.test(f)
+  recursive: true, filter: (f) => !/assets\/logo-(cca|mils|salesfactory)/.test(f)
 });
 cpSync(join(root, "src/vercel.json"), join(out, "vercel.json"));
 console.log(`3D : ${(scene3d.length / 1024).toFixed(0)} Ko · dist/index.html : ${(login.length / 1024).toFixed(0)} Ko`);

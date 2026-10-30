@@ -214,6 +214,10 @@ footer svg{height:24px;width:auto}
 footer a{color:var(--text);text-decoration:none}
 
 
+.logofolio{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.logofolio span{display:grid;place-items:center;aspect-ratio:3/2;border-radius:10px;background:#fff;padding:10px;transition:transform .3s var(--out)}
+.logofolio span:hover{transform:scale(1.05)}
+.logofolio img{max-width:100%;max-height:100%;object-fit:contain}
 /* ---------- Références ---------- */
 section.refs{background:rgba(0,0,0,.94);justify-content:flex-start;padding-top:100px}
 section.refs .col{max-width:1240px}
@@ -322,8 +326,8 @@ section.refs .col{max-width:1240px}
     </ul>
     <div class="actions rv"><button class="btn install call" data-piece="marque"><span class="lbl">Installer la pièce<small>Marque · elle passe dans le portail</small></span><span class="go">→</span></button></div>
     <figure class="proof" data-proof="marque">
-      <div class="shot"><div class="bar"><i></i><i></i><i></i></div><div class="img"><img data-src="assets/ecran-3-charte-abcd.webp" alt="Planche de charte ABCD (Burundi) réalisée par CCA"><span class="ph cap">Planche de charte ABCD (Burundi)</span></div></div>
-      <span class="tag cap">Déjà fait par CCA · ABCD, Burundi</span>
+      <div class="logofolio"><span title="ABCD · Burundi"><img data-src="assets/logos/logo-abcd.svg" alt="ABCD · Burundi"></span><span title="Burinfo · Burundi"><img data-src="assets/logos/logo-burinfo.webp" alt="Burinfo · Burundi"></span><span title="AMA Construction"><img data-src="assets/logos/logo-ama-construction.svg" alt="AMA Construction"></span><span title="OMDI"><img data-src="assets/logos/logo-omdi.svg" alt="OMDI"></span><span title="MIQYES"><img data-src="assets/logos/logo-miqyes.webp" alt="MIQYES"></span><span title="THNITI"><img data-src="assets/logos/logo-thniti.webp" alt="THNITI"></span><span title="South Tourism Lab"><img data-src="assets/logos/logo-stl.webp" alt="South Tourism Lab"></span><span title="ROYA"><img data-src="assets/logos/logo-roya.svg" alt="ROYA"></span></div>
+      <span class="tag cap">Déjà fait par CCA · identités visuelles</span>
     </figure>
   </div>
 </section>
@@ -451,9 +455,9 @@ section.refs .col{max-width:1240px}
       <figure class="ref"><div class="rshot"><img data-src="assets/ref-prestige.webp" alt="Site Prestige Projects réalisé par CCA"></div><figcaption><b>Prestige Projects</b><span>Aménagement des espaces</span></figcaption></figure>
       <figure class="ref"><div class="rshot"><img data-src="assets/ref-growcoach.webp" alt="Site Growcoach réalisé par CCA"></div><figcaption><b>Growcoach</b><span>Services aux entreprises</span></figcaption></figure>
     </div>
-    <div class="clients rv" id="clients" hidden>
-      <p class="cap dim">Ils nous font confiance</p>
-      <div class="marquee"><div class="track2" id="clientTrack"></div></div>
+    <div class="clients rv" id="clients">
+      <p class="cap dim">Ils nous font confiance · références institutionnelles</p>
+      <div class="marquee"><div class="track2" id="clientTrack"><span><img src="assets/logos/client-giz.webp" alt="GIZ" loading="lazy"></span><span><img src="assets/logos/client-pnud.webp" alt="PNUD" loading="lazy"></span><span><img src="assets/logos/client-fsvc.webp" alt="FSVC" loading="lazy"></span><span><img src="assets/logos/client-bt.webp" alt="Banque de Tunisie" loading="lazy"></span><span><img src="assets/logos/client-attijari.webp" alt="Attijari bank" loading="lazy"></span><span><img src="assets/logos/client-mf-algerie.webp" alt="Ministère des Finances (Algérie)" loading="lazy"></span><span><img src="assets/logos/client-conect.webp" alt="CONECT" loading="lazy"></span><span><img src="assets/logos/client-esprit.webp" alt="ESPRIT" loading="lazy"></span><span><img src="assets/logos/client-sesame.webp" alt="SESAME" loading="lazy"></span><span><img src="assets/logos/client-giz.webp" aria-hidden="true" alt="GIZ" loading="lazy"></span><span><img src="assets/logos/client-pnud.webp" aria-hidden="true" alt="PNUD" loading="lazy"></span><span><img src="assets/logos/client-fsvc.webp" aria-hidden="true" alt="FSVC" loading="lazy"></span><span><img src="assets/logos/client-bt.webp" aria-hidden="true" alt="Banque de Tunisie" loading="lazy"></span><span><img src="assets/logos/client-attijari.webp" aria-hidden="true" alt="Attijari bank" loading="lazy"></span><span><img src="assets/logos/client-mf-algerie.webp" aria-hidden="true" alt="Ministère des Finances (Algérie)" loading="lazy"></span><span><img src="assets/logos/client-conect.webp" aria-hidden="true" alt="CONECT" loading="lazy"></span><span><img src="assets/logos/client-esprit.webp" aria-hidden="true" alt="ESPRIT" loading="lazy"></span><span><img src="assets/logos/client-sesame.webp" aria-hidden="true" alt="SESAME" loading="lazy"></span></div></div>
     </div>
   </div>
 </section>
