@@ -23,6 +23,13 @@ Déposer le contenu de `dist/` sur l'hébergement (par exemple mils.salesfactory
 
 Attention : les images de `assets/` ne sont pas chiffrées. Ne mettre aucune donnée client en clair (floutage obligatoire).
 
+## Statistiques (track.php)
+`track.php` compte les connexions réussies, les mots de passe erronés et les avis (1 à 5 étoiles) dans `data/stats.xml`.
+- Hébergement avec PHP 7.4 ou plus (Apache : le dossier `data/` est protégé par un `.htaccess` créé automatiquement).
+- Avant la mise en ligne, changer `CLE_LECTURE` dans `src/track.php`.
+- Consulter les chiffres : `https://<domaine>/track.php?cle=<CLE_LECTURE>`.
+- Vercel n'exécute pas PHP : sur Vercel, le compteur ne fonctionne pas (la page, elle, fonctionne).
+
 ## Captures attendues (`mils-site/assets/`)
 WebP, moins de 300 Ko, 2400 px de large (desktop) :
 - `ecran-3-charte-abcd.webp`

@@ -65,4 +65,5 @@ if (existsSync(join(root, "assets"))) cpSync(join(root, "assets"), join(out, "as
   recursive: true, filter: (f) => !/assets\/logo-(cca|mils|salesfactory)/.test(f)
 });
 cpSync(join(root, "src/vercel.json"), join(out, "vercel.json"));
+cpSync(join(root, "src/track.php"), join(out, "track.php"));
 console.log(`3D : ${(scene3d.length / 1024).toFixed(0)} Ko · dist/index.html : ${(login.length / 1024).toFixed(0)} Ko`);

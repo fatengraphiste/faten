@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
 <title>Proposition CCA pour MILS · accès réservé</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
@@ -83,6 +83,8 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const u8=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const f=document.getElementById('f'),pw=document.getElementById('pw'),msg=document.getElementById('msg'),field=document.getElementById('field'),gate=document.getElementById('gate');
 let fails=0,busy=false;
+// compteur de connexions (track.php, sur le même hébergement)
+const track=type=>{ try{ const d=JSON.stringify({type}); if(!navigator.sendBeacon||!navigator.sendBeacon('track.php',new Blob([d],{type:'application/json'}))) fetch('track.php',{method:'POST',body:d,keepalive:true}); }catch(e){} };
 async function open(pass){
   const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveKey']);
   const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:u8(P.s),iterations:P.n,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
@@ -92,12 +94,12 @@ async function open(pass){
 f.addEventListener('submit',async e=>{
   e.preventDefault(); if(busy||!pw.value) return; busy=true; gate.classList.add('busy'); msg.className='msg mono'; msg.textContent='Vérification…';
   try{
-    const html=await open(pw.value); pw.value='';
+    const html=await open(pw.value); pw.value=''; track('connexion');
     msg.textContent='Accès autorisé'; gate.classList.add('open');
     await new Promise(r=>setTimeout(r,RM?0:850));
     document.open(); document.write(html); document.close();
   }catch(err){
-    fails++; field.classList.remove('err'); void field.offsetWidth; field.classList.add('err');
+    fails++; track('echec'); field.classList.remove('err'); void field.offsetWidth; field.classList.add('err');
     msg.className='msg mono bad'; msg.textContent='Mot de passe incorrect';
     await new Promise(r=>setTimeout(r,Math.min(8000,400*2**fails)));
     busy=false; gate.classList.remove('busy'); pw.select();
