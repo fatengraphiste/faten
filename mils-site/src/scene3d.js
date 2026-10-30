@@ -2,7 +2,7 @@
 // au centre et ressortent incandescentes sur le tapis de sortie, qui descend jusqu'à
 // la machine. Chaque pièce installée prend sa place dans la façade de la machine.
 import {
-  WebGLRenderer, Scene, PerspectiveCamera, Color, Fog, Vector2, Vector3, Matrix4, Quaternion,
+  Object3D, InstancedMesh, WebGLRenderer, Scene, PerspectiveCamera, Color, Fog, Vector2, Vector3, Matrix4, Quaternion,
   CatmullRomCurve3, BufferGeometry, Float32BufferAttribute, TubeGeometry, BoxGeometry, CylinderGeometry,
   TorusGeometry, CircleGeometry, PlaneGeometry, SphereGeometry, EdgesGeometry, LineSegments, LineBasicMaterial,
   MeshStandardMaterial, MeshBasicMaterial, ShaderMaterial, Mesh, Group, CanvasTexture, SRGBColorSpace,
@@ -46,7 +46,7 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
   ]);
   const OUT = new CatmullRomCurve3([
     new Vector3(0.3, -0.85, 0.1), new Vector3(1.8, -1.55, 0.5), new Vector3(3.2, -2.8, 0.6),
-    new Vector3(3.5, -4.3, 0.2), new Vector3(2.6, -5.5, -0.1), new Vector3(1.2, -6.05, 0)
+    new Vector3(3.4, -4.3, 0.2), new Vector3(2.4, -5.4, -0.1), new Vector3(0.6, -5.85, 0)
   ]);
   const PORTAL = new Vector3(0.25, 0.75, 0);
   const MACHINE = new Vector3(0.6, -7.7, 0);
@@ -58,22 +58,23 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
     const nrm = new Vector3().crossVectors(side, tan).normalize();
     return { p, tan, side, nrm };
   };
-  const beltMat = new MeshStandardMaterial({ color: 0x3a3c43, metalness: 0.55, roughness: 0.38, emissive: 0x0d0e11, side: DoubleSide });
-  const lipMat = new MeshStandardMaterial({ color: 0x55585f, metalness: 0.85, roughness: 0.25, emissive: 0x16171a });
-  function belt(curve, w = 1.35) {
-    const n = Math.ceil(curve.getLength() / 0.1), pos = [], idx = [], L = [], R = [];
-    for (let i = 0; i <= n; i++) {
-      const { p, side, nrm } = frameOn(curve, i / n);
-      const a = p.clone().addScaledVector(side, -w / 2), b = p.clone().addScaledVector(side, w / 2);
-      pos.push(a.x, a.y, a.z, b.x, b.y, b.z);
-      L.push(a.clone().addScaledVector(nrm, 0.08)); R.push(b.clone().addScaledVector(nrm, 0.08));
-      if (i < n) { const k = i * 2; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
+  // rampes en dalles, comme un escalier de métal qui roule
+  const tileMat = new MeshStandardMaterial({ color: 0x44464e, metalness: 0.6, roughness: 0.38, emissive: 0x111216 });
+  const railMat = new MeshStandardMaterial({ color: 0x6a6d75, metalness: 0.85, roughness: 0.25, emissive: 0x1a1b1f });
+  function ramp(curve) {
+    const count = Math.round(curve.getLength() / 0.25), d = new Object3D();
+    const tiles = new InstancedMesh(new BoxGeometry(1.4, 0.09, 0.19), tileMat, count);
+    const rails = new InstancedMesh(new BoxGeometry(0.06, 0.16, 0.21), railMat, count * 2);
+    let r = 0;
+    for (let i = 0; i < count; i++) {
+      const { p, tan, side, nrm } = frameOn(curve, i / (count - 1));
+      d.quaternion.setFromRotationMatrix(new Matrix4().makeBasis(side, nrm, tan.clone().negate()));
+      d.position.copy(p).addScaledVector(nrm, -0.05); d.updateMatrix(); tiles.setMatrixAt(i, d.matrix);
+      for (const k of [-1, 1]) { d.position.copy(p).addScaledVector(nrm, 0.02).addScaledVector(side, k * 0.72); d.updateMatrix(); rails.setMatrixAt(r++, d.matrix); }
     }
-    const g = new BufferGeometry(); g.setAttribute("position", new Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
-    scene.add(new Mesh(g, beltMat));
-    for (const s of [L, R]) scene.add(new Mesh(new TubeGeometry(new CatmullRomCurve3(s), n, 0.07, 8, false), lipMat));
+    scene.add(tiles, rails);
   }
-  belt(IN); belt(OUT);
+  ramp(IN); ramp(OUT);
 
   // Pièce qui roule debout sur un tapis.
   const roll = new Quaternion();
@@ -136,31 +137,33 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
   // ---------- La machine ----------
   const machine = new Group(); machine.position.copy(MACHINE);
   const bodyMat = new MeshStandardMaterial({ color: 0x1d1f24, metalness: 0.85, roughness: 0.32 });
-  const bodyGeo = new BoxGeometry(3.6, 2.5, 2.0);
-  machine.add(new Mesh(bodyGeo, bodyMat), new LineSegments(new EdgesGeometry(bodyGeo), new LineBasicMaterial({ color: 0x3a3d46 })));
+  const RM = 1.9, onFace = (a, y, o = 0.01) => new Vector3(Math.sin(a) * (RM + o), y, Math.cos(a) * (RM + o));
+  machine.add(new Mesh(new CylinderGeometry(RM, RM, 2.5, 72), bodyMat));
+  const cap = new Mesh(new CircleGeometry(0.62, 48), new MeshBasicMaterial({ color: 0x050505 })); cap.rotation.x = -Math.PI / 2; cap.position.y = 1.26; machine.add(cap);
   const stripMat = new MeshBasicMaterial({ color: glow(ORANGE, 0.5) });
-  for (const y of [1.27, -1.27]) { const s = new Mesh(new BoxGeometry(3.62, 0.04, 0.04), stripMat); s.position.set(0, y, 1.01); machine.add(s); }
-  const intake = new Mesh(new CylinderGeometry(0.85, 0.55, 0.6, 48, 1, true), new MeshStandardMaterial({ color: 0x2a2c31, metalness: 0.85, roughness: 0.3, side: DoubleSide }));
-  intake.position.set(0.6, 1.5, 0); machine.add(intake);
-  const leds = Array.from({ length: 6 }, (_, i) => { const m = new Mesh(new SphereGeometry(0.055, 12, 12), new MeshBasicMaterial({ color: 0x3a3d46 })); m.position.set(0.35 + i * 0.2, 0.98, 1.02); machine.add(m); return m; });
+  for (const y of [1.25, -1.25]) { const s = new Mesh(new TorusGeometry(RM + 0.01, 0.025, 8, 128), stripMat); s.rotation.x = Math.PI / 2; s.position.y = y; machine.add(s); }
+  const lip = new Mesh(new TorusGeometry(0.64, 0.05, 10, 64), new MeshStandardMaterial({ color: 0x55585f, metalness: 0.9, roughness: 0.2 })); lip.rotation.x = Math.PI / 2; lip.position.y = 1.27; machine.add(lip);
+  const leds = Array.from({ length: 6 }, (_, i) => { const m = new Mesh(new SphereGeometry(0.05, 12, 12), new MeshBasicMaterial({ color: 0x3a3d46 })); m.position.copy(onFace(0.08 + i * 0.09, 0.98)); machine.add(m); return m; });
+  // emplacements circulaires répartis sur la face avant du cylindre
   const sockets = ORDER.map((k, i) => {
-    const s = new Group(); s.position.set(-1.05 + (i % 3) * 1.05, 0.32 - Math.floor(i / 3) * 0.92, 1.02);
-    const ring = new Mesh(new TorusGeometry(0.43, 0.025, 10, 64), new MeshBasicMaterial({ color: 0x4a4d57 }));
+    const a = (i % 3 - 1) * 0.56, s = new Group();
+    s.position.copy(onFace(a, 0.28 - Math.floor(i / 3) * 0.9, 0.02)); s.rotation.y = a;
+    const ring = new Mesh(new TorusGeometry(0.4, 0.025, 10, 64), new MeshBasicMaterial({ color: 0x4a4d57 }));
     s.add(ring); s.userData.ring = ring; machine.add(s); return s;
   });
   if (milsLogo) {
     const img = new Image(); const tex = new CanvasTexture(img); tex.colorSpace = SRGBColorSpace;
     img.onload = () => { tex.needsUpdate = true; }; img.src = milsLogo;
-    const plate = new Mesh(new PlaneGeometry(1.05, 0.36), new MeshBasicMaterial({ map: tex })); plate.position.set(-0.95, 0.98, 1.011); machine.add(plate);
+    const plate = new Mesh(new PlaneGeometry(0.9, 0.31), new MeshBasicMaterial({ map: tex })); plate.position.copy(onFace(-0.32, 0.98, 0.02)); plate.rotation.y = -0.32; machine.add(plate);
   }
-  const chute = new Mesh(new BoxGeometry(1.2, 0.07, 0.9), bodyMat); chute.position.set(2.25, -0.75, 0.25); chute.rotation.z = -0.4; machine.add(chute);
-  const bin = new Group(); bin.position.set(3.55, -1.35, 0.3);
-  const binGeo = new BoxGeometry(1.8, 1.3, 1.4);
-  bin.add(new Mesh(binGeo, new MeshStandardMaterial({ color: 0x9bbcff, transparent: true, opacity: 0.06, depthWrite: false })), new LineSegments(new EdgesGeometry(binGeo), new LineBasicMaterial({ color: 0x5a5f6b })));
+  const chute = new Mesh(new BoxGeometry(1.0, 0.07, 0.7), bodyMat); chute.position.set(2.25, -0.35, 0.3); chute.rotation.z = -0.45; machine.add(chute);
+  const bin = new Group(); bin.position.set(3.35, -0.55, 0.3);
+  bin.add(new Mesh(new CylinderGeometry(0.72, 0.72, 1.6, 48, 1, true), new MeshStandardMaterial({ color: 0x9bbcff, transparent: true, opacity: 0.08, depthWrite: false, side: DoubleSide })));
+  for (const y of [0.8, -0.8]) { const e = new Mesh(new TorusGeometry(0.72, 0.012, 6, 64), new MeshBasicMaterial({ color: 0x8a90a0 })); e.rotation.x = Math.PI / 2; e.position.y = y; bin.add(e); }
   machine.add(bin);
   const machineLight = new PointLight(ORANGE, 0, 8, 1.6); machineLight.position.set(0, 0.3, 2.4); machine.add(machineLight);
   scene.add(machine);
-  const pileSpot = (i) => new Vector3(-0.55 + (i % 4) * 0.36 + ((i >> 2) % 2) * 0.18, -0.5 + Math.floor(i / 4) * 0.15, -0.3 + ((i * 7) % 5) * 0.15);
+  const pileSpot = (i) => new Vector3(0, -0.72 + i * 0.17, 0);   // les devis s'empilent dans le bac
 
   // ---------- Pièces à installer ----------
   const pieces = {};
@@ -184,7 +187,7 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
     const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
     renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
     camera.aspect = w / h; portrait = w / h < 1;
-    camera.setViewOffset(w, h, portrait ? 0 : -w * 0.2, portrait ? h * 0.17 : 0, w, h);
+    camera.setViewOffset(w, h, portrait || w < 900 ? 0 : -w * 0.08, 0, w, h);
     camera.updateProjectionMatrix();
   }
   const target = new Vector3();
@@ -192,9 +195,9 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
     const intro = Math.min(1, Math.max(0, (idxS - 1) / 1));          // arrivée depuis l'écran du défi
     const down = Math.min(1, Math.max(0, idxS - 6));                  // descente vers la machine
     const back = Math.min(1, Math.max(0, idxS - 7));                  // recul au planning
-    target.set(0.7 + sm.x * 0.4, -2.5 - down * 1.2 - sm.y * 0.3, 0);
+    target.set(0.6 + sm.x * 0.4, -2.5 - down * 1.2 - sm.y * 0.3, 0);
     const dist = (portrait ? 37 : 27) + (1 - ease(intro)) * 16 + back * 4;
-    camera.position.set(-1.6 + sm.x * 0.9, 2.2 + (1 - intro) * 4 - down * 1.2 + back * 1.5, dist);
+    camera.position.set(-0.8 + sm.x * 0.9, 2.2 + (1 - intro) * 4 - down * 1.2 + back * 1.5, dist);
     camera.lookAt(target);
   }
 
@@ -248,8 +251,8 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
       await run(1.1, (p) => onBelt(r, OUT, ease(p), 0.49));
       r.visible = false; machineLight.intensity = 14;
       const d = new Mesh(devisGeo, r.material); machine.add(d); flying.push(d);
-      const from = new Vector3(1.7, -0.5, 0.3), to = bin.position.clone().add(pileSpot(i));
-      await run(0.7, (p) => { const e = easeOut(p); d.position.lerpVectors(from, to, e); d.position.y += Math.sin(p * Math.PI) * 0.5; d.rotation.set((Math.PI / 2) * e, 0, p * 4); });
+      const from = new Vector3(1.8, 0, 0.3), to = bin.position.clone().add(pileSpot(i));
+      await run(0.7, (p) => { const e = easeOut(p); d.position.lerpVectors(from, to, e); d.position.y += Math.sin(p * Math.PI) * 0.5; d.rotation.set((Math.PI / 2) * e, 0, (1 - e) * 4); });
       machineLight.intensity = 8;
     }));
   }
