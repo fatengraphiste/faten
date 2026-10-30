@@ -1,7 +1,8 @@
 # Photos produits – format WooCommerce
 
-Met toutes les photos produits au même format : carré 1:1 (1200×1200 px), fond gris `#F2F2F2`,
-produit centré avec une marge de 8 %, ombre douce, export `.webp`.
+Met toutes les photos produits au même format : carré 1:1 (1200×1200 px), fond blanc,
+produit centré avec la même marge de 8 % sur toutes les photos, export `.webp`.
+Sur une photo déjà sur fond blanc, le produit n'est pas retouché : il est seulement recadré et centré.
 
 - Les photos sur **fond uni clair** (blanc, gris, beige) sont traitées.
 - Les photos sur **fond décoré / mise en situation** sont ignorées (laissées telles quelles)
@@ -20,6 +21,6 @@ pip install numpy pillow opencv-python-headless
 python traiter_photos.py "photos_originales" "photos_traitees"
 ```
 
-Options : `--taille 1200`, `--gris F2F2F2`, `--marge 0.08`, `--sans-ombre`, `--qualite 88`.
+Options : `--taille 1200`, `--fond FFFFFF`, `--marge 0.08`, `--ombre` (désactivée par défaut), `--qualite 92`.
 
 Voir `exemples/avant-apres.png` (haut : original, bas : résultat).

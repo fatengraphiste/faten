@@ -1,11 +1,11 @@
 """Uniformise les photos produits SMEG pour WooCommerce.
 
 Pour chaque image : détecte si le fond est uni et clair (blanc, gris, beige).
-- Fond uni  -> détourage, recadrage, produit centré sur un carré gris avec ombre portée.
+- Fond uni  -> recadrage, produit centré sur un carré blanc (ombre en option).
 - Fond décoré / mise en situation -> image ignorée (listée dans rapport.csv).
 
 Usage :
-    python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE [--taille 1200] [--gris F2F2F2]
+    python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE [--taille 1200] [--fond FFFFFF] [--ombre]
 """
 import argparse
 import csv
@@ -61,11 +61,11 @@ def masque_produit(rgb, fond, tolerance=10):
 
 
 def composer(rgb, masque, dist, fond_src, taille, gris, marge, ombre):
-    """Produit centré sur le carré gris.
+    """Produit centré sur un carré de couleur `gris` (blanc par défaut).
 
-    Pas de détourage dur : les pixels proches de l'ancien fond sont ramenés vers
-    le gris (comme un fondu « produit »), les pixels francs du produit restent intacts.
-    Ça évite les liserés blancs et garde les parties vitrées et reflets naturels.
+    Pas de détourage dur : les pixels proches de l'ancien fond sont ramenés
+    progressivement vers la nouvelle couleur, les pixels francs du produit restent
+    intacts. Sur une photo déjà sur fond blanc, le produit n'est pas retouché.
     """
     ys, xs = np.where(masque > 0)
     pad = 6
@@ -73,7 +73,7 @@ def composer(rgb, masque, dist, fond_src, taille, gris, marge, ombre):
     x0, x1 = max(0, xs.min() - pad), min(rgb.shape[1], xs.max() + 1 + pad)
     rgb, masque, dist = rgb[y0:y1, x0:x1], masque[y0:y1, x0:x1], dist[y0:y1, x0:x1]
 
-    k = gris / np.maximum(fond_src, 1)            # ancien fond -> nouveau gris
+    k = gris / np.maximum(fond_src, 1)            # ancien fond -> nouveau fond (1 si déjà blanc)
     franc = np.clip((dist - 2) / 40.0, 0, 1)[..., None]
     avant = rgb * (k + (1 - k) * franc)
 
@@ -124,13 +124,13 @@ def main():
     p.add_argument("source", type=Path)
     p.add_argument("sortie", type=Path)
     p.add_argument("--taille", type=int, default=1200)
-    p.add_argument("--gris", default="F2F2F2")
+    p.add_argument("--fond", default="FFFFFF")
     p.add_argument("--marge", type=float, default=0.08)
-    p.add_argument("--sans-ombre", action="store_true")
-    p.add_argument("--qualite", type=int, default=88)
+    p.add_argument("--ombre", action="store_true")
+    p.add_argument("--qualite", type=int, default=92)
     args = p.parse_args()
 
-    gris = couleur_hex(args.gris)
+    gris = couleur_hex(args.fond)
     fichiers = sorted(f for f in args.source.rglob("*") if f.suffix.lower() in EXTENSIONS)
     args.sortie.mkdir(parents=True, exist_ok=True)
     rapport = []
@@ -146,7 +146,7 @@ def main():
             if masque.sum() < 0.01 * masque.size:
                 rapport.append((rel, "ignorée", "produit non détecté"))
                 continue
-            img = composer(rgb, masque, dist, fond, args.taille, gris, args.marge, not args.sans_ombre)
+            img = composer(rgb, masque, dist, fond, args.taille, gris, args.marge, args.ombre)
             out = args.sortie / rel.with_suffix(".webp")
             out.parent.mkdir(parents=True, exist_ok=True)
             img.save(out, "WEBP", quality=args.qualite, method=6)
