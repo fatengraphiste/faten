@@ -14,13 +14,13 @@
   --grad:linear-gradient(100deg,var(--orange),#3F8FE0);--mono:"Poppins",system-ui,sans-serif;--out:cubic-bezier(.2,.7,.2,1)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:var(--paper);color:var(--ink);font-family:"Source Sans 3","Source Sans Pro",system-ui,sans-serif;-webkit-font-smoothing:antialiased;display:grid;place-items:center;padding:24px 16px;overflow:hidden}
+body{background:var(--paper);color:var(--ink);font-family:"Source Sans 3","Source Sans Pro",system-ui,sans-serif;-webkit-font-smoothing:antialiased;display:grid;grid-template-columns:minmax(0,1fr);place-items:center;padding:24px 20px;overflow-x:hidden}
 .guides{position:fixed;inset:0;pointer-events:none}
 .guides i{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
 .guides i:nth-child(1){left:17%}.guides i:nth-child(2){left:50%}.guides i:nth-child(3){left:83%}
 .mono{font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.12em;font-size:11px}
 body:before{content:"";position:fixed;left:50%;top:42%;width:min(70vw,620px);aspect-ratio:1;transform:translate(-50%,-50%);background:radial-gradient(closest-side,rgba(239,121,31,.16),rgba(0,88,165,.08) 60%,transparent);pointer-events:none}
-.gate{position:relative;width:100%;max-width:520px;display:flex;flex-direction:column;align-items:center;gap:26px;text-align:center;animation:in .9s var(--out) both}
+.gate{position:relative;width:100%;min-width:0;max-width:520px;display:flex;flex-direction:column;align-items:center;gap:26px;text-align:center;animation:in .9s var(--out) both}
 @keyframes in{from{opacity:0;transform:translateY(20px)}}
 .logos{display:flex;align-items:center;gap:18px;transition:gap .8s var(--out),opacity .8s}
 .logo{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-weight:500;font-size:17px;letter-spacing:-.01em;transition:transform .8s var(--out)}
@@ -41,11 +41,17 @@ h1 span{color:var(--orange)}
 form{width:100%;display:flex;flex-direction:column;gap:10px}
 .field{display:flex;border:1px solid var(--faint);border-radius:999px;background:#0B0C0E;height:54px;overflow:hidden;padding:4px}
 .field input{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:0 18px;color:#fff;font:500 16px var(--mono);letter-spacing:.08em}
-.field button{width:46px;border:0;border-radius:50%;background:var(--orange);color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center}
+.field .eye{flex:none;width:44px;border:0;background:transparent;color:var(--dim);cursor:pointer;display:grid;place-items:center}
+.field .eye svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.field .eye:hover,.field .eye.on{color:#fff}
+.field button[type=submit]{flex:none;width:46px;border:0;border-radius:50%;background:var(--orange);color:#fff;font-size:18px;cursor:pointer;display:grid;place-items:center}
 .field:focus-within{border-color:var(--orange)}
 .field.err{animation:shake .4s}
 @keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
-.msg{min-height:16px;color:var(--dim)}
+.msg{min-height:16px;color:var(--dim);line-height:1.6}
+.field .eye.on .slash{display:none}
+h1{overflow-wrap:break-word}
+@media (max-width:480px){.gate{gap:20px}.logo svg{height:28px}.logo.sf svg{height:24px}.mono{letter-spacing:.08em}}
 .msg.bad{color:#FF5A4E}
 .busy .field button{opacity:.5}
 footer{position:fixed;bottom:18px;left:0;right:0;text-align:center;color:var(--dim)}
@@ -69,7 +75,7 @@ noscript{display:block;margin-top:12px}
   </div>
   <form id="f" autocomplete="off">
     <label class="mono" for="pw" style="text-align:left;color:var(--dim)">Mot de passe</label>
-    <div class="field" id="field"><input id="pw" type="password" required autocomplete="current-password" autofocus spellcheck="false"><button type="submit" aria-label="Entrer">→</button></div>
+    <div class="field" id="field"><input id="pw" type="password" required autocomplete="current-password" autofocus spellcheck="false"><button type="button" class="eye" id="eye" aria-label="Afficher le mot de passe" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button><button type="submit" aria-label="Entrer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg></button></div>
     <p class="msg mono" id="msg" role="status" aria-live="polite">Le mot de passe figure dans l'email de remise de l'offre.</p>
   </form>
   <noscript class="mono">JavaScript est nécessaire pour ouvrir ce document.</noscript>
@@ -83,6 +89,8 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const u8=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 const f=document.getElementById('f'),pw=document.getElementById('pw'),msg=document.getElementById('msg'),field=document.getElementById('field'),gate=document.getElementById('gate');
 let fails=0,busy=false;
+// œil : afficher ou masquer le mot de passe
+document.getElementById('eye').addEventListener('click',e=>{ const b=e.currentTarget, show=pw.type==='password'; pw.type=show?'text':'password'; b.classList.toggle('on',show); b.setAttribute('aria-pressed',show); b.setAttribute('aria-label',show?'Masquer le mot de passe':'Afficher le mot de passe'); pw.focus(); });
 // compteur de connexions (track.php, sur le même hébergement)
 const track=type=>{ try{ const d=JSON.stringify({type}); if(!navigator.sendBeacon||!navigator.sendBeacon('track.php',new Blob([d],{type:'application/json'}))) fetch('track.php',{method:'POST',body:d,keepalive:true}); }catch(e){} };
 async function open(pass){
