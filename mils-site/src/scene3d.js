@@ -1,28 +1,25 @@
-// Scène 3D de toute la page : une rampe descend du haut de la page jusqu'à la machine.
-// Chaque pièce métal attend sur la rampe ; au clic, elle traverse un portail CCA
-// et ressort en pièce de machine rangée dans le rack de stockage. En bas, la machine
-// reçoit les 6 pièces puis transforme les demandes en devis.
+// Scène 3D : un tapis arrive en haut à gauche, les pièces tombent dans le portail CCA
+// au centre et ressortent incandescentes sur le tapis de sortie, qui descend jusqu'à
+// la machine. Chaque pièce installée prend sa place dans la façade de la machine.
 import {
-  WebGLRenderer, Scene, PerspectiveCamera, Color, Fog, Vector2, Vector3, Quaternion, Matrix4, Object3D,
-  CatmullRomCurve3, BoxGeometry, CylinderGeometry, TorusGeometry, CircleGeometry, PlaneGeometry, SphereGeometry,
-  ShapeGeometry, Shape, BufferGeometry, EdgesGeometry, LineSegments, Line, LineLoop, LineBasicMaterial,
-  MeshStandardMaterial, MeshBasicMaterial, InstancedMesh, Mesh, Group, CanvasTexture, SRGBColorSpace,
-  AdditiveBlending, DoubleSide, AmbientLight, DirectionalLight, PointLight, ACESFilmicToneMapping, Raycaster
+  WebGLRenderer, Scene, PerspectiveCamera, Color, Fog, Vector2, Vector3, Matrix4, Quaternion,
+  CatmullRomCurve3, BufferGeometry, Float32BufferAttribute, TubeGeometry, BoxGeometry, CylinderGeometry,
+  TorusGeometry, CircleGeometry, PlaneGeometry, SphereGeometry, EdgesGeometry, LineSegments, LineBasicMaterial,
+  MeshStandardMaterial, MeshBasicMaterial, ShaderMaterial, Mesh, Group, CanvasTexture, SRGBColorSpace,
+  DoubleSide, AmbientLight, DirectionalLight, PointLight, ACESFilmicToneMapping, Raycaster
 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
-const ORANGE = 0xef791f, BLUE_L = 0x3f8fe0;
-const SEC = 9;                                  // hauteur monde d'une section
-const Y_MACHINE = -7 * SEC - 1.5;               // la machine, au niveau du lancement
-const PIECE_LEVEL = { marque: 2, site: 3, rfq: 4, crm: 5, visi: 6, prosp: 6 };
+const ORANGE = 0xef791f, BLUE_L = 0x3f8fe0, GREEN = 0x2fbf7a;
 const ORDER = ["marque", "site", "rfq", "crm", "visi", "prosp"];
-const UP = new Vector3(0, 1, 0);
+const UP = new Vector3(0, 1, 0), Z = new Vector3(0, 0, 1);
 const ease = (p) => (p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
-const easeIn = (p) => p * p * p;
+const easeIn = (p) => p * p;
 const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+const glow = (c, k) => new Color(c).multiplyScalar(k);
 
 export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null } = {}) {
   const small = matchMedia("(max-width: 900px)").matches;
@@ -34,339 +31,312 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
 
   const scene = new Scene();
   scene.background = new Color(0x000000);
-  scene.fog = new Fog(0x000000, 12, 30);
-  const camera = new PerspectiveCamera(32, 1, 0.1, 120);
-  scene.add(new AmbientLight(0xffffff, 0.3));
-  const key = new DirectionalLight(0xffffff, 1.5); key.position.set(-4, 8, 6); scene.add(key, key.target);
-  const rim = new DirectionalLight(0x9bbcff, 0.7); rim.position.set(6, 3, -6); scene.add(rim, rim.target);
+  scene.fog = new Fog(0x000000, 20, 44);
+  const camera = new PerspectiveCamera(30, 1, 0.1, 120);
+  scene.add(new AmbientLight(0xffffff, 0.38));
+  const key = new DirectionalLight(0xffffff, 1.6); key.position.set(-6, 9, 8); scene.add(key);
+  const fill = new PointLight(0xffd2a8, 10, 14, 1.4); fill.position.set(-3.5, 4.5, 3); scene.add(fill);
+  const fill2 = new PointLight(0xffb37a, 8, 12, 1.4); fill2.position.set(3.8, -3.2, 3); scene.add(fill2);
+  const rim = new DirectionalLight(0x9bbcff, 0.5); rim.position.set(7, 2, -6); scene.add(rim);
 
-  // ---------- Rampe : un serpentin du haut de la page jusqu'à la machine ----------
-  const lane = (y) => new Vector3(1.7 * Math.sin(y * 0.33), y, 0.9 * Math.cos(y * 0.33) - 0.4);
-  const pts = [new Vector3(-5, 10, -7), new Vector3(-2.6, 8, -3.6)];
-  for (let y = 6.5; y >= Y_MACHINE + 3; y -= 1.5) pts.push(lane(y));
-  const machinePos = lane(Y_MACHINE + 3).setY(Y_MACHINE - 1.4).setZ(0);
-  pts.push(new Vector3(machinePos.x, Y_MACHINE + 1.0, 0));
-  const curve = new CatmullRomCurve3(pts);
-  const LEN = curve.getLength();
-  const samples = Array.from({ length: 1200 }, (_, i) => curve.getPointAt(i / 1199).y);
-  const tAtY = (y) => { let best = 0, d = Infinity; samples.forEach((v, i) => { const e = Math.abs(v - y); if (e < d) { d = e; best = i; } }); return best / 1199; };
+  // ---------- Tapis : entrée en haut à gauche, sortie vers la machine ----------
+  const IN = new CatmullRomCurve3([
+    new Vector3(-8, 6.6, -4.5), new Vector3(-5.2, 5.0, -2.4), new Vector3(-2.6, 3.4, -0.9),
+    new Vector3(-0.9, 2.55, -0.15), new Vector3(0.25, 2.25, 0)
+  ]);
+  const OUT = new CatmullRomCurve3([
+    new Vector3(0.3, -0.85, 0.1), new Vector3(1.8, -1.55, 0.5), new Vector3(3.2, -2.8, 0.6),
+    new Vector3(3.5, -4.3, 0.2), new Vector3(2.6, -5.5, -0.1), new Vector3(1.2, -6.05, 0)
+  ]);
+  const PORTAL = new Vector3(0.25, 0.75, 0);
+  const MACHINE = new Vector3(0.6, -7.7, 0);
 
-  const frameAt = (t) => {
+  const frameOn = (curve, t) => {
+    t = Math.min(1, Math.max(0, t));
     const p = curve.getPointAt(t), tan = curve.getTangentAt(t);
     const side = new Vector3().crossVectors(tan, UP).normalize();
     const nrm = new Vector3().crossVectors(side, tan).normalize();
     return { p, tan, side, nrm };
   };
-  (function buildTrack() {
-    const count = Math.round(LEN / 0.27);
-    const tiles = new InstancedMesh(new BoxGeometry(1.5, 0.08, 0.2), new MeshStandardMaterial({ color: 0x2a2c32, metalness: 0.6, roughness: 0.4 }), count);
-    const rails = new InstancedMesh(new BoxGeometry(0.05, 0.14, 0.22), new MeshBasicMaterial({ color: 0x33363e }), count * 2);
-    const d = new Object3D(); let r = 0;
-    for (let i = 0; i < count; i++) {
-      const { p, tan, side, nrm } = frameAt(i / (count - 1));
-      d.quaternion.setFromRotationMatrix(new Matrix4().makeBasis(side, nrm, tan.clone().negate()));
-      d.position.copy(p).addScaledVector(nrm, -0.55); d.updateMatrix(); tiles.setMatrixAt(i, d.matrix);
-      for (const s of [-1, 1]) { d.position.copy(p).addScaledVector(nrm, -0.48).addScaledVector(side, s * 0.75); d.updateMatrix(); rails.setMatrixAt(r++, d.matrix); }
+  const beltMat = new MeshStandardMaterial({ color: 0x3a3c43, metalness: 0.55, roughness: 0.38, emissive: 0x0d0e11, side: DoubleSide });
+  const lipMat = new MeshStandardMaterial({ color: 0x55585f, metalness: 0.85, roughness: 0.25, emissive: 0x16171a });
+  function belt(curve, w = 1.35) {
+    const n = Math.ceil(curve.getLength() / 0.1), pos = [], idx = [], L = [], R = [];
+    for (let i = 0; i <= n; i++) {
+      const { p, side, nrm } = frameOn(curve, i / n);
+      const a = p.clone().addScaledVector(side, -w / 2), b = p.clone().addScaledVector(side, w / 2);
+      pos.push(a.x, a.y, a.z, b.x, b.y, b.z);
+      L.push(a.clone().addScaledVector(nrm, 0.08)); R.push(b.clone().addScaledVector(nrm, 0.08));
+      if (i < n) { const k = i * 2; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
     }
-    scene.add(tiles, rails);
-  })();
+    const g = new BufferGeometry(); g.setAttribute("position", new Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+    scene.add(new Mesh(g, beltMat));
+    for (const s of [L, R]) scene.add(new Mesh(new TubeGeometry(new CatmullRomCurve3(s), n, 0.07, 8, false), lipMat));
+  }
+  belt(IN); belt(OUT);
 
-  // Pièce qui roule : axe de la pièce selon le côté de la rampe.
-  const q = new Quaternion(), roll = new Quaternion(), zAxis = new Vector3(0, 0, 1);
-  function placeOnCurve(obj, t) {
-    const { p, tan, side, nrm } = frameAt(Math.min(1, Math.max(0, t)));
-    obj.position.copy(p);
-    q.setFromRotationMatrix(new Matrix4().makeBasis(tan, nrm, side));
-    roll.setFromAxisAngle(zAxis, -(t * LEN) / 0.5);
-    obj.quaternion.copy(q).multiply(roll);
+  // Pièce qui roule debout sur un tapis.
+  const roll = new Quaternion();
+  function onBelt(obj, curve, t, r = 0.5) {
+    const { p, tan, side, nrm } = frameOn(curve, t);
+    obj.position.copy(p).addScaledVector(nrm, r);
+    obj.quaternion.setFromRotationMatrix(new Matrix4().makeBasis(tan, nrm, side));
+    roll.setFromAxisAngle(Z, -(t * curve.getLength()) / r);
+    obj.quaternion.multiply(roll);
   }
 
-  // ---------- Matériaux et textures ----------
-  const iconTex = (path, ring = true) => {
+  // ---------- Textures et matériaux ----------
+  const iconTex = (path, ring) => {
     const c = document.createElement("canvas"); c.width = c.height = 256; const g = c.getContext("2d");
     g.fillStyle = "#000"; g.fillRect(0, 0, 256, 256);
-    if (ring) { g.strokeStyle = "#ef791f"; g.lineWidth = 6; g.beginPath(); g.arc(128, 128, 112, 0, Math.PI * 2); g.stroke(); }
+    if (ring) { g.strokeStyle = ring; g.lineWidth = 7; g.beginPath(); g.arc(128, 128, 110, 0, Math.PI * 2); g.stroke(); }
     if (path) { g.save(); g.translate(68, 68); g.scale(5, 5); g.strokeStyle = "#fff"; g.lineWidth = 1.6; g.lineCap = g.lineJoin = "round"; g.stroke(new Path2D(path)); g.restore(); }
     const t = new CanvasTexture(c); t.colorSpace = SRGBColorSpace; return t;
   };
-  const radialTex = () => {
-    const c = document.createElement("canvas"); c.width = c.height = 256; const g = c.getContext("2d");
-    const r = g.createRadialGradient(128, 128, 4, 128, 128, 128);
-    r.addColorStop(0, "rgba(255,240,225,1)"); r.addColorStop(0.35, "rgba(239,121,31,.85)"); r.addColorStop(0.75, "rgba(0,88,165,.35)"); r.addColorStop(1, "rgba(0,0,0,0)");
-    g.fillStyle = r; g.fillRect(0, 0, 256, 256); const t = new CanvasTexture(c); t.colorSpace = SRGBColorSpace; return t;
-  };
-  const VEIL = radialTex();
-  const coinGeo = new CylinderGeometry(0.5, 0.5, 0.13, 48); coinGeo.rotateX(Math.PI / 2);
-  const coinSide = new MeshStandardMaterial({ color: 0x2b2d33, metalness: 0.95, roughness: 0.28 });
-  const faceMat = (path) => new MeshStandardMaterial({ color: 0x18191d, metalness: 0.85, roughness: 0.35, emissive: 0xffffff, emissiveIntensity: 1, emissiveMap: iconTex(path) });
-  const makeCoin = (path) => { const f = faceMat(path); return new Mesh(coinGeo, [coinSide, f, f]); };
-  const hexGeo = new CylinderGeometry(0.42, 0.42, 0.16, 6); hexGeo.rotateX(Math.PI / 2); hexGeo.rotateZ(Math.PI / 6);
-  const hexSide = new MeshStandardMaterial({ color: ORANGE, emissive: ORANGE, emissiveIntensity: 0.9, metalness: 0.6, roughness: 0.3 });
-  const makeTile = (path) => { const f = new MeshStandardMaterial({ color: 0x111215, emissive: 0xffffff, emissiveIntensity: 1.1, emissiveMap: iconTex(path, false), metalness: 0.5, roughness: 0.4 }); return new Mesh(hexGeo, [hexSide, f, f]); };
-  const ringGeo = new TorusGeometry(0.42, 0.06, 16, 48);
-  const ringMats = [new MeshBasicMaterial({ color: new Color(ORANGE).multiplyScalar(1.6) }), new MeshBasicMaterial({ color: new Color(BLUE_L).multiplyScalar(1.6) })];
-
-  function makePortal(r) {
-    const g = new Group();
-    const ring = new Mesh(new TorusGeometry(r, 0.07, 16, 6), new MeshBasicMaterial({ color: new Color(ORANGE).multiplyScalar(1.8) }));
-    const ring2 = new Mesh(new TorusGeometry(r * 1.13, 0.018, 8, 6), new MeshBasicMaterial({ color: new Color(BLUE_L).multiplyScalar(1.6) }));
-    const veil = new Mesh(new CircleGeometry(r * 0.96, 6), new MeshBasicMaterial({ map: VEIL, transparent: true, opacity: 0.5, blending: AdditiveBlending, depthWrite: false, side: DoubleSide }));
-    for (const m of [ring, ring2, veil]) m.rotation.z = Math.PI / 6;
-    g.add(ring, ring2, veil); g.userData = { ring, ring2, veil, flash: 0 };
-    return g;
+  const coinGeo = new CylinderGeometry(0.5, 0.5, 0.14, 64); coinGeo.rotateX(Math.PI / 2);
+  const darkSide = new MeshStandardMaterial({ color: 0x2b2d33, metalness: 0.95, roughness: 0.28 });
+  const hotSide = new MeshStandardMaterial({ color: ORANGE, emissive: ORANGE, emissiveIntensity: 1.4, metalness: 0.5, roughness: 0.3 });
+  // pièce « demande » : métal sombre, picto blanc
+  function makeCoin(path) {
+    const f = new MeshStandardMaterial({ color: 0x18191d, metalness: 0.85, roughness: 0.35, emissive: 0xffffff, emissiveIntensity: 0.9, emissiveMap: iconTex(path, "#ef791f") });
+    return new Mesh(coinGeo, [darkSide, f, f]);
   }
-  function portalAt(t, r) {
-    const p = makePortal(r), { p: pos, tan } = frameAt(t);
-    // portail incliné vers la caméra pour qu'on voie l'anneau, pas sa tranche
-    p.position.copy(pos); p.quaternion.setFromUnitVectors(zAxis, tan.clone().add(new Vector3(0, 0.2, 1.7)).normalize());
-    scene.add(p); return p;
+  // pièce de machine : tranche incandescente, comme à la sortie du portail
+  function makePiece(path) {
+    const f = new MeshStandardMaterial({ color: 0x111215, metalness: 0.6, roughness: 0.4, emissive: 0xffffff, emissiveIntensity: 1.1, emissiveMap: iconTex(path, "#ffb067") });
+    return new Mesh(coinGeo, [hotSide, f, f]);
   }
-  const portals = [];
+  const devisGeo = new TorusGeometry(0.42, 0.07, 16, 64);
+  const devisMats = [new MeshBasicMaterial({ color: glow(ORANGE, 1.8) }), new MeshBasicMaterial({ color: glow(BLUE_L, 1.6) })];
 
-  // ---------- Accroche : flux continu à travers le grand portail ----------
-  const heroPortalT = tAtY(0.2), heroEndT = tAtY(-5.5), heroStartT = 0.0;
-  const heroPortal = portalAt(heroPortalT, 1.25); portals.push(heroPortal);
-  const heroLight = new PointLight(ORANGE, 12, 7, 1.8); heroLight.position.copy(heroPortal.position).add(new Vector3(0, 0.3, 1.2)); scene.add(heroLight);
-  const HERO_N = small ? 5 : 6, GAP = 1.05, T_UP = 3.6, T_LOW = 2.6;
-  const heroCoins = Array.from({ length: HERO_N }, (_, i) => { const m = makeCoin(icons[ORDER[i % 6]]); scene.add(m); return m; });
-  const heroRings = Array.from({ length: HERO_N }, (_, i) => { const m = new Mesh(ringGeo, ringMats[i % 3 === 2 ? 1 : 0]); scene.add(m); return m; });
-
-  // ---------- Carte du Burkina Faso (section défi) ----------
-  const BF = [[-5.5,10.4],[-4.8,9.9],[-4.3,9.6],[-3.6,9.9],[-2.8,9.6],[-2.7,10.4],[-2.9,11.0],[-1.5,11.0],[-0.6,11.0],[0.0,11.1],[0.4,11.0],[0.9,11.0],[1.4,11.4],[2.1,11.6],[2.4,12.3],[2.1,12.7],[1.6,12.6],[1.0,13.0],[0.5,13.6],[0.2,14.5],[-0.5,15.1],[-1.1,15.0],[-2.0,14.2],[-2.9,13.6],[-3.4,13.3],[-4.1,13.2],[-4.4,12.6],[-5.0,11.9],[-5.4,11.4]];
-  const mapG = new Group(); mapG.position.set(0.6, -SEC - 0.4, -3.4);
-  const MS = 0.6, mp = BF.map(([lo, la]) => new Vector3((lo + 1.5) * MS, (la - 12.3) * MS, 0));
-  const mapLine = new Line(new BufferGeometry().setFromPoints([...mp, mp[0]]), new LineBasicMaterial({ color: new Color(ORANGE).multiplyScalar(1.5) }));
-  const shape = new Shape(mp.map((v) => new Vector2(v.x, v.y)));
-  const mapFill = new Mesh(new ShapeGeometry(shape), new MeshBasicMaterial({ color: ORANGE, transparent: true, opacity: 0.07, depthWrite: false }));
-  const pinPos = new Vector3((-1.52 + 1.5) * MS, (12.37 - 12.3) * MS, 0.02);
-  const pin = new Mesh(new SphereGeometry(0.09, 16, 16), new MeshBasicMaterial({ color: new Color(ORANGE).multiplyScalar(2) })); pin.position.copy(pinPos);
-  const pinRing = new Mesh(new TorusGeometry(0.2, 0.012, 8, 48), new MeshBasicMaterial({ color: ORANGE, transparent: true })); pinRing.position.copy(pinPos);
-  mapG.add(mapFill, mapLine, pin, pinRing); scene.add(mapG);
-  let mapDraw = 0; mapLine.geometry.setDrawRange(0, 0);
-
-  // ---------- Pièces de la machine, garées sur la rampe ----------
-  const pieces = {};
-  ORDER.forEach((k) => {
-    const lvl = PIECE_LEVEL[k], yPortal = -lvl * SEC - 1.2;
-    const extra = k === "prosp" ? 1.4 : 0;
-    const tPortal = tAtY(yPortal), tPark = tAtY(yPortal + 2.2 + extra);
-    if (k !== "prosp") portals.push(portalAt(tPortal, 0.85));
-    const coin = makeCoin(icons[k]); coin.userData.key = k; scene.add(coin);
-    placeOnCurve(coin, tPark);
-    pieces[k] = { coin, tPark, tPortal, state: "parked", portal: k === "prosp" ? portals[portals.length - 1] : portals[portals.length - 1] };
+  // ---------- Portail CCA : disque de feu cerclé de métal ----------
+  const fire = new ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uBoost: { value: 0 } },
+    vertexShader: "varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }",
+    fragmentShader: `uniform float uTime; uniform float uBoost; varying vec2 vUv;
+      float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+      float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}
+      float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p*=2.03;a*=.5;}return v;}
+      void main(){ vec2 c=vUv-.5; float r=length(c)*2.;
+        float t=uTime; float f=fbm(c*3.2+vec2(t*.12,-t*.09))*.7+fbm(c*7.-vec2(t*.2,t*.15))*.45;
+        vec3 col=mix(vec3(.38,.08,.01),vec3(.95,.42,.07),f);
+        col=mix(col,vec3(1.,.8,.5),smoothstep(.85,1.2,f+uBoost*.4));
+        col*=(.78+uBoost*1.4)*(1.-smoothstep(.86,1.,r))*(.75+.35*(1.-r));
+        gl_FragColor=vec4(col,1.); }`
   });
-
-  // ---------- Rack de stockage (suit la caméra) ----------
-  const rack = new Group();
-  const plate = new Mesh(new BoxGeometry(2.9, 2.0, 0.1), new MeshStandardMaterial({ color: 0x15161a, metalness: 0.8, roughness: 0.35 }));
-  const plateEdge = new LineSegments(new EdgesGeometry(plate.geometry), new LineBasicMaterial({ color: 0x3a3d46 }));
-  rack.add(plate, plateEdge);
-  const sockets = ORDER.map((k, i) => {
-    const s = new Group(); s.position.set(-0.9 + (i % 3) * 0.9, 0.42 - Math.floor(i / 3) * 0.86, 0.08);
-    const ring = new Mesh(new TorusGeometry(0.46, 0.022, 8, 6), new MeshBasicMaterial({ color: 0x4a4d57 })); ring.rotation.z = Math.PI / 6;
-    s.add(ring); s.userData.ring = ring; rack.add(s); return s;
-  });
-  rack.scale.setScalar(0.85); rack.visible = false; scene.add(rack);
+  const portal = new Group(); portal.position.copy(PORTAL); portal.rotation.x = -Math.PI / 2 + 0.42;
+  const disc = new Mesh(new CircleGeometry(1.15, 72), fire);
+  const rimMetal = new Mesh(new TorusGeometry(1.3, 0.16, 20, 96), new MeshStandardMaterial({ color: 0x1e1f23, metalness: 0.9, roughness: 0.3 }));
+  const rimGlow = new Mesh(new TorusGeometry(1.48, 0.016, 8, 128), new MeshBasicMaterial({ color: glow(ORANGE, 2) }));
+  const rimBlue = new Mesh(new TorusGeometry(1.56, 0.008, 8, 128), new MeshBasicMaterial({ color: glow(BLUE_L, 1.6) }));
+  portal.add(disc, rimMetal, rimGlow, rimBlue); scene.add(portal);
+  const portalLight = new PointLight(ORANGE, 18, 9, 1.7); portalLight.position.copy(PORTAL).add(new Vector3(0, -0.6, 0.8)); scene.add(portalLight);
+  let portalFlash = 0;
 
   // ---------- La machine ----------
-  const machine = new Group(); machine.position.copy(machinePos);
+  const machine = new Group(); machine.position.copy(MACHINE);
   const bodyMat = new MeshStandardMaterial({ color: 0x1d1f24, metalness: 0.85, roughness: 0.32 });
-  const body = new Mesh(new BoxGeometry(3.6, 2.8, 2.2), bodyMat);
-  const edges = new LineSegments(new EdgesGeometry(body.geometry), new LineBasicMaterial({ color: 0x3a3d46 }));
-  const stripMat = new MeshBasicMaterial({ color: new Color(ORANGE).multiplyScalar(0.6) });
-  const strip = new Mesh(new BoxGeometry(3.62, 0.05, 0.05), stripMat); strip.position.set(0, 1.42, 1.11);
-  const strip2 = strip.clone(); strip2.position.y = -1.42;
-  const funnel = new Mesh(new CylinderGeometry(0.85, 0.5, 0.7, 6, 1, true), new MeshStandardMaterial({ color: 0x2a2c32, metalness: 0.8, roughness: 0.3, side: DoubleSide }));
-  funnel.position.set(0, 1.75, 0);
-  machine.add(body, edges, strip, strip2, funnel);
-  const leds = Array.from({ length: 6 }, (_, i) => { const m = new Mesh(new SphereGeometry(0.06, 12, 12), new MeshBasicMaterial({ color: 0x3a3d46 })); m.position.set(-1.25 + i * 0.22, 1.18, 1.12); machine.add(m); return m; });
-  const mSockets = ORDER.map((k, i) => {
-    const s = new Group(); s.position.set(-0.95 + (i % 3) * 0.95, 0.05 - Math.floor(i / 3) * 0.9, 1.12);
-    const ring = new Mesh(new TorusGeometry(0.46, 0.025, 8, 6), new MeshBasicMaterial({ color: 0x4a4d57 })); ring.rotation.z = Math.PI / 6;
+  const bodyGeo = new BoxGeometry(3.6, 2.5, 2.0);
+  machine.add(new Mesh(bodyGeo, bodyMat), new LineSegments(new EdgesGeometry(bodyGeo), new LineBasicMaterial({ color: 0x3a3d46 })));
+  const stripMat = new MeshBasicMaterial({ color: glow(ORANGE, 0.5) });
+  for (const y of [1.27, -1.27]) { const s = new Mesh(new BoxGeometry(3.62, 0.04, 0.04), stripMat); s.position.set(0, y, 1.01); machine.add(s); }
+  const intake = new Mesh(new CylinderGeometry(0.85, 0.55, 0.6, 48, 1, true), new MeshStandardMaterial({ color: 0x2a2c31, metalness: 0.85, roughness: 0.3, side: DoubleSide }));
+  intake.position.set(0.6, 1.5, 0); machine.add(intake);
+  const leds = Array.from({ length: 6 }, (_, i) => { const m = new Mesh(new SphereGeometry(0.055, 12, 12), new MeshBasicMaterial({ color: 0x3a3d46 })); m.position.set(0.35 + i * 0.2, 0.98, 1.02); machine.add(m); return m; });
+  const sockets = ORDER.map((k, i) => {
+    const s = new Group(); s.position.set(-1.05 + (i % 3) * 1.05, 0.32 - Math.floor(i / 3) * 0.92, 1.02);
+    const ring = new Mesh(new TorusGeometry(0.43, 0.025, 10, 64), new MeshBasicMaterial({ color: 0x4a4d57 }));
     s.add(ring); s.userData.ring = ring; machine.add(s); return s;
   });
   if (milsLogo) {
-    const img = new Image(); img.src = milsLogo;
-    const tex = new CanvasTexture(img); tex.colorSpace = SRGBColorSpace;
-    img.onload = () => { tex.needsUpdate = true; };
-    const logoPlate = new Mesh(new PlaneGeometry(1.15, 0.4), new MeshBasicMaterial({ map: tex }));
-    logoPlate.position.set(0.95, 1.13, 1.111); machine.add(logoPlate);
+    const img = new Image(); const tex = new CanvasTexture(img); tex.colorSpace = SRGBColorSpace;
+    img.onload = () => { tex.needsUpdate = true; }; img.src = milsLogo;
+    const plate = new Mesh(new PlaneGeometry(1.05, 0.36), new MeshBasicMaterial({ map: tex })); plate.position.set(-0.95, 0.98, 1.011); machine.add(plate);
   }
-  // goulotte de sortie + bac de devis en verre
-  const chute = new Mesh(new BoxGeometry(1.4, 0.08, 0.9), bodyMat); chute.position.set(2.35, -0.9, 0.3); chute.rotation.z = -0.45; machine.add(chute);
-  const bin = new Group(); bin.position.set(3.75, -1.55, 0.3);
-  const binBox = new BoxGeometry(2.0, 1.4, 1.5);
-  bin.add(new Mesh(binBox, new MeshStandardMaterial({ color: 0x9bbcff, transparent: true, opacity: 0.06, metalness: 0.2, roughness: 0.05, depthWrite: false })));
-  bin.add(new LineSegments(new EdgesGeometry(binBox), new LineBasicMaterial({ color: 0x5a5f6b })));
+  const chute = new Mesh(new BoxGeometry(1.2, 0.07, 0.9), bodyMat); chute.position.set(2.25, -0.75, 0.25); chute.rotation.z = -0.4; machine.add(chute);
+  const bin = new Group(); bin.position.set(3.55, -1.35, 0.3);
+  const binGeo = new BoxGeometry(1.8, 1.3, 1.4);
+  bin.add(new Mesh(binGeo, new MeshStandardMaterial({ color: 0x9bbcff, transparent: true, opacity: 0.06, depthWrite: false })), new LineSegments(new EdgesGeometry(binGeo), new LineBasicMaterial({ color: 0x5a5f6b })));
   machine.add(bin);
-  const machineLight = new PointLight(ORANGE, 0, 8, 1.6); machineLight.position.set(0, 0.5, 2.4); machine.add(machineLight);
+  const machineLight = new PointLight(ORANGE, 0, 8, 1.6); machineLight.position.set(0, 0.3, 2.4); machine.add(machineLight);
   scene.add(machine);
-  const pile = []; // devis empilés dans le bac
-  const pileSpot = (i) => new Vector3(-0.6 + (i % 4) * 0.4 + ((i >> 2) % 2) * 0.2, -0.55 + Math.floor(i / 4) * 0.16, -0.35 + ((i * 7) % 5) * 0.17);
+  const pileSpot = (i) => new Vector3(-0.55 + (i % 4) * 0.36 + ((i >> 2) % 2) * 0.18, -0.5 + Math.floor(i / 4) * 0.15, -0.3 + ((i * 7) % 5) * 0.15);
+
+  // ---------- Pièces à installer ----------
+  const pieces = {};
+  ORDER.forEach((k) => { const c = makeCoin(icons[k]); c.visible = false; c.userData.key = k; scene.add(c); pieces[k] = { coin: c, state: "idle", t: 0 }; });
+  let active = [];                       // pièces de la section affichée
+  const WAIT_T = [0.86, 0.66];           // positions d'attente sur le tapis d'entrée
+  const pulse = new Mesh(new TorusGeometry(0.62, 0.02, 8, 64), new MeshBasicMaterial({ color: glow(ORANGE, 2), transparent: true }));
+  pulse.visible = false; scene.add(pulse);
 
   // ---------- Halo ----------
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new Vector2(1, 1), small ? 0.6 : 0.75, 0.45, 0.55);
+  const bloom = new UnrealBloomPass(new Vector2(1, 1), small ? 0.65 : 0.8, 0.5, 0.5);
   composer.addPass(bloom); composer.addPass(new OutputPass());
 
-  // ---------- Caméra pilotée par le défilement ----------
-  let portrait = false, idx = 0, idxSmooth = 0;
-  const camYFor = (i) => Math.max(-i * SEC, Y_MACHINE - 0.6);
+  // ---------- Caméra ----------
+  let portrait = false, idx = 0, idxS = 0;
+  const pointer = new Vector2(), sm = new Vector2();
+  addEventListener("pointermove", (e) => pointer.set(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1), { passive: true });
   function resize() {
-    const w = canvas.clientWidth, h = canvas.clientHeight;
+    const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
     renderer.setSize(w, h, false); composer.setSize(w, h); bloom.setSize(w, h);
     camera.aspect = w / h; portrait = w / h < 1;
-    camera.setViewOffset(w, h, portrait ? -w * 0.02 : -w * 0.22, portrait ? h * 0.2 : 0, w, h);
-    camera.updateProjectionMatrix(); dirty = true;
+    camera.setViewOffset(w, h, portrait ? 0 : -w * 0.2, portrait ? h * 0.17 : 0, w, h);
+    camera.updateProjectionMatrix();
   }
-  const pointer = new Vector2(), smooth = new Vector2();
-  addEventListener("pointermove", (e) => pointer.set(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1), { passive: true });
   const target = new Vector3();
   function placeCamera() {
-    const y = camYFor(idxSmooth), endZoom = Math.max(0, idxSmooth - 6.6);
-    const cx = 1.7 * Math.sin(y * 0.33) * 0.35 + (endZoom > 0 ? machinePos.x * 0.4 * Math.min(1, endZoom) : 0);
-    target.set(cx + smooth.x * 0.5, y - 0.2 - smooth.y * 0.3, 0);
-    camera.position.set(cx - 2.6 + smooth.x * 0.8, y + 4.2, (portrait ? 25 : 17) + endZoom * 2);
+    const intro = Math.min(1, Math.max(0, (idxS - 1) / 1));          // arrivée depuis l'écran du défi
+    const down = Math.min(1, Math.max(0, idxS - 6));                  // descente vers la machine
+    const back = Math.min(1, Math.max(0, idxS - 7));                  // recul au planning
+    target.set(0.7 + sm.x * 0.4, -2.5 - down * 1.2 - sm.y * 0.3, 0);
+    const dist = (portrait ? 37 : 27) + (1 - ease(intro)) * 16 + back * 4;
+    camera.position.set(-1.6 + sm.x * 0.9, 2.2 + (1 - intro) * 4 - down * 1.2 + back * 1.5, dist);
     camera.lookAt(target);
-    key.position.set(camera.position.x - 4, y + 8, 6); key.target.position.set(0, y, 0);
-    // le rack se tient en bas à droite du cadre
-    rack.position.set(cx + (portrait ? 1.6 : 1.9), y - (portrait ? 4.2 : 2.2), 2.6);
-    rack.lookAt(camera.position);
   }
 
-  // ---------- Petites animations (tâches) ----------
+  // ---------- Tâches d'animation ----------
   const tasks = [];
-  const run = (dur, step) => new Promise((done) => { if (reduced) { step(1); dirty = true; done(); return; } tasks.push({ t: 0, dur, step, done }); });
+  const run = (dur, step) => new Promise((done) => { if (reduced) { step(1); done(); return; } tasks.push({ t: 0, dur, step, done }); });
   const wait = (s) => run(s, () => {});
-  function flashPortal(p) { p.userData.flash = 1; }
+
+  // chute dans le portail puis sortie sur le tapis du bas
+  async function throughPortal(obj) {
+    const from = obj.position.clone(), q0 = obj.quaternion.clone();
+    await run(0.35, (p) => { obj.position.lerpVectors(from, PORTAL, easeIn(p)); obj.quaternion.copy(q0); });
+    obj.visible = false; portalFlash = 1;
+  }
 
   async function install(k) {
-    const pc = pieces[k]; if (!pc || pc.state !== "parked") return;
-    pc.state = "moving"; rack.visible = true;
-    // la pièce roule jusqu'au portail
-    await run(0.9, (p) => placeOnCurve(pc.coin, pc.tPark + (pc.tPortal - pc.tPark) * easeIn(p)));
-    pc.coin.visible = false; flashPortal(pc.portal);
-    // elle ressort en pièce de machine et file vers le rack
-    const tile = makeTile(icons[k]); scene.add(tile);
-    const from = pc.portal.position.clone(), to = new Vector3(), ctrl = new Vector3();
-    const slot = sockets[ORDER.indexOf(k)];
-    await run(1.0, (p) => {
-      slot.getWorldPosition(to);
-      ctrl.copy(from).lerp(to, 0.5).add(new Vector3(0, 2.2, 1.5));
-      const e = ease(p), a = from.clone().lerp(ctrl, e), b = ctrl.clone().lerp(to, e);
-      tile.position.copy(a.lerp(b, e));
-      tile.quaternion.slerpQuaternions(new Quaternion(), rack.quaternion, e);
-      tile.rotateY((1 - e) * Math.PI * 2);
-      tile.scale.setScalar(0.6 + 0.4 * e);
+    const pc = pieces[k]; if (!pc || pc.state === "moving" || pc.state === "done") return;
+    pc.state = "moving"; pc.coin.visible = true;
+    const t0 = pc.t;
+    await run(0.7 * (1 - t0) + 0.2, (p) => { pc.t = t0 + (1 - t0) * easeIn(p); onBelt(pc.coin, IN, pc.t); });
+    await throughPortal(pc.coin);
+    const piece = makePiece(icons[k]); scene.add(piece); pc.piece = piece;
+    await run(1.6, (p) => onBelt(piece, OUT, ease(p)));
+    const slot = sockets[ORDER.indexOf(k)], from = piece.position.clone(), to = new Vector3(), q0 = piece.quaternion.clone();
+    await run(0.7, (p) => {
+      slot.getWorldPosition(to); const e = ease(p);
+      piece.position.lerpVectors(from, to, e); piece.position.y += Math.sin(e * Math.PI) * 0.8;
+      piece.quaternion.slerpQuaternions(q0, new Quaternion(), e);
     });
-    slot.attach(tile); tile.position.set(0, 0, 0.06); tile.rotation.set(0, 0, 0); tile.scale.setScalar(1);
-    slot.userData.ring.material.color.set(new Color(0xffb020).multiplyScalar(2));
-    await run(0.5, (p) => slot.userData.ring.material.color.lerpColors(new Color(0xffb020).multiplyScalar(2), new Color(0x2fbf7a), p));
-    pc.state = "done"; pc.tile = tile;
-  }
-
-  let filled = false;
-  async function fill() {
-    if (filled) return; filled = true;
-    await Promise.all(ORDER.map(async (k, i) => {
-      const tile = pieces[k].tile; if (!tile) return;
-      await wait(i * 0.12);
-      const from = new Vector3(), to = new Vector3(); tile.getWorldPosition(from); scene.attach(tile);
-      const slot = mSockets[i];
-      await run(0.9, (p) => { slot.getWorldPosition(to); const e = ease(p); tile.position.lerpVectors(from, to, e); tile.position.y += Math.sin(e * Math.PI) * 1.2; tile.rotation.set(0, (1 - e) * Math.PI, 0); });
-      slot.attach(tile); tile.position.set(0, 0, 0.06); tile.rotation.set(0, 0, 0);
-      slot.userData.ring.material.color.set(0x2fbf7a);
-      leds[i].material.color.set(new Color(ORANGE).multiplyScalar(2));
-    }));
-    rack.visible = false;
-    stripMat.color.set(new Color(ORANGE).multiplyScalar(1.6));
+    slot.attach(piece); piece.position.set(0, 0, 0.08); piece.quaternion.identity();
+    slot.userData.ring.material.color.set(glow(0xffb020, 2));
+    leds[ORDER.indexOf(k)].material.color.set(glow(ORANGE, 2));
+    await run(0.5, (p) => slot.userData.ring.material.color.lerpColors(glow(0xffb020, 2), new Color(GREEN), p));
+    pc.state = "done";
+    if (ORDER.every((x) => pieces[x].state === "done")) stripMat.color.set(glow(ORANGE, 1.6));
   }
 
   let launched = false;
+  const flying = [];
   async function launch() {
     if (launched) return; launched = true;
-    leds.forEach((l) => l.material.color.set(new Color(0x2fbf7a).multiplyScalar(2)));
-    machineLight.intensity = 10;
-    const tStart = tAtY(Y_MACHINE + 7), N = 6;
-    const jobs = [];
-    for (let i = 0; i < N; i++) {
-      jobs.push((async () => {
-        await wait(i * 0.32);
-        const c = makeCoin(icons.rfq); scene.add(c);
-        await run(0.9, (p) => placeOnCurve(c, tStart + (1 - tStart) * easeIn(p)));
-        scene.remove(c);
-        const r = new Mesh(ringGeo, ringMats[i % 3 === 2 ? 1 : 0]); machine.add(r);
-        const from = new Vector3(1.7, -0.6, 0.3), to = bin.position.clone().add(pileSpot(pile.length)); pile.push(r);
-        await run(0.7, (p) => { const e = easeOut(p); r.position.lerpVectors(from, to, e); r.position.y += Math.sin(p * Math.PI) * 0.6; r.rotation.set(Math.PI / 2 * e, 0, p * 4); });
-      })());
-    }
-    await Promise.all(jobs);
-    machineLight.intensity = 4;
+    leds.forEach((l) => l.material.color.set(glow(GREEN, 2)));
+    machineLight.intensity = 8;
+    const N = 6;
+    await Promise.all(Array.from({ length: N }, async (_, i) => {
+      await wait(i * 0.45);
+      const c = makeCoin(icons.rfq); scene.add(c); flying.push(c);
+      await run(1.2, (p) => onBelt(c, IN, easeIn(p)));
+      await throughPortal(c);
+      const r = new Mesh(devisGeo, devisMats[i % 3 === 2 ? 1 : 0]); scene.add(r); flying.push(r);
+      await run(1.1, (p) => onBelt(r, OUT, ease(p), 0.49));
+      r.visible = false; machineLight.intensity = 14;
+      const d = new Mesh(devisGeo, r.material); machine.add(d); flying.push(d);
+      const from = new Vector3(1.7, -0.5, 0.3), to = bin.position.clone().add(pileSpot(i));
+      await run(0.7, (p) => { const e = easeOut(p); d.position.lerpVectors(from, to, e); d.position.y += Math.sin(p * Math.PI) * 0.5; d.rotation.set((Math.PI / 2) * e, 0, p * 4); });
+      machineLight.intensity = 8;
+    }));
+  }
+
+  function reset() {
+    tasks.length = 0; launched = false; machineLight.intensity = 0;
+    flying.forEach((o) => o.parent && o.parent.remove(o)); flying.length = 0;
+    ORDER.forEach((k, i) => {
+      const pc = pieces[k]; if (pc.piece && pc.piece.parent) pc.piece.parent.remove(pc.piece);
+      pc.piece = null; pc.state = "idle"; pc.t = 0; pc.coin.visible = false;
+      sockets[i].userData.ring.material.color.set(0x4a4d57); leds[i].material.color.set(0x3a3d46);
+    });
+    stripMat.color.set(glow(ORANGE, 0.5)); setActive(active);
+  }
+
+  // Une pièce entre par le haut du tapis quand sa section s'affiche.
+  function setActive(keys) {
+    active = keys;
+    ORDER.forEach((k) => { const pc = pieces[k]; if (pc.state === "idle" || pc.state === "waiting") { if (!keys.includes(k)) { pc.coin.visible = false; pc.state = "idle"; pc.t = 0; } } });
+    keys.forEach((k, j) => {
+      const pc = pieces[k]; if (pc.state !== "idle") return;
+      pc.state = "arriving"; pc.coin.visible = true; const goal = WAIT_T[j] || 0.6;
+      run(1.4, (p) => { if (pc.state !== "arriving") return; pc.t = goal * easeOut(p); onBelt(pc.coin, IN, pc.t); })
+        .then(() => { if (pc.state === "arriving") pc.state = "waiting"; });
+    });
   }
 
   // ---------- Boucle ----------
-  let clock = 6.6, last = performance.now(), dirty = true, visible = true;
-  function heroFlow(c) {
-    const cycle = HERO_N * GAP;
-    heroCoins.forEach((m, i) => {
-      const u = (((c - i * GAP) % cycle) + cycle) % cycle / T_UP;
-      m.visible = u <= 1;
-      if (m.visible) { placeOnCurve(m, heroStartT + (heroPortalT - heroStartT) * u); m.scale.setScalar(Math.max(0.001, u > 0.93 ? 1 - (u - 0.93) / 0.07 : 1)); }
-    });
-    heroRings.forEach((m, i) => {
-      const u = (((c - i * GAP - T_UP) % cycle) + cycle) % cycle / T_LOW;
-      m.visible = u <= 1;
-      if (m.visible) { placeOnCurve(m, heroPortalT + (heroEndT - heroPortalT) * u); m.scale.setScalar(Math.max(0.001, Math.min(u / 0.08, (1 - u) / 0.15, 1))); }
-    });
-  }
+  let last = performance.now(), hintCb = null;
+  const proj = new Vector3();
   function frame(now) {
     requestAnimationFrame(frame);
-    if (!visible || document.hidden) { last = now; return; }
-    const dt = Math.min(0.1, (now - last) / 1000); last = now;
-    const t = now / 1000;
-    if (!reduced) {
-      clock += dt; smooth.lerp(pointer, 0.05);
-      idxSmooth += (idx - idxSmooth) * Math.min(1, dt * 4);
-    } else if (!dirty && Math.abs(idx - idxSmooth) < 1e-3) return;
-    else idxSmooth = idx;
+    if (document.hidden) { last = now; return; }
+    const dt = Math.min(0.1, (now - last) / 1000); last = now; const t = now / 1000;
+    if (!reduced) { sm.lerp(pointer, 0.05); idxS += (idx - idxS) * Math.min(1, dt * 3.5); } else idxS = idx;
+    if (idxS < 0.9) { if (hintCb) hintCb(null); return; }               // scène pas encore visible
     placeCamera();
-    if (idxSmooth < 1.6) heroFlow(reduced ? 6.6 : clock);
-    // pièces garées : léger balancement + lueur
-    for (const k of ORDER) { const pc = pieces[k]; if (pc.state === "parked" && !reduced) { placeOnCurve(pc.coin, pc.tPark + Math.sin(t * 2 + pc.tPark * 50) * 0.0012); pc.coin.material[1].emissiveIntensity = 0.9 + Math.sin(t * 3) * 0.25; } }
-    for (const p of portals) {
-      const u = p.userData; u.flash = Math.max(0, u.flash - dt * 1.5);
-      const s = 1 + Math.sin(t * 3) * 0.03 + u.flash * 0.25;
-      u.ring.scale.setScalar(s); u.veil.material.opacity = 0.5 + Math.sin(t * 2.2) * 0.1 + u.flash * 0.5; u.ring2.rotation.z = Math.PI / 6 + t * 0.15;
+    fire.uniforms.uTime.value = t; portalFlash = Math.max(0, portalFlash - dt * 1.8);
+    fire.uniforms.uBoost.value = portalFlash; portalLight.intensity = 16 + Math.sin(t * 3) * 3 + portalFlash * 30;
+    rimGlow.scale.setScalar(1 + portalFlash * 0.06);
+    // pièce en attente : légère oscillation + anneau qui pulse
+    let hint = null;
+    for (const k of active) {
+      const pc = pieces[k];
+      if (pc.state === "waiting") {
+        if (!reduced) onBelt(pc.coin, IN, pc.t + Math.sin(t * 2.4) * 0.004);
+        pc.coin.material[1].emissiveIntensity = 0.8 + Math.sin(t * 4) * 0.35;
+        if (!hint) {
+          hint = pc.coin;
+          pulse.visible = true; pulse.position.copy(pc.coin.position); pulse.quaternion.copy(camera.quaternion);
+          const ph = (t * 0.9) % 1; pulse.scale.setScalar(1 + ph * 0.7); pulse.material.opacity = 1 - ph;
+        }
+      }
     }
-    // carte : tracé progressif à l'approche de la section
-    const near = Math.max(0, 1 - Math.abs(idxSmooth - 1) * 1.6);
-    if (near > 0 && mapDraw < 1) { mapDraw = reduced ? 1 : Math.min(1, mapDraw + dt * 0.8); mapLine.geometry.setDrawRange(0, Math.ceil(mapDraw * (mp.length + 1))); }
-    pinRing.scale.setScalar(1 + ((t * 0.6) % 1) * 2.2); pinRing.material.opacity = 1 - ((t * 0.6) % 1);
+    if (!hint) pulse.visible = false;
     for (let i = tasks.length - 1; i >= 0; i--) {
       const k = tasks[i]; k.t += dt; const p = Math.min(1, k.t / k.dur); k.step(p);
       if (p >= 1) { tasks.splice(i, 1); k.done(); }
     }
-    composer.render(); dirty = false;
+    composer.render();
+    if (hintCb) {
+      if (hint) { proj.copy(hint.position).project(camera); hintCb({ x: (proj.x + 1) / 2 * canvas.clientWidth, y: (1 - proj.y) / 2 * canvas.clientHeight }); }
+      else hintCb(null);
+    }
   }
 
-  // ---------- Clic sur une pièce dans la scène ----------
+  // ---------- Clic sur une pièce ----------
   const ray = new Raycaster(), ndc = new Vector2(); let pickCb = null;
-  const pickable = () => ORDER.map((k) => pieces[k]).filter((p) => p.state === "parked").map((p) => p.coin);
-  function hit(e) { const r = canvas.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(pickable(), false)[0]; return h && h.object.userData.key; }
+  function hit(e) {
+    const r = canvas.getBoundingClientRect(); ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    const list = active.map((k) => pieces[k]).filter((p) => p.state === "waiting" || p.state === "arriving").map((p) => p.coin);
+    const h = ray.intersectObjects(list, false)[0]; return h && h.object.userData.key;
+  }
   canvas.addEventListener("click", (e) => { const k = hit(e); if (k && pickCb) pickCb(k); });
   canvas.addEventListener("pointermove", (e) => { canvas.style.cursor = hit(e) ? "pointer" : ""; });
 
   resize(); addEventListener("resize", resize);
-  document.addEventListener("visibilitychange", () => { last = performance.now(); });
   requestAnimationFrame(frame);
 
   return {
-    setProgress(i) { idx = i; dirty = true; },
-    install: (k) => install(k).then(() => { dirty = true; }),
-    fill: () => fill().then(() => { dirty = true; }),
-    launch: () => launch().then(() => { dirty = true; }),
+    setProgress(i) { idx = i; },
+    setActive,
+    install,
+    launch,
+    reset,
     onPick(cb) { pickCb = cb; },
-    get filled() { return filled; }
+    onHint(cb) { hintCb = cb; }
   };
 }
