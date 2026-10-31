@@ -51,16 +51,6 @@ const Clip: React.FC<{ src: string; from: number; dur: number; srcStart: number;
 const Tag: React.FC<{ x: number; y: number; c: string; children: React.ReactNode; align?: "left" | "right" }> = ({ x, y, c, children, align = "left" }) => (
   <div style={{ position: "absolute", [align]: x, top: y, fontFamily: FONT, fontWeight: 600, fontSize: 19, letterSpacing: 3, color: c, whiteSpace: "nowrap" }}>{children}</div>
 );
-// Repères d'impression aux coins de la zone utile
-const CropMarks: React.FC<{ c: string }> = ({ c }) => (
-  <>
-    {[[Z.left - 30, Z.top - 30], [W - Z.right + 30, Z.top - 30], [Z.left - 30, H - Z.bottom + 30], [W - Z.right + 30, H - Z.bottom + 30]].map(([x, y], i) => (
-      <svg key={i} width={40} height={40} style={{ position: "absolute", left: x - 20, top: y - 20 }}>
-        <path d="M20 0 V40 M0 20 H40" stroke={c} strokeWidth={2} />
-      </svg>
-    ))}
-  </>
-);
 const Paper: React.FC<{ bg: string; children: React.ReactNode }> = ({ bg, children }) => (
   <AbsoluteFill style={{ backgroundColor: bg, overflow: "hidden" }}>
     {/* grain de papier très léger */}
@@ -79,70 +69,99 @@ const Timecode: React.FC<{ t: number; c: string; layer: string }> = ({ t, c, lay
 };
 
 /* =====================================================================
-   SCÈNE 1 — CANVA en lamelles, puis plongée à travers les calques
+   SCÈNE 1 — la galerie Canva explose autour du logo, accroche courte,
+   sortie en « fractions » qui glissent ; puis « داخل بقوّة » et AI
    ===================================================================== */
-const BANDS = 6;
-const S1: React.FC<{ t: number }> = ({ t }) => {
-  const dive = t >= V.dakhel;
-  const bandH = H / BANDS;
+// Images de la galerie Canva (découpées du visuel officiel) : [largeur, hauteur] d'origine
+const TILE_SIZES: [number, number][] = [[125, 117], [46, 46], [66, 92], [112, 111], [66, 72], [125, 58], [141, 78], [95, 70], [152, 86], [53, 51], [187, 105], [114, 80], [92, 65], [113, 89], [45, 88], [99, 142], [105, 64], [140, 99], [120, 67], [128, 79]];
+const TILES = TILE_SIZES.map(([w, h], i) => {
+  const a = (i / TILE_SIZES.length) * Math.PI * 2 + 0.3;
+  const r = i % 2 ? 360 : 560;
+  const scale = (i % 3 === 0 ? 2.1 : 1.6) * (Math.max(w, h) < 70 ? 1.6 : 1);
+  return { i, w: w * scale, h: h * scale, x: CX + Math.cos(a) * r, y: CY - 60 + Math.sin(a) * r * 1.45, rot: ((i * 37) % 21) - 10, spin: ((i * 53) % 180) - 90, delay: i % 5 };
+});
+const SWIPE = V.dakhel - 14; // sortie en fractions
+const FRACTIONS = 4;
+const HookGallery: React.FC<{ t: number }> = ({ t }) => {
+  const slam = interpolate(t, [0, 7], [3.4, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const shake = t >= 7 && t < 16 ? Math.sin(t * 3.1) * (16 - t) * 1.6 : 0;
   return (
-    <Paper bg={RED}>
-      {Array.from({ length: BANDS }).map((_, i) => {
-        const inK = outX(t, i * 2, 12);
-        const dir = i % 2 ? 1 : -1;
-        // décalage rythmique : un cran tous les 15 frames (un temps)
-        const step = Math.floor(Math.max(0, t - 15) / 15);
-        const shear = dir * ((step % 3) - 1) * 60 * (1 - inX(t, V.dakhel - 10, 10));
-        // plongée : chaque lamelle file vers la caméra, l'une après l'autre
-        const fly = inX(t, V.dakhel + i * 2, 12);
-        const light = i % 2 === 0;
+    <Paper bg={BEIGE}>
+      {/* galerie : chaque image jaillit du centre comme une gerbe */}
+      {TILES.map((tl) => {
+        const k = outX(t, 6 + tl.delay, 18);
+        const fl = Math.sin(t / 18 + tl.i) * 10;
+        const x = interpolate(k, [0, 1], [CX, tl.x]);
+        const y = interpolate(k, [0, 1], [CY - 60, tl.y]) + fl;
         return (
-          <div key={i} style={{ position: "absolute", left: 0, top: i * bandH, width: W, height: bandH, overflow: "hidden", backgroundColor: light ? BEIGE : RED, transform: `translateX(${(1 - inK) * dir * W + shear}px) scale(${1 + fly * 7})`, transformOrigin: `${CX}px ${CY - i * bandH}px`, opacity: fly > 0.9 ? 0 : 1 }}>
-            <div style={{ position: "absolute", left: -120 + dir * 40, top: -i * bandH + CY - 330, fontFamily: FONT, fontWeight: 800, fontSize: 560, lineHeight: 1, letterSpacing: -30, color: light ? RED : BEIGE, whiteSpace: "nowrap" }}>CANVA</div>
-            <Tag x={18} y={10} c={light ? RED : BEIGE}>{`LAYER 0${i + 1}`}</Tag>
+          <div key={tl.i} style={{ position: "absolute", left: x - tl.w / 2, top: y - tl.h / 2, width: tl.w, height: tl.h, borderRadius: 18, overflow: "hidden", boxShadow: "0 14px 34px rgba(0,0,0,0.18)", transform: `scale(${interpolate(k, [0, 1], [0.1, 1])}) rotate(${interpolate(k, [0, 1], [tl.spin, tl.rot])}deg)` }}>
+            <Img src={staticFile(`craft/tiles/t${String(tl.i).padStart(2, "0")}.jpg`)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           </div>
         );
       })}
-      {!dive ? (
-        <>
-          <div style={{ position: "absolute", left: CX - 90, top: Z.top + 1090, width: 180, height: 180, borderRadius: 999, backgroundColor: WHITE, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${el(t, 14)})`, boxShadow: "0 18px 40px rgba(0,0,0,0.18)" }}>
-            <Img src={staticFile("cc/canva-icon.png")} style={{ width: 130, height: 130 }} />
-          </div>
-          {t >= V.jdida - 10 ? (
-            <div style={{ position: "absolute", left: Z.left, width: ZW, top: Z.top + 960, textAlign: "center", transform: `scale(${el(t, V.jdida - 10)})` }}>
-              <span style={{ backgroundColor: RED, padding: "2px 22px" }}>
-                <MixedText text="كل مرة حاجة جديدة" size={50} color={WHITE} style={{ display: "inline" }} />
+      {/* onde de choc */}
+      {[0, 1].map((r) => {
+        const k = outX(t, 7 + r * 3, 22);
+        return k > 0 && k < 0.97 ? <div key={r} style={{ position: "absolute", left: CX - 900 * k, top: CY - 60 - 900 * k, width: 1800 * k, height: 1800 * k, borderRadius: 9999, border: `${(1 - k) * 34}px solid ${RED}` }} /> : null;
+      })}
+      {/* le logo Canva tombe et frappe */}
+      <div style={{ position: "absolute", left: CX - 150 + shake, top: CY - 210, width: 300, height: 300, transform: `scale(${slam})`, filter: "drop-shadow(0 24px 40px rgba(0,0,0,0.25))" }}>
+        <Img src={staticFile("cc/canva-icon.png")} style={{ width: 300, height: 300 }} />
+      </div>
+      {/* accroche courte, en deux moitiés qui glissent */}
+      {t >= V.jdida - 14 ? (
+        <div style={{ position: "absolute", left: Z.left, width: ZW, top: CY + 130, height: 170 }}>
+          {[0, 1].map((half) => (
+            <div key={half} style={{ position: "absolute", inset: 0, textAlign: "center", clipPath: half ? "inset(50% 0 0 0)" : "inset(0 0 50% 0)", transform: `translateX(${(1 - outX(t, V.jdida - 14 + half * 3, 12)) * (half ? 1 : -1) * 900}px)` }}>
+              <span style={{ backgroundColor: RED, padding: "0 30px", display: "inline-block" }}>
+                <MixedText text="حاجة جديدة" size={120} color={WHITE} />
               </span>
             </div>
-          ) : null}
-        </>
-      ) : (
-        <>
-          {/* « داخل بقوّة » traverse l'écran puis s'efface vers la caméra */}
-          {t < V.ai + 4 ? (
-            <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", transform: `scale(${0.4 + outX(t, V.dakhel + 2, 10) * 0.6 + inX(t, V.ai - 6, 10) * 6})`, opacity: t > V.ai + 2 ? 0 : 1 }}>
-              <MixedText text="داخل بقوّة" size={190} color={BEIGE} />
-            </AbsoluteFill>
-          ) : null}
-          {/* AI : surgit du fond, extrudé en calques */}
-          {t >= V.ai - 4 ? (
-            <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", perspective: 1400 }}>
-              <div style={{ position: "relative", transform: `scale(${interpolate(outX(t, V.ai - 4, 14), [0, 1], [0.15, 1])}) rotateY(${(1 - outX(t, V.ai - 4, 20)) * -40 + Math.sin(t / 14) * 6}deg) rotateX(${Math.cos(t / 17) * 5}deg)`, transformStyle: "preserve-3d" }}>
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} style={{ position: i ? "absolute" : "relative", left: 0, top: 0, fontFamily: FONT, fontWeight: 800, fontSize: 560, lineHeight: 1, letterSpacing: -30, color: i === 0 ? WHITE : "transparent", WebkitTextStroke: i ? `2px ${i % 2 ? BEIGE : WHITE}` : undefined, transform: `translateZ(${-i * 16}px)`, opacity: i ? 0.5 - i * 0.04 : 1 }}>
-                    AI
-                  </div>
-                ))}
-              </div>
-            </AbsoluteFill>
-          ) : null}
-          <Tag x={Z.left} y={H - Z.bottom - 30} c={BEIGE}>NEW DIMENSION / Z-AXIS</Tag>
-        </>
-      )}
-      <Timecode t={t} c={dive ? BEIGE : RED} layer="LAYER 01" />
+          ))}
+        </div>
+      ) : null}
+      <Timecode t={t} c={RED} layer="LAYER 01" />
     </Paper>
   );
 };
+const S1: React.FC<{ t: number }> = ({ t }) => (
+  <AbsoluteFill>
+    {/* dessous : « داخل بقوّة » puis AI, sur rouge */}
+    <Paper bg={RED}>
+      {t >= SWIPE && t < V.ai + 4 ? (
+        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", transform: `scale(${0.5 + outX(t, V.dakhel - 2, 10) * 0.5 + inX(t, V.ai - 6, 10) * 6})`, opacity: t > V.ai + 2 ? 0 : 1 }}>
+          <MixedText text="داخل بقوّة" size={190} color={BEIGE} />
+        </AbsoluteFill>
+      ) : null}
+      {t >= V.ai - 4 ? (
+        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", perspective: 1400 }}>
+          <div style={{ position: "relative", transform: `scale(${interpolate(outX(t, V.ai - 4, 14), [0, 1], [0.15, 1])}) rotateY(${(1 - outX(t, V.ai - 4, 20)) * -40 + Math.sin(t / 14) * 6}deg) rotateX(${Math.cos(t / 17) * 5}deg)`, transformStyle: "preserve-3d" }}>
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} style={{ position: i ? "absolute" : "relative", left: 0, top: 0, fontFamily: FONT, fontWeight: 800, fontSize: 560, lineHeight: 1, letterSpacing: -30, color: i === 0 ? WHITE : "transparent", WebkitTextStroke: i ? `2px ${i % 2 ? BEIGE : WHITE}` : undefined, transform: `translateZ(${-i * 16}px)`, opacity: i ? 0.5 - i * 0.04 : 1 }}>
+                AI
+              </div>
+            ))}
+          </div>
+        </AbsoluteFill>
+      ) : null}
+      {t >= SWIPE ? <Tag x={Z.left} y={H - Z.bottom - 30} c={BEIGE}>NEW DIMENSION / Z-AXIS</Tag> : null}
+      <Timecode t={t} c={BEIGE} layer="LAYER 01" />
+    </Paper>
+    {/* dessus : la galerie, qui sort en fractions verticales alternées */}
+    {t < SWIPE ? (
+      <HookGallery t={t} />
+    ) : t < SWIPE + 16 ? (
+      Array.from({ length: FRACTIONS }).map((_, i) => {
+        const k = inX(t, SWIPE + i * 1.5, 10);
+        return (
+          <AbsoluteFill key={i} style={{ clipPath: `inset(0 ${100 - ((i + 1) * 100) / FRACTIONS}% 0 ${(i * 100) / FRACTIONS}%)`, transform: `translateY(${(i % 2 ? 1 : -1) * k * H}px)` }}>
+            <HookGallery t={t} />
+          </AbsoluteFill>
+        );
+      })
+    ) : null}
+  </AbsoluteFill>
+);
 
 /* =====================================================================
    SCÈNE 2 — CANVA CRAFT : un bloc de calques en 3D isométrique
@@ -152,7 +171,6 @@ const S2: React.FC<{ t: number }> = ({ t }) => {
   const ticker = (t * 9) % 1200;
   return (
     <Paper bg={BEIGE}>
-      <CropMarks c={RED} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", perspective: 1800 }}>
         <div style={{ transformStyle: "preserve-3d", transform: `translateY(-80px) rotateX(${iso * 52}deg) rotateZ(${iso * -32}deg) scale(${0.9 + 0.1 * el(t, V.craft)})` }}>
           {Array.from({ length: 14 }).map((_, i) => (
@@ -185,7 +203,7 @@ const S2: React.FC<{ t: number }> = ({ t }) => {
 /* =====================================================================
    SCÈNE 3 — L'idée (le vrai prompt) devient design ; le design s'arrache
    ===================================================================== */
-const PROMPT = "FAIRE UN POST INSTAGRAM POUR UNE MARQUE “PETS” POUR LES CHATS, COULEUR CHAUD — ";
+const PROMPT = "CANVA CRAFT ✦ ";
 const S3: React.FC<{ t: number; p: LayersProps }> = ({ t, p }) => {
   const fh = 860, fw = Math.round(stripW(fh));
   const cardIn = el(t, V.lli - 2, 10);
@@ -198,7 +216,7 @@ const S3: React.FC<{ t: number; p: LayersProps }> = ({ t, p }) => {
       {/* L'idée en typographie géante qui défile */}
       {[0, 1].map((row) => (
         <div key={row} style={{ position: "absolute", top: row ? 1380 : 140, left: 0, whiteSpace: "nowrap", fontFamily: FONT, fontWeight: 800, fontSize: 120, letterSpacing: -3, color: row ? "transparent" : BEIGE, WebkitTextStroke: row ? `2px ${BEIGE}` : undefined, transform: `translateX(${row ? -2200 + m2 : -m1}px) scaleY(${1 - suck * 0.95})`, transformOrigin: `${CX}px 50%`, opacity: row ? 0.7 : 1 }}>
-          {PROMPT.repeat(3)}
+          {PROMPT.repeat(14)}
         </div>
       ))}
       {/* Le calque « interface réelle » en perspective */}
@@ -247,7 +265,6 @@ const S4: React.FC<{ t: number; p: LayersProps }> = ({ t, p }) => {
     const k = el(t, V.stanna, 9);
     return (
       <Paper bg={BEIGE}>
-        <CropMarks c={RED} />
         <div style={{ position: "absolute", left: CX - 170, top: Z.top + 170, display: "flex", gap: 80, transform: `scale(${k})` }}>
           {[0, 1].map((i) => <div key={i} style={{ width: 130, height: 440, backgroundColor: RED, transform: `translateY(${(1 - el(t, V.stanna + i * 3, 9)) * -600}px)` }} />)}
         </div>
@@ -336,7 +353,6 @@ const S5: React.FC<{ t: number; p: LayersProps }> = ({ t, p }) => {
   const strike = ease(t, V.sfer + 4, 8);
   return (
     <Paper bg={BEIGE}>
-      <CropMarks c={RED} />
       {/* le verbe prononcé, en très grand, derrière la carte */}
       {cur ? (
         <div key={cur[0]} style={{ position: "absolute", left: -100, right: -100, top: 560, textAlign: "center", fontFamily: FONT_AR, fontWeight: 700, fontSize: 420, lineHeight: 1, color: RED, opacity: 0.16, transform: `translateY(${(1 - outX(t, cur[1], 10)) * 300}px)` }}>{cur[0]}</div>
@@ -383,7 +399,6 @@ const S6: React.FC<{ t: number }> = ({ t }) => {
   const words = ["ça", "vaut", "le coup !"];
   return (
     <Paper bg={RED}>
-      <CropMarks c={BEIGE} />
       <div style={{ position: "absolute", left: Z.left, width: ZW, top: Z.top + 120, textAlign: "center", fontFamily: FONT, color: WHITE, transform: `translateY(${-stack * 1300}px)` }}>
         <div style={{ fontWeight: 600, fontSize: 56, transform: `translateY(${(1 - el(t, V.franchement)) * -300}px)` }}>Franchement,</div>
         {words.map((wd, i) => (
@@ -468,10 +483,13 @@ const C1 = V.craft - 8, C2 = V.lli - 2, C3 = V.stanna, C4 = V.ya3ni - 4, C5 = V.
 
 type S = [string, number, number, number];
 const SFX: S[] = [
-  ["regard/sub.wav", 0, 27, 0.6],
-  ...Array.from({ length: BANDS }).map((_, i) => ["cc/click.wav", i * 2, 3, 0.6] as S),
-  ...[30, 45, 60, 75, 90, 105].map((f) => ["regard/tick.wav", f, 3, 0.4] as S),
-  ["cc/pop.wav", 14, 6, 0.5],
+  ["ame/boom.wav", 6, 60, 0.7],
+  ["regard/sub.wav", 6, 27, 0.6],
+  ["ame/zoom.wav", 0, 7, 0.6],
+  ...[8, 10, 12, 14, 16].map((f) => ["cc/pop.wav", f, 6, 0.35] as S),
+  ["ame/shimmer.wav", 10, 60, 0.35],
+  ["cc/whoosh.wav", V.jdida - 14, 15, 0.45],
+  ...[0, 1, 2, 3].map((i) => ["regard/swish.wav", SWIPE + i * 2, 10, 0.4] as S),
   ["ame/zoom.wav", V.dakhel - 2, 9, 0.7],
   ["ame/boom.wav", V.dakhel + 2, 60, 0.55],
   ["regard/sub.wav", V.ai, 27, 0.5],
