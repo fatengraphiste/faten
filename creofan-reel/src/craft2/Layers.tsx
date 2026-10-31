@@ -86,7 +86,7 @@ const SWIPE = V.dakhel - 14; // sortie en fractions
 const AI_Y = -110;
 const TXT_Y = 140;
 const FRACTIONS = 4;
-const HookGallery: React.FC<{ t: number }> = ({ t }) => {
+export const HookGallery: React.FC<{ t: number; cover?: boolean }> = ({ t, cover }) => {
   const slam = interpolate(t, [0, 7], [3.4, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
   const shake = t >= 7 && t < 16 ? Math.sin(t * 3.1) * (16 - t) * 1.6 : 0;
   return (
@@ -124,7 +124,7 @@ const HookGallery: React.FC<{ t: number }> = ({ t }) => {
           ))}
         </div>
       ) : null}
-      <Timecode t={t} c={RED} layer="LAYER 01" />
+      {cover ? null : <Timecode t={t} c={RED} layer="LAYER 01" />}
     </Paper>
   );
 };
