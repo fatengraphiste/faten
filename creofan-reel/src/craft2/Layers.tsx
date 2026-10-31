@@ -483,8 +483,8 @@ const C1 = V.craft - 8, C2 = V.lli - 2, C3 = V.stanna, C4 = V.ya3ni - 4, C5 = V.
 
 type S = [string, number, number, number];
 const SFX: S[] = [
-  ["ame/boom.wav", 6, 60, 0.7],
-  ["regard/sub.wav", 6, 27, 0.6],
+  ["ame/boom.wav", 6, 60, 0.42],
+  ["regard/sub.wav", 6, 27, 0.35],
   ["ame/zoom.wav", 0, 7, 0.6],
   ...[8, 10, 12, 14, 16].map((f) => ["cc/pop.wav", f, 6, 0.35] as S),
   ["ame/shimmer.wav", 10, 60, 0.35],
