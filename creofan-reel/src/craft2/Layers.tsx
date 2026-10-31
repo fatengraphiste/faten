@@ -10,6 +10,7 @@ import {
   staticFile,
   useCurrentFrame,
 } from "remotion";
+import { OutroIcon } from "../outro/OutroIcon";
 import { MixedText } from "../components";
 import { BEIGE, FONT, FONT_AR, RED, WHITE } from "../theme";
 import { CRAFT_DURATION, V } from "../craft/CanvaCraft";
@@ -20,7 +21,7 @@ import { CRAFT_DURATION, V } from "../craft/CanvaCraft";
    calque de papier (décollement, plongée en profondeur, lamelles).
    Palette : rouge #f7322a, beige #fff5f5, blanc. Salma + Poppins.
    ===================================================================== */
-export const LAYERS_DURATION = CRAFT_DURATION;
+export const LAYERS_DURATION = CRAFT_DURATION + 24;
 const W = 1080, H = 1920;
 const Z = { top: 250, bottom: 380, left: 90, right: 180 };
 const ZW = W - Z.left - Z.right; // 810
@@ -81,6 +82,9 @@ const TILES = TILE_SIZES.map(([w, h], i) => {
   return { i, w: w * scale, h: h * scale, x: CX + Math.cos(a) * r, y: CY - 60 + Math.sin(a) * r * 1.45, rot: ((i * 37) % 21) - 10, spin: ((i * 53) % 180) - 90, delay: i % 5 };
 });
 const SWIPE = V.dakhel - 14; // sortie en fractions
+// Position finale : AI remonte, le texte se cale 20 px sous la base des lettres
+const AI_Y = -110;
+const TXT_Y = 140;
 const FRACTIONS = 4;
 const HookGallery: React.FC<{ t: number }> = ({ t }) => {
   const slam = interpolate(t, [0, 7], [3.4, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
@@ -128,13 +132,9 @@ const S1: React.FC<{ t: number }> = ({ t }) => (
   <AbsoluteFill>
     {/* dessous : « داخل بقوّة » puis AI, sur rouge */}
     <Paper bg={RED}>
-      {t >= SWIPE && t < V.ai + 4 ? (
-        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", transform: `scale(${0.5 + outX(t, V.dakhel - 2, 10) * 0.5 + inX(t, V.ai - 6, 10) * 6})`, opacity: t > V.ai + 2 ? 0 : 1 }}>
-          <MixedText text="داخل بقوّة" size={190} color={BEIGE} />
-        </AbsoluteFill>
-      ) : null}
+      {/* AI au centre, « داخل بقوّة » reste 20 px en dessous, dans le même plan */}
       {t >= V.ai - 4 ? (
-        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", perspective: 1400 }}>
+        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", perspective: 1400, transform: `translateY(${AI_Y}px)` }}>
           <div style={{ position: "relative", transform: `scale(${interpolate(outX(t, V.ai - 4, 14), [0, 1], [0.15, 1])}) rotateY(${(1 - outX(t, V.ai - 4, 20)) * -40 + Math.sin(t / 14) * 6}deg) rotateX(${Math.cos(t / 17) * 5}deg)`, transformStyle: "preserve-3d" }}>
             {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} style={{ position: i ? "absolute" : "relative", left: 0, top: 0, fontFamily: FONT, fontWeight: 800, fontSize: 560, lineHeight: 1, letterSpacing: -30, color: i === 0 ? WHITE : "transparent", WebkitTextStroke: i ? `2px ${i % 2 ? BEIGE : WHITE}` : undefined, transform: `translateZ(${-i * 16}px)`, opacity: i ? 0.5 - i * 0.04 : 1 }}>
@@ -142,6 +142,11 @@ const S1: React.FC<{ t: number }> = ({ t }) => (
               </div>
             ))}
           </div>
+        </AbsoluteFill>
+      ) : null}
+      {t >= SWIPE ? (
+        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", transform: `translateY(${ease(t, V.ai - 6, 14) * TXT_Y}px) scale(${(0.5 + outX(t, V.dakhel - 2, 10) * 0.5) * (1 - ease(t, V.ai - 6, 14) * 0.45)})` }}>
+          <MixedText text="داخل بقوّة" size={190} color={BEIGE} />
         </AbsoluteFill>
       ) : null}
       {t >= SWIPE ? <Tag x={Z.left} y={H - Z.bottom - 30} c={BEIGE}>NEW DIMENSION / Z-AXIS</Tag> : null}
@@ -392,33 +397,46 @@ const S5: React.FC<{ t: number; p: LayersProps }> = ({ t, p }) => {
 /* =====================================================================
    SCÈNE 6 — tous les calques se rangent : signature CREOFAN
    ===================================================================== */
+const OUT = V.yalla - 12; // départ de l'outro icône
+const ICONS: { label: string; d: string; fill?: boolean }[] = [
+  // Suivre : silhouette + « + »
+  { label: "Suivre", d: "M15 19c0-3.3-2.7-6-6-6s-6 2.7-6 6M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M19 8v6M16 11h6" },
+  // J'aime : cœur
+  { label: "J'aime", d: "M12 20.5S3 15 3 8.8A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 9 2.4C21 15 12 20.5 12 20.5z", fill: true },
+  // Sauvegarder : signet
+  { label: "Sauvegarder", d: "M6 3.5h12v17l-6-4.5-6 4.5z", fill: true },
+];
 const S6: React.FC<{ t: number }> = ({ t }) => {
-  const stack = ease(t, V.yalla - 2, 18);
-  const logoK = ease(t, V.yalla + 14, 14);
-  const tag = outX(t, V.yalla + 30, 12);
+  const away = ease(t, OUT - 8, 16);
   const words = ["ça", "vaut", "le coup !"];
   return (
     <Paper bg={RED}>
-      <div style={{ position: "absolute", left: Z.left, width: ZW, top: Z.top + 120, textAlign: "center", fontFamily: FONT, color: WHITE, transform: `translateY(${-stack * 1300}px)` }}>
+      <div style={{ position: "absolute", left: Z.left, width: ZW, top: Z.top + 260, textAlign: "center", fontFamily: FONT, color: WHITE, transform: `translateY(${-away * 1500}px)` }}>
         <div style={{ fontWeight: 600, fontSize: 56, transform: `translateY(${(1 - el(t, V.franchement)) * -300}px)` }}>Franchement,</div>
         {words.map((wd, i) => (
           <div key={wd} style={{ fontWeight: 800, fontSize: 150, lineHeight: 1, letterSpacing: -6, color: i === 2 ? BEIGE : WHITE, transform: `translateY(${(1 - el(t, V.franchement + 10 + i * 6, 7)) * -900}px)` }}>{wd}</div>
         ))}
       </div>
-      {/* les 5 calques du film tombent et s'empilent en un seul */}
-      {[RED, BEIGE, RED, BEIGE, WHITE].map((c, i) => {
-        const k = el(t, V.yalla - 2 + i * 4, 10);
-        return <div key={i} style={{ position: "absolute", left: CX - 300 + (4 - i) * 8 * (1 - logoK), top: CY - 260 - i * 8 * (1 - logoK), width: 600, height: 440, backgroundColor: c, border: `2px solid ${c === BEIGE || c === WHITE ? RED : BEIGE}`, transform: `translateY(${(1 - k) * -1600}px) rotate(${(1 - k) * (i % 2 ? 12 : -12)}deg)`, boxShadow: "0 18px 40px rgba(0,0,0,0.18)" }} />;
-      })}
-      {t >= V.yalla + 14 ? (
-        <div style={{ position: "absolute", left: CX - 250, top: CY - 150, width: 500, clipPath: `inset(0 ${100 - logoK * 100}% 0 0)` }}>
-          <Img src={staticFile("ame/logo-creofan-rouge.png")} style={{ width: 500 }} />
-        </div>
-      ) : null}
-      <div style={{ position: "absolute", left: Z.left, width: ZW, top: CY + 240, textAlign: "center", fontFamily: FONT, fontWeight: 600, fontSize: 30, letterSpacing: 7, color: BEIGE, transform: `translateY(${(1 - tag) * 50}px)`, opacity: tag > 0 ? 1 : 0 }}>
-        CREATIVE TOOLS.
-        <br />
-        NEW POSSIBILITIES.
+      {/* outro Creofan : l'icône se trace au stylo, en blanc sur rouge */}
+      {t >= OUT ? <OutroIcon f={t - OUT} fg={WHITE} bg="transparent" size={460} cy={CY - 130} /> : null}
+      {/* Suivre / J'aime / Sauvegarder */}
+      <div style={{ position: "absolute", left: Z.left, width: ZW, top: CY + 190, display: "flex", justifyContent: "center", gap: 70 }}>
+        {ICONS.map((ic, i) => {
+          const at = OUT + 58 + i * 6;
+          const k = el(t, at, 9);
+          const tap = interpolate(t, [at + 26 + i * 8, at + 30 + i * 8, at + 38 + i * 8], [1, 0.82, 1], clamp);
+          const on = t >= at + 30 + i * 8;
+          return (
+            <div key={ic.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 18, opacity: t >= at ? 1 : 0, transform: `translateY(${(1 - k) * 120}px) scale(${k * tap})` }}>
+              <div style={{ width: 150, height: 150, borderRadius: 999, border: `5px solid ${WHITE}`, backgroundColor: on ? WHITE : "transparent", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width={78} height={78} viewBox="0 0 24 24" fill={on && ic.fill ? RED : "none"} stroke={on ? RED : WHITE} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d={ic.d} />
+                </svg>
+              </div>
+              <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 34, color: WHITE }}>{ic.label}</div>
+            </div>
+          );
+        })}
       </div>
       <Timecode t={t} c={BEIGE} layer="FINAL" />
     </Paper>
@@ -493,8 +511,8 @@ const SFX: S[] = [
   ["ame/zoom.wav", V.dakhel - 2, 9, 0.7],
   ["ame/boom.wav", V.dakhel + 2, 60, 0.55],
   ["regard/sub.wav", V.ai, 27, 0.5],
-  ["regard/swish.wav", C1 - 8, 12, 0.7],
-  ["regard/crunch.wav", C1 - 6, 8, 0.35],
+  ["regard/swish.wav", C1 - 8, 24, 0.6],
+  ["regard/crunch.wav", C1 + 4, 8, 0.3],
   ["regard/snap.wav", V.craft, 3, 0.5],
   ["cc/whoosh.wav", V.craftWord - 2, 15, 0.45],
   ["cc/whoosh.wav", V.nouvelle, 15, 0.3],
@@ -514,17 +532,19 @@ const SFX: S[] = [
   ...VERBS.map(([, at]) => ["cc/pop.wav", at, 6, 0.5] as S),
   ["regard/swish.wav", V.sfer + 4, 10, 0.5],
   ["ame/zoom.wav", C5 - 6, 9, 0.6],
-  ...[0, 1, 2, 3, 4].map((i) => ["regard/crunch.wav", V.yalla - 2 + i * 4 + 6, 8, 0.25] as S),
-  ["ame/boom.wav", V.yalla + 14, 60, 0.45],
-  ["regard/bell.wav", V.yalla + 30, 50, 0.3],
+  ["cc/whoosh.wav", OUT - 8, 15, 0.5],
+  ["ame/shimmer.wav", OUT, 60, 0.35],
+  ["ame/boom.wav", OUT + 62, 60, 0.4],
+  ...[0, 1, 2].map((i) => ["cc/pop.wav", OUT + 58 + i * 6, 6, 0.45] as S),
+  ...[0, 1, 2].map((i) => ["cc/click.wav", OUT + 88 + i * 14, 3, 0.6] as S),
 ];
 
 export const LayersFilm: React.FC<LayersProps> = (p) => {
   const t = useCurrentFrame();
   const s1 = () => <S1 t={t} />, s2 = () => <S2 t={t} />, s3 = () => <S3 t={t} p={p} />, s4 = () => <S4 t={t} p={p} />, s5 = () => <S5 t={t} p={p} />, s6 = () => <S6 t={t} />;
   let view: React.ReactNode;
-  if (t < C1 - 10) view = s1();
-  else if (t < C1 + 2) view = <Peel p={ease(t, C1 - 10, 12)} corner="tr" top={s1()} under={s2()} flap={BEIGE} />;
+  if (t < C1 - 12) view = s1();
+  else if (t < C1 + 20) view = <Peel p={ease(t, C1 - 12, 32, Easing.inOut(Easing.cubic))} corner="tr" top={s1()} under={s2()} flap={BEIGE} />;
   else if (t < C2 - 8) view = s2();
   else if (t < C2 + 4) {
     // plongée : la scène 2 fonce vers la caméra, la 3 monte de la profondeur
