@@ -530,7 +530,7 @@ export const LayersFilm: React.FC<LayersProps> = (p) => {
       <Audio src={staticFile("cc/music.mp3")} volume={(f) => interpolate(f, [0, 8, LAYERS_DURATION - 30, LAYERS_DURATION], [0, 0.13, 0.13, 0], clamp)} />
       {SFX.map(([file, at, len, vol], i) => (
         <Sequence key={i} from={Math.max(0, at)} durationInFrames={len}>
-          <Audio src={staticFile(file)} volume={vol * 0.7} />
+          <Audio src={staticFile(file)} volume={vol * 0.5} />
         </Sequence>
       ))}
     </>
