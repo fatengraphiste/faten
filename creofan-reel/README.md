@@ -40,7 +40,7 @@ npx remotion render Outro out/creofan-outro.mp4
 
 # Outro Creofan, version icône (`OutroIcon`, 3 s)
 
-Même style : l'icône est une seule ligne continue tracée au stylo — haut du cercle, le « f » (boucle haute, boucle basse, barre), puis le bas du cercle. Recul de caméra, puis onde et léger rebond.
+Icône blanche sur fond rouge (520 px). L'icône est une seule ligne continue tracée au stylo — haut du cercle, le « f » (boucle haute, boucle basse, barre), puis le bas du cercle. Recul de caméra, onde et léger rebond. En dessous, trois petits boutons apparaissent puis s'activent : Suivre (+ → coche), J'aime (cœur plein), Sauvegarder (signet plein).
 
 ```
 npx remotion render OutroIcon out/creofan-outro-icon.mp4

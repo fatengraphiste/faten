@@ -1,6 +1,6 @@
 import { getLength, getPointAtLength } from "@remotion/paths";
 import { AbsoluteFill, Easing, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { BEIGE, RED } from "../theme";
+import { RED, WHITE } from "../theme";
 import { smooth } from "./Outro";
 
 // Outro Creofan, version icône — 3 s (90 images à 30 i/s), 1080×1920
@@ -8,7 +8,9 @@ import { smooth } from "./Outro";
 // 0.0 → 2.1 s  le stylo part du haut du cercle à droite, fait le tour par le haut,
 //              plonge dans le « f » (boucle haute, boucle basse), ressort par la barre
 //              et referme le cercle par le bas. La caméra recule doucement.
-// 2.1 → 3.0 s  onde rouge et léger rebond, puis tenue
+// 1.8 → 2.6 s  sous l'icône : Suivre / J'aime / Sauvegarder apparaissent puis s'activent
+// 2.1 → 3.0 s  onde blanche et léger rebond, puis tenue
+// Icône blanche sur fond rouge
 export const OUTRO_ICON_DURATION = 90;
 
 const ICON_PATH =
@@ -47,7 +49,43 @@ const BAR_ARRIVES = getLength(smooth([...TOP, ...F_PTS.slice(0, F_PTS.length - 3
 const W = 1080;
 const H = 1920;
 const ICON = 797.94;
-const BASE = 760 / ICON; // icône finale : 760 px
+const BASE = 520 / ICON; // icône finale : 520 px
+const ICON_Y = H / 2 - 140; // centre de l'icône
+const ROW_Y = ICON_Y + 260 + 190; // rangée des 3 boutons
+
+// Boutons (repère 24 × 24, style trait)
+const BTN = 64; // taille du pictogramme
+const DISC = 124; // pastille derrière
+const GAP = 190;
+const BUTTONS = [
+  { key: "suivre", start: 54 },
+  { key: "like", start: 58 },
+  { key: "save", start: 62 },
+] as const;
+
+const Glyph: React.FC<{ kind: (typeof BUTTONS)[number]["key"]; on: number }> = ({ kind, on }) => {
+  const fill = `rgba(255,255,255,${on})`;
+  if (kind === "like")
+    return (
+      <path
+        d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"
+        fill={fill}
+      />
+    );
+  if (kind === "save") return <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" fill={fill} />;
+  // Suivre : le « + » devient une coche
+  return (
+    <>
+      <circle cx={9} cy={7} r={4} fill={fill} />
+      <path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" />
+      <g opacity={1 - on}>
+        <path d="M19 8v6" />
+        <path d="M22 11h-6" />
+      </g>
+      <path d="m16 11 2 2 4-4" opacity={on} />
+    </>
+  );
+};
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const pen = Easing.bezier(0.45, 0, 0.3, 1);
 const easeOut = Easing.bezier(0.16, 1, 0.3, 1);
@@ -74,7 +112,7 @@ export const OutroIcon: React.FC = () => {
   const s = BASE * zoom * bump;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: BEIGE }}>
+    <AbsoluteFill style={{ backgroundColor: RED }}>
       <svg width={W} height={H} style={{ position: "absolute", inset: 0 }}>
         <defs>
           <mask id="iconPenMask" maskUnits="userSpaceOnUse" x={-200} y={-200} width={1200} height={1200}>
@@ -99,20 +137,48 @@ export const OutroIcon: React.FC = () => {
         {/* Onde de fin */}
         <circle
           cx={W / 2}
-          cy={H / 2}
+          cy={ICON_Y}
           r={BASE * (400 + wave * 150)}
           fill="none"
-          stroke={RED}
+          stroke={WHITE}
           strokeWidth={6 * (1 - wave)}
           opacity={frame >= 62 ? 0.5 * (1 - wave) : 0}
         />
 
-        <g transform={`translate(${W / 2} ${H / 2}) rotate(${rot}) scale(${s}) translate(${-CX} ${-CY})`}>
-          <path d={ICON_PATH} fill={RED} mask="url(#iconPenMask)" />
+        <g transform={`translate(${W / 2} ${ICON_Y}) rotate(${rot}) scale(${s}) translate(${-CX} ${-CY})`}>
+          <path d={ICON_PATH} fill={WHITE} mask="url(#iconPenMask)" />
           {/* Pointe du stylo */}
-          <circle cx={head.x} cy={head.y} r={20} fill={RED} opacity={nib} />
-          <circle cx={head.x} cy={head.y} r={34} fill={RED} opacity={nib * 0.18} />
+          <circle cx={head.x} cy={head.y} r={20} fill={WHITE} opacity={nib} />
+          <circle cx={head.x} cy={head.y} r={34} fill={WHITE} opacity={nib * 0.25} />
         </g>
+
+        {/* Suivre / J'aime / Sauvegarder */}
+        {BUTTONS.map(({ key, start }, i) => {
+          const inP = spring({ frame: frame - start, fps, config: { damping: 12, stiffness: 180 } });
+          const tap = spring({ frame: frame - start - 9, fps, config: { damping: 9, stiffness: 260 } });
+          const on = interpolate(frame, [start + 9, start + 12], [0, 1], clamp);
+          const sc = inP * (1 + 0.18 * Math.sin(Math.PI * Math.min(1, tap)));
+          const x = W / 2 + (i - 1) * GAP;
+          return (
+            <g
+              key={key}
+              transform={`translate(${x} ${ROW_Y + (1 - inP) * 40}) scale(${sc})`}
+              opacity={interpolate(frame, [start, start + 5], [0, 1], clamp)}
+            >
+              <circle r={DISC / 2} fill="rgba(255,255,255,0.14)" />
+              <g
+                transform={`translate(${-BTN / 2} ${-BTN / 2}) scale(${BTN / 24})`}
+                fill="none"
+                stroke={WHITE}
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <Glyph kind={key} on={on} />
+              </g>
+            </g>
+          );
+        })}
       </svg>
     </AbsoluteFill>
   );
