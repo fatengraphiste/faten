@@ -10,6 +10,7 @@ import { LayersFilm, LAYERS_DURATION, layersDefaults } from "./craft2/Layers";
 import { CoverAme, CoverClaudeCanva, CoverFait, CoverFlow, CoverRegard } from "./covers/Covers";
 import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
+import { Outro, OUTRO_DURATION } from "./outro/Outro";
 import { FPS } from "./theme";
 
 // Ajoute le repère de zone de sécurité (prop « showSafeZone » dans le Studio)
@@ -73,6 +74,7 @@ export const RemotionRoot: React.FC = () => (
     width={1080}
     height={1920}
   />
+  <Composition id="Outro" component={Outro} durationInFrames={OUTRO_DURATION} fps={30} width={1080} height={1920} />
   <Composition id="CoverRegard" component={CoverRegard} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverFait" component={CoverFait} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverFlow" component={CoverFlow} durationInFrames={1} fps={30} width={1080} height={1920} />

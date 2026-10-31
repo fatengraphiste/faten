@@ -24,3 +24,16 @@ npx remotion render ClaudeCanva out/claude-canva.mp4
 - `public/cc/voix-off.mp3` : voix off améliorée (réduction de bruit, EQ, compression, volume)
 - `public/cc/music.mp3` + `*.wav` : musique rythmée et effets sonores
 - `src/cc/cues.ts` : synchronisation de chaque animation sur la voix
+
+---
+
+# Outro Creofan (`Outro`, 3 s)
+
+Le point rouge envahit l'écran, l'icône blanche se dessine en tournant, puis le logo complet se révèle en cercle.
+
+```
+npx remotion render Outro out/creofan-outro.mp4
+```
+
+- `src/outro/Outro.tsx` : l'animation (90 images à 30 i/s, 1080×1920)
+- `public/outro/` : logos SVG d'origine
