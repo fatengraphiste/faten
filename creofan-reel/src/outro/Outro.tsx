@@ -30,7 +30,7 @@ const MAIN_PTS: [number, number][] = [
 ];
 const BOWL_PTS: [number, number][] = [[722, 316], [691, 315], [665, 329], [658, 349], [667, 373], [691, 382], [720, 378]];
 
-const smooth = (pts: [number, number][]) => {
+export const smooth = (pts: [number, number][]) => {
   let d = `M${pts[0][0]},${pts[0][1]}`;
   for (let i = 0; i < pts.length - 1; i++) {
     const p0 = pts[i - 1] ?? pts[i];

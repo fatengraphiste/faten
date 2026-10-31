@@ -37,3 +37,13 @@ npx remotion render Outro out/creofan-outro.mp4
 
 - `src/outro/Outro.tsx` : l'animation (90 images à 30 i/s, 1080×1920). Le tracé du stylo est la ligne médiane `MAIN_PTS`, utilisée comme masque sur le vrai logo.
 - `public/outro/` : logos SVG d'origine
+
+# Outro Creofan, version icône (`OutroIcon`, 3 s)
+
+Même style : l'icône est une seule ligne continue tracée au stylo — haut du cercle, le « f » (boucle haute, boucle basse, barre), puis le bas du cercle. Recul de caméra, puis onde et léger rebond.
+
+```
+npx remotion render OutroIcon out/creofan-outro-icon.mp4
+```
+
+- `src/outro/OutroIcon.tsx` : ligne médiane `TOP` + `F_PTS` + `BOTTOM`, utilisée comme masque sur l'icône d'origine
