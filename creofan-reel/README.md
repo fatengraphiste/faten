@@ -29,11 +29,11 @@ npx remotion render ClaudeCanva out/claude-canva.mp4
 
 # Outro Creofan (`Outro`, 3 s)
 
-Le point rouge envahit l'écran, l'icône blanche se dessine en tournant, puis le logo complet se révèle en cercle.
+La ligne du « f » se trace comme un stylo (o → barre → boucle haute → boucle basse → a), caméra serrée sur le f, puis recul : c-r-e et n. apparaissent. Fond beige, logo rouge.
 
 ```
 npx remotion render Outro out/creofan-outro.mp4
 ```
 
-- `src/outro/Outro.tsx` : l'animation (90 images à 30 i/s, 1080×1920)
+- `src/outro/Outro.tsx` : l'animation (90 images à 30 i/s, 1080×1920). Le tracé du stylo est la ligne médiane `MAIN_PTS`, utilisée comme masque sur le vrai logo.
 - `public/outro/` : logos SVG d'origine
