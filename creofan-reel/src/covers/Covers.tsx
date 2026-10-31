@@ -128,20 +128,73 @@ export const CoverClaudeCanva: React.FC = () => (
   </AbsoluteFill>
 );
 
-// « Canva Craft » : la galerie Canva des 5 premières secondes du reel
+const tile = (i: number) => staticFile(`craft/tiles/t${String(i).padStart(2, "0")}.jpg`);
+const LOGO = (top: number, bg = WHITE) => (
+  <div style={{ position: "absolute", top, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+    <div style={{ backgroundColor: bg, borderRadius: 999, padding: "14px 44px" }}>
+      <Img src={staticFile("ame/logo-creofan-rouge.png")} style={{ width: 190, display: "block" }} />
+    </div>
+  </div>
+);
+
+// A — rouge : éventail de 5 créations Canva derrière le logo, titre géant
 export const CoverCraft: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: RED, alignItems: "center" }}>
+    <div style={{ position: "absolute", top: 330, left: 70, right: 70, textAlign: "center" }}>
+      <MixedText text="حاجة جديدة في" size={96} color={WHITE} />
+    </div>
+    {[3, 7, 2, 11, 5].map((ti, i) => {
+      const a = (i - 2) * 16;
+      return (
+        <div key={ti} style={{ position: "absolute", left: 540 - 170, top: 560, width: 340, height: 470, borderRadius: 26, overflow: "hidden", border: `7px solid ${WHITE}`, transformOrigin: "50% 160%", transform: `rotate(${a}deg)`, boxShadow: "0 30px 60px rgba(0,0,0,0.3)" }}>
+          <Img src={tile(ti)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        </div>
+      );
+    })}
+    <Img src={staticFile("cc/canva-icon.png")} style={{ position: "absolute", top: 930, width: 230, height: 230, filter: "drop-shadow(0 24px 40px rgba(0,0,0,0.35))" }} />
+    <div style={{ position: "absolute", top: 1170, left: 0, right: 0, textAlign: "center", fontFamily: "Poppins, sans-serif", fontWeight: 800, fontSize: 190, lineHeight: 1, letterSpacing: -6, color: WHITE }}>Craft</div>
+    {LOGO(1430)}
+  </AbsoluteFill>
+);
+
+// B — beige épuré : galerie floutée en fond, gros titre net
+export const CoverCraftB: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: "#fff5f5", alignItems: "center" }}>
-    <HookGallery t={110} cover />
-    <div style={{ position: "absolute", top: 300, backgroundColor: RED, borderRadius: 28, padding: "10px 46px", boxShadow: "0 24px 50px rgba(0,0,0,0.2)", transform: "rotate(-3deg)" }}>
-      <span style={{ fontFamily: "Poppins, sans-serif", fontWeight: 800, fontSize: 104, color: WHITE, letterSpacing: -3 }}>Canva Craft</span>
+    <AbsoluteFill style={{ filter: "blur(14px)", opacity: 0.45 }}>
+      <HookGallery t={110} cover />
+    </AbsoluteFill>
+    <AbsoluteFill style={{ background: "radial-gradient(circle at 50% 50%, rgba(255,245,245,0.95) 0%, rgba(255,245,245,0.6) 45%, rgba(255,245,245,0) 75%)" }} />
+    <Img src={staticFile("cc/canva-icon.png")} style={{ position: "absolute", top: 420, width: 260, height: 260, filter: "drop-shadow(0 24px 40px rgba(0,0,0,0.25))" }} />
+    <div style={{ position: "absolute", top: 730, left: 0, right: 0, textAlign: "center", fontFamily: "Poppins, sans-serif", fontWeight: 800, fontSize: 210, lineHeight: 0.92, letterSpacing: -10, color: RED }}>
+      Canva
+      <br />
+      Craft
     </div>
-    <div style={{ position: "absolute", top: 1400, left: 0, right: 0, textAlign: "center" }}>
-      <div style={{ display: "inline-block", backgroundColor: INK, borderRadius: 999, padding: "8px 56px", boxShadow: "0 24px 50px rgba(0,0,0,0.2)" }}>
-        <MixedText text="داخل بقوّة بالـ AI" size={66} color={WHITE} latinColor={RED} />
-      </div>
+    <div style={{ position: "absolute", top: 1180, left: 0, right: 0, textAlign: "center" }}>
+      <span style={{ display: "inline-block", backgroundColor: INK, padding: "4px 40px", borderRadius: 20 }}>
+        <MixedText text="داخل بقوّة بالـ AI" size={76} color={WHITE} latinColor={RED} />
+      </span>
     </div>
-    <div style={{ position: "absolute", top: 1530, backgroundColor: WHITE, borderRadius: 999, padding: "14px 44px", boxShadow: "0 18px 40px rgba(0,0,0,0.18)" }}>
-      <Img src={staticFile("ame/logo-creofan-rouge.png")} style={{ width: 200, display: "block" }} />
+    {LOGO(1480, "transparent")}
+  </AbsoluteFill>
+);
+
+// C — mosaïque en haut, bloc rouge en bas
+export const CoverCraftC: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: RED }}>
+    <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 1000, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, padding: 10, transform: "rotate(-6deg) scale(1.25)", transformOrigin: "50% 60%" }}>
+      {Array.from({ length: 16 }).map((_, i) => (
+        <div key={i} style={{ borderRadius: 18, overflow: "hidden", height: 240 }}>
+          <Img src={tile(i)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        </div>
+      ))}
     </div>
+    <div style={{ position: "absolute", top: 960, left: 0, right: 0, bottom: 0, backgroundColor: RED }} />
+    <Img src={staticFile("cc/canva-icon.png")} style={{ position: "absolute", top: 860, left: 540 - 110, width: 220, height: 220, filter: "drop-shadow(0 20px 36px rgba(0,0,0,0.35))" }} />
+    <div style={{ position: "absolute", top: 1100, left: 0, right: 0, textAlign: "center", fontFamily: "Poppins, sans-serif", fontWeight: 800, fontSize: 160, lineHeight: 1, letterSpacing: -6, color: WHITE }}>Canva Craft</div>
+    <div style={{ position: "absolute", top: 1290, left: 70, right: 70, textAlign: "center" }}>
+      <MixedText text="حاجة جديدة داخل بقوّة" size={72} color={WHITE} />
+    </div>
+    {LOGO(1470)}
   </AbsoluteFill>
 );
