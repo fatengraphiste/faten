@@ -7,7 +7,7 @@ import { Regard, REGARD_DURATION } from "./regard/Regard";
 import { Ame, AME_DURATION, AME_FPS } from "./ame/Ame";
 import { CanvaCraft, CRAFT_DURATION, craftDefaults } from "./craft/CanvaCraft";
 import { LayersFilm, LAYERS_DURATION, layersDefaults } from "./craft2/Layers";
-import { CoverAme, CoverClaudeCanva, CoverFait, CoverFlow, CoverRegard } from "./covers/Covers";
+import { CoverAme, CoverClaudeCanva, CoverCraft, CoverFait, CoverFlow, CoverRegard } from "./covers/Covers";
 import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
 import { FPS } from "./theme";
@@ -78,6 +78,7 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="CoverFlow" component={CoverFlow} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverClaudeCanva" component={CoverClaudeCanva} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverAme" component={CoverAme} durationInFrames={1} fps={30} width={1080} height={1920} />
+  <Composition id="CoverCraft" component={CoverCraft} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CanvaCraft" component={CanvaCraft} defaultProps={craftDefaults} durationInFrames={CRAFT_DURATION} fps={30} width={1080} height={1920} />
   <Composition id="CanvaCraftLayers" component={LayersFilm} defaultProps={layersDefaults} durationInFrames={LAYERS_DURATION} fps={30} width={1080} height={1920} />
   </>

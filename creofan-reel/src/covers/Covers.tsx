@@ -126,3 +126,41 @@ export const CoverClaudeCanva: React.FC = () => (
     </div>
   </AbsoluteFill>
 );
+
+// « Canva Craft » : les calques en éventail, AI en relief, sur rouge
+export const CoverCraft: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: RED, alignItems: "center" }}>
+    <div style={{ position: "absolute", top: 320, display: "flex", alignItems: "center", gap: 16, backgroundColor: WHITE, borderRadius: 999, padding: "12px 40px 12px 14px" }}>
+      <Img src={staticFile("cc/canva-icon.png")} style={{ width: 70, height: 70, borderRadius: 18 }} />
+      <span style={{ fontFamily: "Poppins, sans-serif", fontWeight: 800, fontSize: 46, color: RED, letterSpacing: -1 }}>Canva Craft ✦</span>
+    </div>
+    <div style={{ position: "absolute", top: 440, left: 70, right: 70, textAlign: "center" }}>
+      <MixedText text="Canva داخل بقوّة" size={104} color={WHITE} />
+    </div>
+    {/* calques en éventail : avant → après */}
+    {[
+      { src: "craft/avant.jpg", r: -9, x: -150, y: 40, o: 0.9 },
+      { src: "craft/apres.jpg", r: 6, x: 120, y: 0, o: 1 },
+    ].map((c) => (
+      <div key={c.src} style={{ position: "absolute", top: 700 + c.y, left: 540 - 260 + c.x, width: 520, height: 650, borderRadius: 26, overflow: "hidden", border: `8px solid ${WHITE}`, transform: `rotate(${c.r}deg)`, boxShadow: "0 40px 80px rgba(0,0,0,0.3)", opacity: c.o }}>
+        <Img src={staticFile(c.src)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+    ))}
+    {/* AI en relief, posé sur les calques */}
+    <div style={{ position: "absolute", top: 860, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+      <div style={{ position: "relative" }}>
+        {Array.from({ length: 9 }).map((_, i) => (
+          <div key={i} style={{ position: i ? "absolute" : "relative", left: i * 4, top: i * 4, zIndex: 10 - i, fontFamily: "Poppins, sans-serif", fontWeight: 800, fontSize: 380, lineHeight: 1, letterSpacing: -20, color: i === 0 ? WHITE : i === 8 ? INK : RED, WebkitTextStroke: i && i < 8 ? `3px ${WHITE}` : undefined, opacity: i === 8 ? 0.35 : 1 }}>
+            AI
+          </div>
+        ))}
+      </div>
+    </div>
+    <div style={{ position: "absolute", top: 1420, left: 0, right: 0, textAlign: "center" }}>
+      <div style={{ display: "inline-block", backgroundColor: INK, borderRadius: 999, padding: "8px 52px" }}>
+        <MixedText text="كل تصميم ولّى calques" size={58} color={WHITE} latinColor={WHITE} />
+      </div>
+    </div>
+    <Img src={staticFile("logo-creofan-complet.png")} style={{ position: "absolute", top: 1545, width: 220 }} />
+  </AbsoluteFill>
+);
