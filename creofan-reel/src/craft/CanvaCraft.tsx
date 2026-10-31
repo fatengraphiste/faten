@@ -66,6 +66,8 @@ const outX = (t: number, a: number, d: number) =>
 const pop = (t: number, a: number, damping = 13) =>
   spring({ frame: t - a, fps: 30, config: { damping, stiffness: 200, mass: 0.6 } });
 
+const elastic = (t: number, a: number) => spring({ frame: t - a, fps: 30, config: { damping: 7, stiffness: 170, mass: 0.7 } });
+
 export type CraftProps = {
   craftVideo: string; // enregistrement réel : prompt → génération (public/craft/…)
   magicVideo: string; // enregistrement réel : Magic Layers
@@ -107,6 +109,26 @@ const RealSlot: React.FC<{ src?: string; video?: boolean; label: string; w: numb
       <div style={{ fontWeight: 600, fontSize: 24, color: RED, opacity: 0.75 }}>{label}</div>
     </div>
   );
+
+// Enregistrement réel recadré sur l'interface, segment [from, from+dur[ à la vitesse rate
+const STRIP = { x: 381, w: 516, srcW: 1280, srcH: 720 };
+const Clip: React.FC<{ src: string; from: number; dur: number; srcStart: number; rate: number; h: number }> = ({ src, from, dur, srcStart, rate, h }) => {
+  const k = h / STRIP.srcH;
+  return (
+    <Sequence from={from} durationInFrames={dur} layout="none">
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+        <OffthreadVideo
+          src={staticFile(src)}
+          muted
+          startFrom={Math.round(srcStart * 30)}
+          playbackRate={rate}
+          style={{ position: "absolute", left: -STRIP.x * k, top: 0, width: STRIP.srcW * k, height: h, maxWidth: "none" }}
+        />
+      </div>
+    </Sequence>
+  );
+};
+const stripW = (h: number) => (STRIP.w * h) / STRIP.srcH;
 
 /* ---------- SCÈNE 01 — L'accroche (0 → 6,4 s) ---------- */
 const FRAGS = Array.from({ length: 22 }, (_, i) => ({
@@ -210,60 +232,58 @@ const Reveal: React.FC<{ t: number }> = ({ t }) => {
 };
 
 /* ---------- SCÈNE 03 — L'idée devient design (9,9 → 15,7 s) ---------- */
-const PROMPT = "Publicité Instagram premium pour une nourriture pour chat : un beau chat, un packaging élégant, titre « Parce qu'il mérite le meilleur. »";
+// Le prompt réellement tapé dans Canva Craft (voir l'enregistrement)
+const PROMPT = "Faire un post instagram pour une marque \"pets\" pour les chats, couleur chaud";
 const Idea: React.FC<{ t: number; p: CraftProps }> = ({ t, p }) => {
-  const typed = PROMPT.slice(0, Math.floor(interpolate(t, [V.lli + 4, V.tsawer + 20], [0, PROMPT.length], clamp)));
+  const typed = PROMPT.slice(0, Math.floor(interpolate(t, [V.lli + 4, V.tsawer + 10], [0, PROMPT.length], clamp)));
   const dive = snap(t, V.idee + 4, 10); // le prompt plonge dans l'interface
-  const frameIn = outX(t, V.lli, 14);
+  const frameIn = elastic(t, V.lli);
   const done = t >= V.design;
-  const fw = 700, fh = 900;
+  // Zoom « punch » sur le premier résultat généré, puis léger panoramique
+  const zoom = interpolate(snap(t, V.design - 2, 10), [0, 1], [1, 1.9]);
+  const pan = interpolate(t, [V.design + 8, V.design + 40], [0, -40], clamp);
+  const fh = 886, fw = Math.round(stripW(fh));
+  const top = Z.top + 330;
   return (
-    <AbsoluteFill style={{ backgroundColor: BEIGE, overflow: "hidden" }}>
-      <Grid color={RED} t={t} />
+    <AbsoluteFill style={{ backgroundColor: RED, overflow: "hidden" }}>
+      <Grid color={WHITE} t={t} />
       {/* Cadre de l'interface réelle */}
-      <div style={{ position: "absolute", left: CX - fw / 2, top: Z.top + 330, width: fw, height: fh, borderRadius: 28, overflow: "hidden", backgroundColor: WHITE, boxShadow: `18px 18px 0 ${RED}`, transform: `translateY(${(1 - frameIn) * 1200}px)` }}>
-        <RealSlot src={p.craftVideo} video label="Votre enregistrement d'écran Canva Craft (prompt → génération)" w={fw} h={fh} />
+      <div style={{ position: "absolute", left: CX - fw / 2, top, width: fw, height: fh, borderRadius: 28, overflow: "hidden", backgroundColor: WHITE, boxShadow: `18px 18px 0 ${BEIGE}`, transform: `translateY(${(1 - frameIn) * 1200}px) rotate(${(1 - frameIn) * 8}deg)` }}>
+        <div style={{ position: "absolute", inset: 0, transformOrigin: "30% 37%", transform: `scale(${zoom}) translateX(${pan}px)` }}>
+          {p.craftVideo ? (
+            <>
+              {/* frappe du prompt (2 → 42 s) · génération (44 → 72 s) · résultats (72 → 80 s) */}
+              <Clip src={p.craftVideo} from={V.lli} dur={76} srcStart={2} rate={16} h={fh} />
+              <Clip src={p.craftVideo} from={V.lli + 76} dur={54} srcStart={44} rate={16} h={fh} />
+              <Clip src={p.craftVideo} from={V.lli + 130} dur={60} srcStart={72} rate={4} h={fh} />
+            </>
+          ) : (
+            <RealSlot label="Votre enregistrement d'écran Canva Craft (prompt → génération)" w={fw} h={fh} />
+          )}
+        </div>
       </div>
       {/* Coins de sélection qui claquent sur « design » */}
       {done
         ? [0, 1, 2, 3].map((i) => {
-            const k = snap(t, V.design, 7);
+            const k = elastic(t, V.design);
             const dx = (i % 2 ? 1 : -1) * (fw / 2 + 24 + (1 - k) * 80);
             const dy = (i < 2 ? -1 : 1) * (fh / 2 + 24 + (1 - k) * 80);
-            return <div key={i} style={{ position: "absolute", left: CX + dx - 26, top: Z.top + 330 + fh / 2 + dy - 26, width: 52, height: 52, borderTop: i < 2 ? `8px solid ${RED}` : "none", borderBottom: i >= 2 ? `8px solid ${RED}` : "none", borderLeft: i % 2 ? "none" : `8px solid ${RED}`, borderRight: i % 2 ? `8px solid ${RED}` : "none" }} />;
+            return <div key={i} style={{ position: "absolute", left: CX + dx - 26, top: top + fh / 2 + dy - 26, width: 52, height: 52, borderTop: i < 2 ? `8px solid ${WHITE}` : "none", borderBottom: i >= 2 ? `8px solid ${WHITE}` : "none", borderLeft: i % 2 ? "none" : `8px solid ${WHITE}`, borderRight: i % 2 ? `8px solid ${WHITE}` : "none" }} />;
           })
         : null}
-      {/* Le prompt tapé, puis aspiré dans l'interface */}
-      <div
-        style={{
-          position: "absolute",
-          left: Z.left,
-          top: Z.top + 20,
-          width: ZW,
-          padding: "22px 28px",
-          backgroundColor: RED,
-          color: WHITE,
-          fontFamily: FONT,
-          fontWeight: 600,
-          fontSize: 28,
-          lineHeight: 1.35,
-          boxSizing: "border-box",
-          transformOrigin: "50% 0%",
-          transform: `translateY(${dive * 700}px) scale(${1 - dive * 0.75})`,
-          opacity: dive > 0.95 ? 0 : 1,
-        }}
-      >
-        <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: 3, display: "block", marginBottom: 8 }}>PROMPT · IDÉE</span>
+      {/* Le prompt réel, tapé puis aspiré dans l'interface */}
+      <div style={{ position: "absolute", left: Z.left, top: Z.top + 20, width: ZW, padding: "22px 28px", backgroundColor: BEIGE, color: RED, fontFamily: FONT, fontWeight: 600, fontSize: 30, lineHeight: 1.35, boxSizing: "border-box", transformOrigin: "50% 0%", transform: `translateY(${dive * 700}px) scale(${(1 - dive * 0.75) * (0.6 + 0.4 * elastic(t, V.lli + 2))})`, opacity: dive > 0.95 ? 0 : 1 }}>
+        <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: 3, display: "block", marginBottom: 8 }}>PROMPT · CANVA CRAFT</span>
         {typed}
         {Math.floor(t / 8) % 2 ? "|" : ""}
       </div>
       {t >= V.idee ? (
-        <div style={{ position: "absolute", left: Z.left, top: Z.top + 250, transform: `scale(${pop(t, V.idee)})`, fontFamily: FONT, fontWeight: 800, fontSize: 30, color: RED, letterSpacing: 4 }}>
+        <div style={{ position: "absolute", left: Z.left, top: Z.top + 250, transform: `scale(${elastic(t, V.idee)})`, transformOrigin: "0 50%", fontFamily: FONT, fontWeight: 800, fontSize: 30, color: WHITE, letterSpacing: 4 }}>
           JUSTE UNE IDÉE →
         </div>
       ) : null}
       {done ? (
-        <div style={{ position: "absolute", right: Z.right, top: Z.top + 250, transform: `scale(${pop(t, V.design)})`, fontFamily: FONT, fontWeight: 800, fontSize: 30, color: WHITE, backgroundColor: RED, padding: "6px 16px", letterSpacing: 4 }}>
+        <div style={{ position: "absolute", right: Z.right, top: Z.top + 250, transform: `scale(${elastic(t, V.design)})`, fontFamily: FONT, fontWeight: 800, fontSize: 30, color: RED, backgroundColor: BEIGE, padding: "6px 16px", letterSpacing: 4 }}>
           DESIGN
         </div>
       ) : null}
@@ -272,15 +292,27 @@ const Idea: React.FC<{ t: number; p: CraftProps }> = ({ t, p }) => {
 };
 
 /* ---------- SCÈNE 04 — MAGIC LAYERS en 3D (15,7 → 21,6 s) ---------- */
-const LAYER_NAMES = ["Fond", "Chat", "Packaging", "Titre", "Texte"];
+// Zones du design généré (image 1507×2000) que Magic Layers a rendues modifiables
+const ZONES = [
+  { name: "Titre", x: 105, y: 215, w: 560, h: 395 },
+  { name: "Sous-titre", x: 105, y: 650, w: 470, h: 120 },
+  { name: "Chat", x: 560, y: 520, w: 947, h: 960 },
+  { name: "Gamelle", x: 0, y: 1190, w: 910, h: 500 },
+  { name: "Logo", x: 1110, y: 1640, w: 340, h: 230 },
+];
+const IMG = { w: 1507, h: 2000 };
 const Magic: React.FC<{ t: number; p: CraftProps }> = ({ t, p }) => {
-  const stop = t >= V.stanna && t < V.hkaya + 10;
-  const tilt = snap(t, V.magic - 4, 14);
-  const spread = snap(t, V.magic + 6, 14);
+  const stop = t < V.magic - 6;
+  const ui = t >= V.magic - 6 && t < V.magic + 44; // interface réelle (Calques magiques → analyse)
+  const stack = t >= V.magic + 44;
+  const tilt = Math.min(1.08, elastic(t, V.magic + 44));
+  const spread = snap(t, V.magic + 50, 12);
   const rebuild = snap(t, V.ya3ni - 12, 12);
   const sep = spread * (1 - rebuild);
   const side = Math.sin(Math.PI * interpolate(t, [V.element, V.element + 24], [0, 1], clamp));
-  const size = 470;
+  const H = 560, Wd = (H * IMG.w) / IMG.h; // design 3:4
+  const k = H / IMG.h;
+  const fh = 860, fw = Math.round(stripW(fh));
   return (
     <AbsoluteFill style={{ backgroundColor: RED, overflow: "hidden" }}>
       <Grid color={WHITE} t={t} />
@@ -299,84 +331,94 @@ const Magic: React.FC<{ t: number; p: CraftProps }> = ({ t, p }) => {
             </div>
           ) : null}
         </AbsoluteFill>
+      ) : (
+        <div style={{ position: "absolute", zIndex: 5, top: Z.top + 10, left: Z.left, width: ZW, textAlign: "center", fontFamily: FONT, fontWeight: 800, fontSize: 96, color: WHITE, letterSpacing: -2, lineHeight: 1, transform: `scale(${pop(t, V.magic - 6)})` }}>
+          MAGIC LAYERS
+        </div>
+      )}
+      {/* 1. L'interface réelle : « Calques magiques » puis l'analyse */}
+      {ui && p.magicVideo ? (
+        <div style={{ position: "absolute", left: CX - fw / 2, top: Z.top + 150, width: fw, height: fh, overflow: "hidden", border: `6px solid ${WHITE}`, transform: `translateY(${(1 - elastic(t, V.magic - 6)) * 1300}px)` }}>
+          {/* zoom sur le bouton « Calques magiques » au moment du clic, puis retour */}
+          <div style={{ position: "absolute", inset: 0, transformOrigin: "52% 33%", transform: `scale(${1 + 0.9 * snap(t, V.magic + 4, 8) * (1 - snap(t, V.magic + 18, 6))})` }}>
+            <Clip src={p.magicVideo} from={V.magic - 6} dur={24} srcStart={1.5} rate={4} h={fh} />
+            <Clip src={p.magicVideo} from={V.magic + 18} dur={26} srcStart={8} rate={18} h={fh} />
+          </div>
+        </div>
       ) : null}
-      {t >= V.magic - 6 ? (
-        <>
-          <div style={{ position: "absolute", zIndex: 5, top: Z.top + 10, left: Z.left, width: ZW, textAlign: "center", fontFamily: FONT, fontWeight: 800, fontSize: 104, color: WHITE, letterSpacing: -2, lineHeight: 1, transform: `scale(${pop(t, V.magic - 6)})` }}>
-            MAGIC
-            <br />
-            LAYERS
+      {/* 2. Le vrai design séparé en calques dans l'espace */}
+      {stack ? (
+        <div style={{ position: "absolute", left: CX - Wd / 2 - 40, top: Z.top + 330, width: Wd, height: H, perspective: 1600 }}>
+          <div style={{ position: "absolute", inset: 0, transformStyle: "preserve-3d", transform: `rotateX(${50 * tilt * (1 - rebuild)}deg) rotateZ(${-30 * tilt * (1 - rebuild)}deg)` }}>
+            <div style={{ position: "absolute", inset: 0, border: `3px solid ${WHITE}` }}>
+              <Img src={staticFile(p.designBefore || "craft/avant.jpg")} style={{ width: "100%", height: "100%" }} />
+            </div>
+            {ZONES.map((zn, i) => {
+              const z = (i + 1) * 70 * sep;
+              const slide = zn.name === "Gamelle" ? side * 90 : 0;
+              return (
+                <div key={zn.name} style={{ position: "absolute", left: zn.x * k, top: zn.y * k, width: zn.w * k, height: zn.h * k, overflow: "hidden", outline: `3px solid ${WHITE}`, transform: `translateZ(${z}px) translateX(${slide}px)` }}>
+                  <Img src={staticFile(p.designBefore || "craft/avant.jpg")} style={{ position: "absolute", left: -zn.x * k, top: -zn.y * k, width: Wd, height: H, maxWidth: "none" }} />
+                  <div style={{ position: "absolute", left: 0, top: 0, padding: "2px 6px", backgroundColor: WHITE, color: RED, fontFamily: FONT, fontWeight: 800, fontSize: 13, letterSpacing: 1, opacity: sep }}>{zn.name.toUpperCase()}</div>
+                </div>
+              );
+            })}
           </div>
-          {/* Pile de calques en perspective */}
-          <div style={{ position: "absolute", left: CX - size / 2, top: CY - size / 2 + 230, width: size, height: size, perspective: 1600 }}>
-            <div style={{ position: "absolute", inset: 0, transformStyle: "preserve-3d", transform: `rotateX(${55 * tilt * (1 - rebuild)}deg) rotateZ(${-35 * tilt * (1 - rebuild)}deg)` }}>
-              {LAYER_NAMES.map((name, i) => {
-                const z = i * 95 * sep;
-                const slide = i === 2 ? side * 120 : 0;
-                return (
-                  <div key={name} style={{ position: "absolute", inset: 0, transform: `translateZ(${z}px) translateX(${slide}px)`, border: `3px solid ${WHITE}`, backgroundColor: i === 0 ? BEIGE : "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                    {p.layers[i] ? (
-                      <Img src={staticFile(p.layers[i])} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-                    ) : (
-                      <div style={{ position: "absolute", left: 18, top: 14, fontFamily: FONT, fontWeight: 800, fontSize: 26, color: i === 0 ? RED : WHITE, letterSpacing: 2 }}>
-                        CALQUE {String(i + 1).padStart(2, "0")} · {name.toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          {t >= V.element ? (
-            <div style={{ position: "absolute", bottom: Z.bottom + 20, left: Z.left, width: ZW, textAlign: "center", transform: `scale(${pop(t, V.element)})` }}>
-              <MixedText text="كل élément وحدو" size={64} color={WHITE} latinColor={BEIGE} />
-            </div>
-          ) : null}
-          {/* Interface réelle Magic Layers, en vignette */}
-          {p.magicVideo ? (
-            <div style={{ position: "absolute", right: Z.right, top: Z.top + 260, width: 260, height: 340, border: `4px solid ${WHITE}`, overflow: "hidden", transform: `scale(${pop(t, V.magic + 20)})` }}>
-              <OffthreadVideo src={staticFile(p.magicVideo)} muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            </div>
-          ) : null}
-        </>
+        </div>
+      ) : null}
+      {/* Vignette : l'édition réelle des calques (sélection, agrandissement, déplacement) */}
+      {stack && p.magicVideo ? (
+        <div style={{ position: "absolute", right: Z.right, top: Z.top + 140, width: Math.round(stripW(330)), height: 330, overflow: "hidden", border: `4px solid ${WHITE}`, transform: `scale(${pop(t, V.magic + 50)})`, transformOrigin: "100% 0%" }}>
+          <Clip src={p.magicVideo} from={V.magic + 44} dur={V.ya3ni - (V.magic + 44)} srcStart={24} rate={26} h={330} />
+        </div>
+      ) : null}
+      {t >= V.element ? (
+        <div style={{ position: "absolute", bottom: Z.bottom + 20, left: Z.left, width: ZW, textAlign: "center", transform: `scale(${pop(t, V.element)})` }}>
+          <MixedText text="كل élément وحدو" size={64} color={WHITE} latinColor={BEIGE} />
+        </div>
       ) : null}
     </AbsoluteFill>
   );
 };
 
-/* ---------- SCÈNE 05 — Avant / après (21,6 → 26,5 s) ---------- */
+/* ---------- SCÈNE 05 — Avant / après en split screen (21,6 → 26,5 s) ---------- */
 const VERBS: [string, number][] = [["تبدّل", V.tbaddel], ["تحرّك", V.t7arrek], ["تعدّل", V.t3addel]];
 const BeforeAfter: React.FC<{ t: number; p: CraftProps }> = ({ t, p }) => {
-  const w = 700;
-  const wipe = interpolate(t, [V.ya3ni + 6, V.ya3ni + 40, V.t3addel + 20, V.sfer], [0, 0.5, 0.5, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const w = 370, h = Math.round((w * 2000) / 1507);
+  const top = Z.top + 330;
+  const L = elastic(t, V.ya3ni - 4), R = elastic(t, V.ya3ni + 2);
+  const bar = elastic(t, V.ya3ni + 6);
+  // L'« après » réagit à chaque verbe : petit rebond
+  const beat = VERBS.reduce((acc, [, at]) => acc + (t >= at ? 0.06 * Math.exp(-(t - at) / 5) * Math.cos((t - at) / 1.6) : 0), 0);
   const strike = snap(t, V.sfer + 4, 8);
+  const card = (src: string, label: string, x: number, k: number, from: number, extra = 1) => (
+    <div style={{ position: "absolute", left: x, top, width: w, height: h, transform: `translateX(${(1 - k) * from}px) scale(${extra})`, boxShadow: `12px 12px 0 ${BEIGE}` }}>
+      <Img src={staticFile(src)} style={{ width: w, height: h, display: "block" }} />
+      <div style={{ position: "absolute", left: 0, top: -48, fontFamily: FONT, fontWeight: 800, fontSize: 24, letterSpacing: 4, color: RED, backgroundColor: BEIGE, padding: "4px 14px" }}>{label}</div>
+    </div>
+  );
   return (
-    <AbsoluteFill style={{ backgroundColor: BEIGE, overflow: "hidden" }}>
-      <Grid color={RED} t={t} />
-      <div style={{ position: "absolute", left: CX - w / 2, top: Z.top + 300, width: w, height: w, boxShadow: `16px 16px 0 ${RED}`, transform: `scale(${outX(t, V.ya3ni - 6, 10)})` }}>
-        <div style={{ position: "absolute", inset: 0 }}>
-          <RealSlot src={p.designBefore} label="Design généré par Canva Craft (AVANT)" w={w} h={w} />
-        </div>
-        <div style={{ position: "absolute", inset: 0, clipPath: `inset(0 ${100 - wipe * 100}% 0 0)` }}>
-          <RealSlot src={p.designAfter} label="Même design modifié avec Magic Layers (APRÈS)" w={w} h={w} />
-        </div>
-        <div style={{ position: "absolute", top: -20, bottom: -20, left: `${wipe * 100}%`, width: 8, marginLeft: -4, backgroundColor: RED }} />
-        <Label x={10} y={-44}>AVANT</Label>
-        <div style={{ position: "absolute", right: 10, top: -44, fontFamily: FONT, fontWeight: 600, fontSize: 22, letterSpacing: 3, color: RED }}>APRÈS</div>
-      </div>
+    <AbsoluteFill style={{ backgroundColor: RED, overflow: "hidden" }}>
+      <Grid color={WHITE} t={t} />
+      {/* moitié gauche légèrement plus claire : lecture « avant | après » immédiate */}
+      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: CX, backgroundColor: "rgba(255,245,245,0.12)", transform: `translateX(${(1 - L) * -600}px)` }} />
+      {card(p.designBefore, "AVANT", CX - w - 22, L, -900)}
+      {card(p.designAfter, "APRÈS", CX + 22, R, 900, 1 + beat)}
+      {/* séparateur élastique */}
+      <div style={{ position: "absolute", left: CX - 4, top: top - 70, width: 8, height: (h + 140) * bar, backgroundColor: BEIGE }} />
       {/* Les trois verbes, un par mot prononcé */}
       <div dir="rtl" style={{ position: "absolute", top: Z.top + 20, left: Z.left, width: ZW, display: "flex", justifyContent: "center", gap: 34 }}>
         {VERBS.map(([v, at]) => (
-          <span key={v} style={{ display: "inline-block", transform: `scale(${pop(t, at, 10)})` }}>
-            <MixedText text={v} size={92} color={RED} />
+          <span key={v} style={{ display: "inline-block", transform: `scale(${t >= at ? elastic(t, at) : 0})` }}>
+            <MixedText text={v} size={92} color={BEIGE} />
           </span>
         ))}
       </div>
       {t >= V.sfer - 6 ? (
-        <div style={{ position: "absolute", top: Z.top + 1080, left: Z.left, width: ZW, textAlign: "center", transform: `scale(${pop(t, V.sfer - 6)})` }}>
+        <div style={{ position: "absolute", top: Z.top + 130, left: Z.left, width: ZW, textAlign: "center", transform: `scale(${elastic(t, V.sfer - 6)})` }}>
           <span style={{ position: "relative", display: "inline-block" }}>
-            <MixedText text="من الصفر" size={84} color={RED} />
-            <span style={{ position: "absolute", left: 0, top: "52%", height: 10, width: `${strike * 100}%`, backgroundColor: RED }} />
+            <MixedText text="من الصفر" size={76} color={WHITE} />
+            <span style={{ position: "absolute", left: 0, top: "52%", height: 10, width: `${strike * 100}%`, backgroundColor: BEIGE }} />
           </span>
         </div>
       ) : null}
@@ -445,7 +487,26 @@ const SFX: Sfx[] = [
   ["cc/whoosh.wav", V.franchement - 4, 15, 0.45],
   ["ame/boom.wav", V.yalla + 6, 60, 0.45],
   ["regard/bell.wav", V.yalla + 26, 50, 0.35],
+  ...[V.craft - 8, V.lli - 2, V.stanna, V.ya3ni - 2, V.franchement - 2].map((c) => ["ame/zoom.wav", c - 7, 9, 0.45] as Sfx),
 ];
+
+const CUTS = [V.craft - 8, V.lli - 2, V.stanna, V.ya3ni - 2, V.franchement - 2];
+// Zoom swipe : la scène sortante zoome et part vers le haut (flou), l'entrante monte du bas
+const swipe = (t: number): React.CSSProperties => {
+  const bounds = [0, ...CUTS, CRAFT_DURATION];
+  let i = 0;
+  while (i < bounds.length - 2 && t >= bounds[i + 1]) i++;
+  const start = bounds[i], end = bounds[i + 1];
+  if (i > 0 && t < start + 9) {
+    const k = interpolate(t, [start, start + 9], [0, 1], { ...clamp, easing: Easing.out(Easing.exp) });
+    return { transform: `translateY(${(1 - k) * 520}px) scale(${1.25 - 0.25 * k})`, filter: `blur(${(1 - k) * 14}px)` };
+  }
+  if (i < bounds.length - 2 && t > end - 7) {
+    const k = interpolate(t, [end - 7, end], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
+    return { transform: `translateY(${-k * 520}px) scale(${1 + 0.35 * k})`, filter: `blur(${k * 14}px)` };
+  }
+  return {};
+};
 
 export const CanvaCraft: React.FC<CraftProps> = (p) => {
   const t = useCurrentFrame();
@@ -458,7 +519,9 @@ export const CanvaCraft: React.FC<CraftProps> = (p) => {
     <Outro t={t} />;
   return (
     <>
-      {scene}
+      <AbsoluteFill style={{ backgroundColor: RED }}>
+        <AbsoluteFill style={swipe(t)}>{scene}</AbsoluteFill>
+      </AbsoluteFill>
       <Audio src={staticFile("craft/voix-off.mp3")} />
       <Audio src={staticFile("cc/music.mp3")} volume={(f) => interpolate(f, [0, 10, CRAFT_DURATION - 30, CRAFT_DURATION], [0, 0.12, 0.12, 0], clamp)} />
       {SFX.map(([file, at, len, vol], i) => (
@@ -469,4 +532,4 @@ export const CanvaCraft: React.FC<CraftProps> = (p) => {
     </>
   );
 };
-export const craftDefaults: CraftProps = { craftVideo: "", magicVideo: "", designBefore: "", designAfter: "", layers: [] };
+export const craftDefaults: CraftProps = { craftVideo: "craft/craft.mp4", magicVideo: "craft/magic.mp4", designBefore: "craft/avant.jpg", designAfter: "craft/apres.jpg", layers: [] };
