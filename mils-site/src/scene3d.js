@@ -162,6 +162,22 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
   for (const y of [0.8, -0.8]) { const e = new Mesh(new TorusGeometry(0.72, 0.012, 6, 64), new MeshBasicMaterial({ color: 0x8a90a0 })); e.rotation.x = Math.PI / 2; e.position.y = y; bin.add(e); }
   machine.add(bin);
   const machineLight = new PointLight(ORANGE, 0, 8, 1.6); machineLight.position.set(0, 0.3, 2.4); machine.add(machineLight);
+  // titre « MILS LEAD ENGINE » + compteur, au-dessus de la machine
+  const tCanvas = document.createElement("canvas"); tCanvas.width = 1024; tCanvas.height = 256;
+  const tTex = new CanvasTexture(tCanvas); tTex.colorSpace = SRGBColorSpace;
+  const title = new Mesh(new PlaneGeometry(3.6, 0.9), new MeshBasicMaterial({ map: tTex, transparent: true, depthWrite: false }));
+  title.position.set(0, 2.45, 2.0); machine.add(title);
+  let tCount = 0, tLit = false;
+  function drawTitle() {
+    const g = tCanvas.getContext("2d"); g.clearRect(0, 0, 1024, 256); g.textAlign = "center";
+    g.font = "600 78px Poppins, Arial, sans-serif"; g.letterSpacing = "10px";
+    g.shadowColor = tLit ? "rgba(239,121,31,.9)" : "transparent"; g.shadowBlur = tLit ? 28 : 0;
+    g.fillStyle = tLit ? "#ffb067" : "rgba(255,255,255,.88)"; g.fillText("MILS LEAD ENGINE", 512, 120);
+    g.shadowBlur = 0; g.font = "500 44px Poppins, Arial, sans-serif"; g.letterSpacing = "6px";
+    g.fillStyle = tCount === 6 ? "#2fbf7a" : "rgba(255,255,255,.55)"; g.fillText(`${tCount}/6 PIÈCES INSTALLÉES`, 512, 210);
+    tTex.needsUpdate = true;
+  }
+  drawTitle(); if (document.fonts) document.fonts.ready.then(drawTitle);
   scene.add(machine);
   const pileSpot = (i) => new Vector3(0, -0.72 + i * 0.17, 0);   // les devis s'empilent dans le bac
 
@@ -192,9 +208,9 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
   }
   const target = new Vector3();
   function placeCamera() {
-    const intro = Math.min(1, Math.max(0, (idxS - 1) / 1));          // arrivée depuis l'écran du défi
-    const down = Math.min(1, Math.max(0, idxS - 6));                  // descente vers la machine
-    const back = Math.min(1, Math.max(0, idxS - 7));                  // recul au planning
+    const intro = Math.min(1, Math.max(0, (idxS - 2) / 1));          // arrivée depuis l'écran du défi
+    const down = Math.min(1, Math.max(0, idxS - 7));                  // descente vers la machine
+    const back = Math.min(1, Math.max(0, idxS - 8));                  // recul au planning
     target.set(0.6 + sm.x * 0.4, -2.5 - down * 1.2 - sm.y * 0.3, 0);
     const dist = (portrait ? 37 : 27) + (1 - ease(intro)) * 16 + back * 4;
     camera.position.set(-0.8 + sm.x * 0.9, 2.2 + (1 - intro) * 4 - down * 1.2 + back * 1.5, dist);
@@ -240,6 +256,7 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
   async function launch() {
     if (launched) return; launched = true;
     leds.forEach((l) => l.material.color.set(glow(GREEN, 2)));
+    tLit = true; drawTitle();
     machineLight.intensity = 8;
     const N = 6;
     await Promise.all(Array.from({ length: N }, async (_, i) => {
@@ -265,7 +282,7 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
       pc.piece = null; pc.state = "idle"; pc.t = 0; pc.coin.visible = false;
       sockets[i].userData.ring.material.color.set(0x4a4d57); leds[i].material.color.set(0x3a3d46);
     });
-    stripMat.color.set(glow(ORANGE, 0.5)); setActive(active);
+    stripMat.color.set(glow(ORANGE, 0.5)); tLit = false; tCount = 0; drawTitle(); setActive(active);
   }
 
   // Une pièce entre par le haut du tapis quand sa section s'affiche.
@@ -288,7 +305,7 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
     if (document.hidden) { last = now; return; }
     const dt = Math.min(0.1, (now - last) / 1000); last = now; const t = now / 1000;
     if (!reduced) { sm.lerp(pointer, 0.05); idxS += (idx - idxS) * Math.min(1, dt * 3.5); } else idxS = idx;
-    if (idxS < 0.9) { if (hintCb) hintCb(null); return; }               // scène pas encore visible
+    if (idxS < 1.9) { if (hintCb) hintCb(null); return; }               // scène pas encore visible
     placeCamera();
     fire.uniforms.uTime.value = t; portalFlash = Math.max(0, portalFlash - dt * 1.8);
     fire.uniforms.uBoost.value = portalFlash; portalLight.intensity = 16 + Math.sin(t * 3) * 3 + portalFlash * 30;
@@ -312,6 +329,7 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
       const k = tasks[i]; k.t += dt; const p = Math.min(1, k.t / k.dur); k.step(p);
       if (p >= 1) { tasks.splice(i, 1); k.done(); }
     }
+    title.quaternion.copy(camera.quaternion);
     composer.render();
     if (hintCb) {
       if (hint) { proj.copy(hint.position).project(camera); hintCb({ x: (proj.x + 1) / 2 * canvas.clientWidth, y: (1 - proj.y) / 2 * canvas.clientHeight }); }
@@ -340,6 +358,7 @@ export function initScene(canvas, { icons = {}, reduced = false, milsLogo = null
     launch,
     reset,
     onPick(cb) { pickCb = cb; },
-    onHint(cb) { hintCb = cb; }
+    onHint(cb) { hintCb = cb; },
+    setCount(n) { if (n !== tCount) { tCount = n; drawTitle(); } }
   };
 }
