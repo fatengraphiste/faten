@@ -2,15 +2,19 @@
 
 Pour chaque image : détecte si le fond est uni et clair (blanc, gris, beige).
 - Fond uni  -> recadrage, produit centré sur un carré blanc (ombre en option).
-- Fond décoré / mise en situation -> image copiée telle quelle dans le dossier de sortie
-  (convertie en .webp si besoin), pour que chaque dossier produit reste complet.
+- Fond transparent (PNG/WebP) -> posé sur le fond blanc, puis traité comme ci-dessus.
+- Photo de détail (produit coupé par le cadre) -> pas de recadrage : l'image entière
+  est mise au carré sur fond blanc, sans déplacer le produit.
+- Fond décoré / mise en situation -> aucune retouche du contenu : l'image entière
+  est mise au carré sur fond blanc, pour que chaque dossier produit reste complet.
+
+Toutes les images sortent au même format : carré `taille`×`taille`, en .webp.
 
 Usage :
     python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE [--taille 1200] [--fond FFFFFF] [--ombre]
 """
 import argparse
 import csv
-import shutil
 from pathlib import Path
 
 import cv2
@@ -121,13 +125,65 @@ def composer(rgb, masque, dist, fond_src, taille, gris, marge, ombre):
     return Image.fromarray(np.clip(toile, 0, 255).astype(np.uint8))
 
 
-def copier_sans_retouche(src, out, qualite):
-    """Photo d'ambiance : même place dans l'arborescence, aucune modification."""
-    out.parent.mkdir(parents=True, exist_ok=True)
-    if src.suffix.lower() == ".webp":
-        shutil.copy2(src, out)
-    else:
-        Image.open(src).convert("RGB").save(out, "WEBP", quality=qualite, method=6)
+def charger(chemin, fond):
+    """Image en RGB float + alpha (None si l'image est opaque).
+
+    Un fond transparent est remplacé par la couleur de fond : sinon les zones
+    transparentes ressortent en noir.
+    """
+    im = Image.open(chemin)
+    if im.mode in ("RGBA", "LA", "PA") or "transparency" in im.info:
+        rgba = np.asarray(im.convert("RGBA"), dtype=np.float32)
+        alpha = rgba[..., 3] / 255.0
+        if alpha.min() < 0.99:
+            a = alpha[..., None]
+            return rgba[..., :3] * a + fond * (1 - a), alpha
+        return rgba[..., :3], None
+    return np.asarray(im.convert("RGB"), dtype=np.float32), None
+
+
+def masque_alpha(alpha):
+    """Masque produit d'une image détourée : on se fie à la transparence."""
+    h, w = alpha.shape
+    masque = (alpha > 0.05).astype(np.uint8)
+    n, labels, stats, _ = cv2.connectedComponentsWithStats(masque, connectivity=8)
+    garde = np.zeros_like(masque)
+    for i in range(1, n):
+        if stats[i, cv2.CC_STAT_AREA] > 0.002 * h * w:
+            garde[labels == i] = 1
+    return garde
+
+
+def est_detail(masque, seuil=0.05, droit=0.85):
+    """Gros plan : le produit est coupé par le cadre.
+
+    Deux cas : il touche au moins deux bords de l'image, ou l'image a déjà une
+    marge blanche mais le contenu s'arrête sur au moins deux bords parfaitement
+    droits (photo recadrée collée sur du blanc). Un produit entier a des
+    contours arrondis : ses bords ne sont pleins que sur une petite partie.
+    """
+    cotes = [masque[0], masque[-1], masque[:, 0], masque[:, -1]]
+    if sum(c.mean() > seuil for c in cotes) >= 2:
+        return True
+    ys, xs = np.where(masque > 0)
+    y0, y1, x0, x1 = ys.min(), ys.max(), xs.min(), xs.max()
+    e = 2  # quelques pixels vers l'intérieur pour ignorer l'anticrénelage
+    bords = [masque[min(y0 + e, y1), x0:x1 + 1], masque[max(y1 - e, y0), x0:x1 + 1],
+             masque[y0:y1 + 1, min(x0 + e, x1)], masque[y0:y1 + 1, max(x1 - e, x0)]]
+    return sum(b.mean() > droit for b in bords) >= 2
+
+
+def mettre_au_carre(rgb, taille, fond):
+    """Image entière, sans recadrage ni déplacement, centrée sur un carré de fond."""
+    h, w = rgb.shape[:2]
+    echelle = taille / max(h, w)
+    nw, nh = max(1, round(w * echelle)), max(1, round(h * echelle))
+    interp = cv2.INTER_AREA if echelle < 1 else cv2.INTER_LANCZOS4
+    img = cv2.resize(rgb, (nw, nh), interpolation=interp)
+    toile = np.ones((taille, taille, 3), np.float32) * fond
+    ox, oy = (taille - nw) // 2, (taille - nh) // 2
+    toile[oy:oy + nh, ox:ox + nw] = img
+    return Image.fromarray(np.clip(toile, 0, 255).astype(np.uint8))
 
 
 def main():
@@ -148,22 +204,39 @@ def main():
     for f in fichiers:
         rel = f.relative_to(args.source)
         try:
-            rgb = np.asarray(Image.open(f).convert("RGB"), dtype=np.float32)
-            fond = analyser_fond(rgb)
             out = args.sortie / rel.with_suffix(".webp")
-            if fond is None:
-                copier_sans_retouche(f, out, args.qualite)
-                rapport.append((rel, "copiée sans retouche", "fond décoré / ambiance"))
-                continue
-            masque, dist = masque_produit(rgb, fond)
-            if masque.sum() < 0.01 * masque.size:
-                copier_sans_retouche(f, out, args.qualite)
-                rapport.append((rel, "copiée sans retouche", "produit non détecté"))
-                continue
-            img = composer(rgb, masque, dist, fond, args.taille, gris, args.marge, args.ombre)
             out.parent.mkdir(parents=True, exist_ok=True)
+            rgb, alpha = charger(f, gris)
+
+            if alpha is not None:                      # fond transparent
+                fond = gris
+                masque = masque_alpha(alpha)
+                dist = np.abs(rgb - fond).max(axis=2)
+                origine = "fond transparent"
+            else:
+                fond = analyser_fond(rgb)
+                if fond is None:
+                    mettre_au_carre(rgb, args.taille, gris).save(out, "WEBP", quality=args.qualite, method=6)
+                    rapport.append((rel, "mise au carré sans retouche", "fond décoré / ambiance"))
+                    continue
+                masque, dist = masque_produit(rgb, fond)
+                origine = "fond %d,%d,%d" % tuple(fond)
+
+            if masque.sum() < 0.01 * masque.size:
+                mettre_au_carre(rgb, args.taille, gris).save(out, "WEBP", quality=args.qualite, method=6)
+                rapport.append((rel, "mise au carré sans retouche", "produit non détecté"))
+                continue
+            if alpha is None and est_detail(masque):
+                k = gris / np.maximum(fond, 1)          # ancien fond -> nouveau fond
+                franc = np.clip((dist - 2) / 40.0, 0, 1)[..., None]
+                img = mettre_au_carre(rgb * (k + (1 - k) * franc), args.taille, gris)
+                img.save(out, "WEBP", quality=args.qualite, method=6)
+                rapport.append((rel, "détail : mis au carré sans recentrage", origine))
+                continue
+
+            img = composer(rgb, masque, dist, fond, args.taille, gris, args.marge, args.ombre)
             img.save(out, "WEBP", quality=args.qualite, method=6)
-            rapport.append((rel, "traitée", "fond %d,%d,%d" % tuple(fond)))
+            rapport.append((rel, "traitée", origine))
         except Exception as e:  # une image cassée ne bloque pas le lot
             rapport.append((rel, "erreur", str(e)))
         finally:

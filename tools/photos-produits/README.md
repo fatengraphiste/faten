@@ -4,10 +4,11 @@ Met toutes les photos produits au même format : carré 1:1 (1200×1200 px), fon
 produit centré avec la même marge de 8 % sur toutes les photos, export `.webp`.
 Sur une photo déjà sur fond blanc, le produit n'est pas retouché : il est seulement recadré et centré.
 
-- Les photos sur **fond uni clair** (blanc, gris, beige) sont traitées.
-- Les photos sur **fond décoré / mise en situation** sont copiées telles quelles (sans retouche)
-  au même endroit dans le dossier de sortie, pour que chaque dossier produit reste complet.
-  Elles sont listées dans `rapport.csv` avec le statut « copiée sans retouche ».
+- Les photos sur **fond uni clair** (blanc, gris, beige) : produit recadré et centré, même marge partout.
+- Les photos sur **fond transparent** (PNG/WebP détourés) : posées sur le blanc, puis centrées.
+- Les **photos de détail** (produit coupé par le cadre) : pas de recentrage, l'image entière est mise au carré.
+- Les photos **décorées / d'ambiance** : aucune retouche du contenu, l'image entière est mise au carré.
+- Toutes les images sortent au même format carré (1200×1200 par défaut).
 - Le nom de fichier et l'arborescence des dossiers sont conservés.
 
 ## Installation
