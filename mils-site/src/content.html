@@ -441,6 +441,30 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
 #s2 .facts div{padding:10px 12px}
 #s2 .facts span{font-size:13px}
 @media (max-width:900px){.clientgrid span{height:60px}}
+.clientgrid span:has(img[alt="Banque de Tunisie"]){padding:3px!important}
+/* ---------- Boutons de machine : verre brillant, 6 états ---------- */
+.mbtn{position:relative;display:inline-flex;align-items:center;gap:12px;height:54px;padding:0 28px 0 12px;border-radius:999px;font-family:var(--title);font-weight:600;font-size:16px;letter-spacing:-.01em;color:#fff;overflow:hidden;cursor:pointer;
+  background:linear-gradient(180deg,#6cb4ff 0%,#2a7be0 42%,#0058a5 100%);
+  box-shadow:0 0 0 6px rgba(255,255,255,.04),0 0 0 7px rgba(255,255,255,.12),inset 0 2px 1px rgba(255,255,255,.6),inset 0 -4px 8px rgba(0,30,80,.45),0 0 24px rgba(63,143,224,.55),0 10px 22px rgba(0,0,0,.45);
+  transition:background .25s,box-shadow .25s,transform .12s,color .2s}
+.mbtn:before{content:"";position:absolute;left:12%;right:12%;top:3px;height:44%;border-radius:999px;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0));pointer-events:none}
+.mbtn .mi{position:relative;flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.mbtn .mi svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.mbtn .mt{position:relative;white-space:nowrap}
+.mbtn:hover{background:linear-gradient(180deg,#ffc58f 0%,#f59a46 42%,#ef791f 75%,#c9590d 100%);box-shadow:0 0 0 6px rgba(255,255,255,.04),0 0 0 7px rgba(239,121,31,.35),inset 0 2px 1px rgba(255,255,255,.7),inset 0 -4px 8px rgba(120,40,0,.35),0 0 34px rgba(239,121,31,.75),0 10px 22px rgba(0,0,0,.45);color:#2a1205}
+.mbtn:focus-visible{outline:none;background:linear-gradient(180deg,#2b4f9e 0%,#0d2a6e 55%,#06173d 100%);box-shadow:0 0 0 6px rgba(63,143,224,.15),0 0 0 8px #3f8fe0,inset 0 2px 1px rgba(255,255,255,.35),0 0 26px rgba(63,143,224,.6);color:#fff}
+.mbtn:active{transform:translateY(2px);background:linear-gradient(180deg,#e9ebf0,#f8f9fb);color:#14161a;box-shadow:0 0 0 6px rgba(255,255,255,.04),0 0 0 7px rgba(255,255,255,.2),inset 0 3px 8px rgba(0,0,0,.25)}
+.mbtn:active .mi{background:rgba(0,0,0,.08)}
+.mbtn.busy{cursor:progress;background:linear-gradient(180deg,#ff8a7a 0%,#f0473a 45%,#c41d14 100%);box-shadow:0 0 0 6px rgba(255,90,78,.08),0 0 0 7px rgba(255,90,78,.35),inset 0 2px 1px rgba(255,255,255,.55),inset 0 -4px 8px rgba(90,0,0,.35),0 0 30px rgba(255,90,78,.7);color:#fff;animation:busyglow 1s ease-in-out infinite}
+.mbtn.busy .mi svg{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes busyglow{50%{box-shadow:0 0 0 6px rgba(255,90,78,.08),0 0 0 7px rgba(255,90,78,.5),inset 0 2px 1px rgba(255,255,255,.55),0 0 44px rgba(255,90,78,.9)}}
+.mbtn.ok{cursor:default;background:linear-gradient(180deg,#ffffff,#e6e9ef);color:#2a2d34;box-shadow:0 0 0 6px rgba(255,255,255,.03),0 0 0 7px rgba(255,255,255,.18),inset 0 2px 1px #fff,inset 0 -3px 6px rgba(0,0,0,.08),0 6px 16px rgba(0,0,0,.35)}
+.mbtn.ok .mi{background:var(--green);color:#fff}
+.mbtn.ok:before{opacity:.6}
+.pp2 .mbtn{margin-top:14px}
+@media (max-width:900px){.mbtn{height:50px;font-size:15px}}
+@media (prefers-reduced-motion:reduce){.mbtn.busy .mi svg{animation:none}}
 /* ---------- Mouvement réduit ---------- */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -497,9 +521,9 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
     </ol>
     <div class="keys rv">
       <span><kbd>Défilement</kbd> ou <kbd>↓</kbd> pour avancer</span>
-      <span><kbd class="kpad" aria-hidden="true"></kbd> bouton manette ou <kbd>Espace</kbd> maintenu pour installer une pièce</span>
+      <span>bouton <kbd>Installer</kbd> ou touche <kbd>Espace</kbd> pour installer une pièce</span>
     </div>
-    <div class="rv" style="margin-top:28px"><a class="btn call play" href="#s2"><span class="dpad" aria-hidden="true"></span>Jouer</a></div>
+    <div class="rv" style="margin-top:28px"><a class="btn call" href="#s2">Jouer<span class="go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z" fill="currentColor"/></svg></span></a></div>
   </div>
 </section>
 
@@ -541,7 +565,7 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
       <li>Branding terrain : véhicules, engins, casques, gilets, roll-up</li>
     </ul>
     <p class="know rv"><b>Notre savoir-faire :</b> plateformes de marque B2B, chartes et déclinaisons terrain pour l'industrie, le BTP et les services.</p>
-    <div class="actions rv"><div class="padwrap"><button class="pad" data-piece="marque" aria-label="Installer Marque : maintenir appuyé"><svg class="ringp" viewBox="0 0 64 64" aria-hidden="true"><circle class="rbg" cx="32" cy="32" r="29"/><circle class="rfg" cx="32" cy="32" r="29"/></svg><span class="dp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span></button><span class="padlbl"><b>Installer Marque</b><small>Maintenir pour installer · Espace</small></span></div></div>
+    <div class="actions rv"><button class="mbtn" data-piece="marque"><span class="mi" data-icon="marque"></span><span class="mt">Installer Marque</span></button></div>
     <figure class="proof" data-proof="marque">
       <div class="logofolio"><span title="ABCD · Burundi"><img data-src="assets/logos/logo-abcd.svg" alt="ABCD · Burundi"></span><span title="Burinfo · Burundi"><img data-src="assets/logos/logo-burinfo.webp" alt="Burinfo · Burundi"></span><span title="AMA Construction"><img data-src="assets/logos/logo-ama-construction.svg" alt="AMA Construction"></span><span title="OMDI"><img data-src="assets/logos/logo-omdi.svg" alt="OMDI"></span><span title="MIQYES"><img data-src="assets/logos/logo-miqyes.webp" alt="MIQYES"></span><span title="THNITI"><img data-src="assets/logos/logo-thniti.webp" alt="THNITI"></span><span title="South Tourism Lab"><img data-src="assets/logos/logo-stl.webp" alt="South Tourism Lab"></span><span title="ROYA"><img data-src="assets/logos/logo-roya.svg" alt="ROYA"></span></div>
       <span class="tag cap">Quelques références · Identités visuelles</span>
@@ -560,7 +584,7 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
       <li>Administrable par MILS sans code, chargement en moins de 2,5 s</li>
     </ul>
     <p class="know rv"><b>Notre savoir-faire :</b> sites B2B pensés pour la demande de devis, multilingues et administrables par le client.</p>
-    <div class="actions rv"><div class="padwrap"><button class="pad" data-piece="site" aria-label="Installer Site B2B : maintenir appuyé"><svg class="ringp" viewBox="0 0 64 64" aria-hidden="true"><circle class="rbg" cx="32" cy="32" r="29"/><circle class="rfg" cx="32" cy="32" r="29"/></svg><span class="dp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span></button><span class="padlbl"><b>Installer Site B2B</b><small>Maintenir pour installer · Espace</small></span></div></div>
+    <div class="actions rv"><button class="mbtn" data-piece="site"><span class="mi" data-icon="site"></span><span class="mt">Installer Site B2B</span></button></div>
     <figure class="proof" data-proof="site">
       <div class="sitegrid"><figure class="site"><img data-src="assets/ref-comptoir-gep.webp" alt="Site Comptoir GEP réalisé par CCA"><figcaption>Comptoir GEP</figcaption></figure><figure class="site"><img data-src="assets/ref-gep.webp" alt="Site GEP réalisé par CCA"><figcaption>GEP</figcaption></figure><figure class="site"><img data-src="assets/ref-ama-group.webp" alt="Site AMA Group réalisé par CCA"><figcaption>AMA Group</figcaption></figure><figure class="site"><img data-src="assets/ref-ama-construction.webp" alt="Site AMA Construction réalisé par CCA"><figcaption>AMA Construction</figcaption></figure><figure class="site"><img data-src="assets/ref-almukhtar-group.webp" alt="Site Al Mukhtar Group réalisé par CCA"><figcaption>Al Mukhtar Group</figcaption></figure><figure class="site"><img data-src="assets/ref-almukhtar-cars.webp" alt="Site Al Mukhtar Cars réalisé par CCA"><figcaption>Al Mukhtar Cars</figcaption></figure><figure class="site"><img data-src="assets/ref-lts.webp" alt="Site LTS réalisé par CCA"><figcaption>LTS</figcaption></figure><figure class="site"><img data-src="assets/ref-solal.webp" alt="Site SOLAL réalisé par CCA"><figcaption>SOLAL</figcaption></figure><figure class="site"><img data-src="assets/ref-prestige.webp" alt="Site Prestige Projects réalisé par CCA"><figcaption>Prestige Projects</figcaption></figure></div>
       <p class="more cap">+ autres réalisations</p>
@@ -580,7 +604,7 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
       <li>Accusé de réception avec délai indicatif</li>
       <li>Notification immédiate au commercial et export CSV de chaque demande</li>
     </ul>
-    <div class="actions rv"><div class="padwrap"><button class="pad" data-piece="rfq" aria-label="Installer Formulaires : maintenir appuyé"><svg class="ringp" viewBox="0 0 64 64" aria-hidden="true"><circle class="rbg" cx="32" cy="32" r="29"/><circle class="rfg" cx="32" cy="32" r="29"/></svg><span class="dp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span></button><span class="padlbl"><b>Installer Formulaires</b><small>Maintenir pour installer · Espace</small></span></div></div>
+    <div class="actions rv"><button class="mbtn" data-piece="rfq"><span class="mi" data-icon="rfq"></span><span class="mt">Installer Formulaires</span></button></div>
     <figure class="proof" data-proof="rfq">
       <figure class="site big"><img data-src="assets/ref-devis-comptoir-gep.webp" alt="Formulaire de demande de devis en 5 étapes, Comptoir GEP"><figcaption>Comptoir GEP · demande de devis en 5 étapes</figcaption></figure>
       <span class="tag cap">Quelques références · Formulaires RFQ</span>
@@ -600,7 +624,7 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
       <li>Relances automatiques des demandes sans réponse</li>
     </ul>
     <p class="know rv"><b>Notre savoir-faire :</b> la méthode de traitement des leads que nous appliquons pour Comptoir GEP, adaptée à MILS.</p>
-    <div class="actions rv"><div class="padwrap"><button class="pad" data-piece="crm" aria-label="Installer CRM : maintenir appuyé"><svg class="ringp" viewBox="0 0 64 64" aria-hidden="true"><circle class="rbg" cx="32" cy="32" r="29"/><circle class="rfg" cx="32" cy="32" r="29"/></svg><span class="dp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span></button><span class="padlbl"><b>Installer CRM</b><small>Maintenir pour installer · Espace</small></span></div></div>
+    <div class="actions rv"><button class="mbtn" data-piece="crm"><span class="mi" data-icon="crm"></span><span class="mt">Installer CRM</span></button></div>
     <div class="pipe rv" aria-label="Exemple de pipeline">
       <p class="cap dim">Exemple de pipeline</p>
       <div class="cols"><div><span class="cap">Reçue</span></div><div><span class="cap">Qualifiée</span></div><div><span class="cap">Devis émis</span></div><div><span class="cap">Gagnée</span></div></div>
@@ -618,12 +642,12 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
       <div>
         <span class="cap o">PULL · Visibilité</span>
         <ul class="gets"><li>SEO : 2 contenus optimisés par mois pendant 12 mois</li><li>LinkedIn 8 et Facebook 4 publications par mois</li></ul>
-        <div class="padwrap"><button class="pad" data-piece="visi" aria-label="Installer Visibilité : maintenir appuyé"><svg class="ringp" viewBox="0 0 64 64" aria-hidden="true"><circle class="rbg" cx="32" cy="32" r="29"/><circle class="rfg" cx="32" cy="32" r="29"/></svg><span class="dp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span></button><span class="padlbl"><b>Installer Visibilité</b><small>Maintenir pour installer · Espace</small></span></div>
+        <button class="mbtn" data-piece="visi"><span class="mi" data-icon="visi"></span><span class="mt">Installer Visibilité</span></button>
       </div>
       <div>
         <span class="cap blue">PUSH · Prospection <span class="opt cap">Option</span></span>
         <ul class="gets"><li>Comptes cibles : mines, BTP, industrie, sous-traitants, EPC</li><li>LinkedIn, email et prise de rendez-vous</li></ul>
-        <div class="padwrap"><button class="pad" data-piece="prosp" aria-label="Installer Prospection : maintenir appuyé"><svg class="ringp" viewBox="0 0 64 64" aria-hidden="true"><circle class="rbg" cx="32" cy="32" r="29"/><circle class="rfg" cx="32" cy="32" r="29"/></svg><span class="dp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/></svg></span></button><span class="padlbl"><b>Installer Prospection</b><small>Maintenir pour installer · Espace</small></span></div>
+        <button class="mbtn" data-piece="prosp"><span class="mi" data-icon="prosp"></span><span class="mt">Installer Prospection</span></button>
       </div>
     </div>
     <p class="know rv"><b>Notre savoir-faire :</b> CCA Salesfactory, notre département de prospection B2B.</p>
@@ -791,49 +815,29 @@ function refresh(){
   const left=ORDER.filter(k=>!installed.has(k));
   $('#missing').innerHTML=n<6?`Il manque ${6-n} pièce${6-n>1?'s':''} : `+left.map(k=>`<a href="#${SEC_OF[k]}">${LABEL[k]}</a>`).join(', '):(launched?'Machine lancée.':'Les 6 pièces sont en place : lancez la machine.');
 }
+const CHECK='<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>', SPIN='<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></svg>';
 function setBtn(b,state){
-  const sm=$('small',b.nextElementSibling);
+  const k=b.dataset.piece, t=$('.mt',b), ic=$('.mi',b);
   b.classList.remove('busy','ok'); b.disabled=false;
-  if(state==='busy'){ b.classList.add('busy'); sm.textContent='La pièce passe dans le portail…'; }
-  else if(state==='ok'){ b.classList.add('ok'); b.disabled=true; sm.textContent='Installée dans la machine'; }
-  else sm.textContent='Maintenir pour installer · Espace';
+  if(state==='busy'){ b.classList.add('busy'); t.textContent='Dans le portail…'; ic.innerHTML=SPIN; }
+  else if(state==='ok'){ b.classList.add('ok'); b.disabled=true; t.textContent=LABEL[k].charAt(0).toUpperCase()+LABEL[k].slice(1)+' installée'; ic.innerHTML=CHECK; }
+  else { t.textContent='Installer '+b.dataset.name; ic.innerHTML=`<svg viewBox="0 0 24 24"><path d="${ICONS[k]}"/></svg>`; }
 }
+$$('.mbtn').forEach(b=>{ b.dataset.name=$('.mt',b).textContent.replace('Installer ',''); b.addEventListener('click',()=>install(b.dataset.piece)); });
 async function install(k){
   if(installed.has(k)||busy.has(k)) return; busy.add(k);
-  const b=$(`.pad[data-piece="${k}"]`); setBtn(b,'busy'); updateBar();
+  const b=$(`.mbtn[data-piece="${k}"]`); setBtn(b,'busy'); updateBar();
   if(scene) await scene.install(k);
   busy.delete(k); installed.add(k); setBtn(b,'ok');
   $$('[data-proof]').forEach(p=>{ if(p.dataset.proof.split(' ').includes(k)) p.classList.add('open'); });
   refresh();
 }
-// maintenir l'appui : l'anneau se remplit en 0,8 s puis la pièce part
-let hold=null;
-function startHold(b){
-  const k=b&&b.dataset.piece; if(!k||hold||installed.has(k)||busy.has(k)) return;
-  const t0=performance.now(), D=RM?1:800; b.classList.add('holding'); hold={b,raf:0};
-  const tick=t=>{ if(!hold) return; const p=Math.min(1,(t-t0)/D); b.style.setProperty('--hp',p); if(p>=1) endHold(true); else hold.raf=requestAnimationFrame(tick); };
-  hold.raf=requestAnimationFrame(tick);
-}
-function endHold(done){
-  if(!hold) return; const {b,raf}=hold; cancelAnimationFrame(raf); hold=null;
-  b.classList.remove('holding'); b.style.setProperty('--hp',0); if(done) install(b.dataset.piece);
-}
-$$('.pad').forEach(b=>{
-  b.addEventListener('pointerdown',e=>{ e.preventDefault(); b.setPointerCapture(e.pointerId); startHold(b); });
-  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>b.addEventListener(t,()=>endHold(false)));
-  b.addEventListener('contextmenu',e=>e.preventDefault());
-});
-// touche Espace (ou Entrée sur un bouton) : même geste, sur la pièce de l'étape affichée
-function currentPad(){
-  const f=document.activeElement; if(f&&f.classList&&f.classList.contains('pad')) return f;
-  const s=secs[stepMode?cur:Math.round(progress())], keys=(s&&s.dataset.pieces||'').split(' ').filter(Boolean);
-  const k=keys.find(x=>!installed.has(x)&&!busy.has(x)); return k&&$(`.pad[data-piece="${k}"]`);
-}
+// touche Espace : installe la pièce de l'étape affichée
 addEventListener('keydown',e=>{
-  if(e.repeat||/input|textarea/i.test(e.target.tagName)) return;
-  if(e.code==='Space'||(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('pad'))){ const b=currentPad(); if(b){ e.preventDefault(); startHold(b); } }
+  if(e.code!=='Space'||e.repeat||/input|textarea|button/i.test(e.target.tagName)) return;
+  const s=secs[stepMode?cur:Math.round(progress())], k=(s&&s.dataset.pieces||'').split(' ').filter(Boolean).find(x=>!installed.has(x)&&!busy.has(x));
+  if(k){ e.preventDefault(); install(k); }
 });
-addEventListener('keyup',e=>{ if(e.code==='Space'||e.key==='Enter') endHold(false); });
 if(scene) scene.onPick(install);
 
 /* ---------- Navigation et révélations ---------- */
@@ -911,7 +915,7 @@ $$('#contact button').forEach(b=>b.addEventListener('click',async()=>{
 $('#restart').addEventListener('click',()=>{
   if(running||busy.size) return;
   installed.clear(); launched=false;
-  $$('.pad').forEach(b=>setBtn(b,'idle'));
+  $$('.mbtn').forEach(b=>setBtn(b,'idle'));
   $$('.proof').forEach(p=>p.classList.remove('open'));
   $$('#raceA u,#raceB u').forEach(u=>{u.getAnimations().forEach(a=>a.cancel());u.style.width='0';});
   $('#raceB').classList.remove('lost'); $('#lblA').textContent=''; $('#lblB').textContent='';
