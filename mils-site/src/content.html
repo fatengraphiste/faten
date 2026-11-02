@@ -496,6 +496,27 @@ header.nav .brand,header.nav .slots{pointer-events:auto}
 .pp2 .mbtn{margin-top:14px}
 @media (max-width:900px){.mbtn{height:50px;font-size:15px}}
 @media (prefers-reduced-motion:reduce){.mbtn.busy .mi svg{animation:none}}
+/* ---------- Tous les boutons au même style « bouton de machine » ---------- */
+.btn,.smain,.proofbtn.on{position:relative;overflow:hidden;color:#fff;border:0;animation:none!important;
+  background:linear-gradient(180deg,#6cb4ff 0%,#2a7be0 42%,#0058a5 100%);
+  box-shadow:0 0 0 6px rgba(255,255,255,.04),0 0 0 7px rgba(255,255,255,.12),inset 0 2px 1px rgba(255,255,255,.6),inset 0 -4px 8px rgba(0,30,80,.45),0 0 24px rgba(63,143,224,.55),0 10px 22px rgba(0,0,0,.45);
+  transition:background .25s,box-shadow .25s,transform .12s,color .2s}
+.btn:after{display:none!important}
+.btn:before,.smain:before,.proofbtn.on:before{content:"";position:absolute;left:12%;right:12%;top:3px;height:44%;border-radius:999px;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0));pointer-events:none}
+.btn .go,.smain .go{background:rgba(255,255,255,.2);color:currentColor;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.btn:hover,.smain:hover,.proofbtn.on:hover{transform:none;color:#2a1205;background:linear-gradient(180deg,#ffc58f 0%,#f59a46 42%,#ef791f 75%,#c9590d 100%);box-shadow:0 0 0 6px rgba(255,255,255,.04),0 0 0 7px rgba(239,121,31,.35),inset 0 2px 1px rgba(255,255,255,.7),inset 0 -4px 8px rgba(120,40,0,.35),0 0 34px rgba(239,121,31,.75),0 10px 22px rgba(0,0,0,.45)}
+.btn:focus-visible,.smain:focus-visible{outline:none;color:#fff;background:linear-gradient(180deg,#2b4f9e 0%,#0d2a6e 55%,#06173d 100%);box-shadow:0 0 0 6px rgba(63,143,224,.15),0 0 0 8px #3f8fe0,inset 0 2px 1px rgba(255,255,255,.35),0 0 26px rgba(63,143,224,.6)}
+.btn:active,.smain:active,.proofbtn.on:active{transform:translateY(2px);color:#14161a;background:linear-gradient(180deg,#e9ebf0,#f8f9fb);box-shadow:0 0 0 6px rgba(255,255,255,.04),0 0 0 7px rgba(255,255,255,.2),inset 0 3px 8px rgba(0,0,0,.25)}
+.btn[disabled],.smain:disabled{cursor:not-allowed;transform:none;color:rgba(255,255,255,.45);background:linear-gradient(180deg,#3a3d45,#24262c);box-shadow:0 0 0 6px rgba(255,255,255,.03),0 0 0 7px rgba(255,255,255,.08),inset 0 2px 1px rgba(255,255,255,.15),0 6px 14px rgba(0,0,0,.4)}
+.btn[disabled] .go,.smain:disabled .go{background:rgba(255,255,255,.08);color:rgba(255,255,255,.45)}
+.smain.ok{color:#fff;background:linear-gradient(180deg,#7ae8b4 0%,#2fbf7a 50%,#1a7a4c 100%);box-shadow:0 0 0 6px rgba(47,191,122,.06),0 0 0 7px rgba(47,191,122,.35),inset 0 2px 1px rgba(255,255,255,.6),inset 0 -4px 8px rgba(0,60,30,.4),0 0 24px rgba(47,191,122,.5)}
+.btn.ghost{color:#2a2d34;background:linear-gradient(180deg,#ffffff,#e6e9ef);box-shadow:0 0 0 6px rgba(255,255,255,.03),0 0 0 7px rgba(255,255,255,.18),inset 0 2px 1px #fff,inset 0 -3px 6px rgba(0,0,0,.08),0 6px 16px rgba(0,0,0,.35)}
+.btn.ghost:hover{color:#2a1205}
+.snav{background:linear-gradient(180deg,#4a4d56,#24262c);box-shadow:inset 0 2px 1px rgba(255,255,255,.25),0 0 0 1px rgba(255,255,255,.12),0 6px 14px rgba(0,0,0,.4);border:0}
+.snav:active{transform:translateY(2px);background:linear-gradient(180deg,#e9ebf0,#f8f9fb)}
+.snav:active svg{stroke:#14161a}
+@media (max-width:900px){body.step .proofbtn.on{border:0;padding:10px 18px}}
+.proofbtn.on svg{stroke:currentColor}
 /* ---------- Mouvement réduit ---------- */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
