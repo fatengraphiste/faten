@@ -442,6 +442,16 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
 #s2 .facts span{font-size:13px}
 @media (max-width:900px){.clientgrid span{height:60px}}
 .clientgrid span:has(img[alt="Banque de Tunisie"]){padding:3px!important}
+/* étiquette « Cliquez sur la pièce » : cliquable, elle mène au bouton Installer */
+.tap span{pointer-events:auto;cursor:pointer;transition:transform .2s}
+.tap{z-index:55}
+header.nav{pointer-events:none}
+header.nav .brand,header.nav .slots{pointer-events:auto}
+.tap span:hover{transform:scale(1.06)}
+.mbtn.wizz{animation:wizz .9s cubic-bezier(.36,.07,.19,.97)}
+.mbtn.wizz:after{content:"";position:absolute;inset:-4px;border-radius:999px;border:2px solid var(--orange);animation:burst .9s ease-out forwards;pointer-events:none}
+@keyframes wizz{0%{transform:scale(1)}10%{transform:scale(1.14) rotate(-3deg)}20%{transform:scale(1.14) rotate(3deg)}30%{transform:scale(1.14) rotate(-3deg)}40%{transform:scale(1.14) rotate(3deg)}50%{transform:scale(1.12) rotate(0)}100%{transform:scale(1)}}
+@keyframes burst{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.6)}}
 /* ---------- Boutons de machine : verre brillant, 6 états ---------- */
 .mbtn{position:relative;display:inline-flex;align-items:center;gap:12px;height:54px;padding:0 28px 0 12px;border-radius:999px;font-family:var(--title);font-weight:600;font-size:16px;letter-spacing:-.01em;color:#fff;overflow:hidden;cursor:pointer;
   background:linear-gradient(180deg,#6cb4ff 0%,#2a7be0 42%,#0058a5 100%);
@@ -479,7 +489,7 @@ kbd{display:inline-block;font-family:var(--title);font-size:11px;padding:3px 8px
 <canvas id="gl" aria-hidden="true"></canvas>
 <div class="shade" aria-hidden="true"></div>
 <div class="stagefade" aria-hidden="true"></div>
-<div class="tap cap" id="tap" aria-hidden="true"><span>Cliquez sur la pièce</span></div>
+<div class="tap cap" id="tap"><span role="button" tabindex="-1">Cliquez sur la pièce</span></div>
 
 <header class="nav">
   <div class="brand"><!--__CCA_LOGO__--><span class="x">×</span><span class="mils"><img src="__MILS_LOGO__" alt="MILS"></span></div>
@@ -774,6 +784,14 @@ let scene=null;
 try{ if(window.MILS3D) scene=MILS3D.initScene($('#gl'),{icons:ICONS,reduced:RM,milsLogo:$('.brand .mils img').src}); }catch(e){ console.error(e); }
 if(!scene) $('#gl').style.display='none';
 const tap=$('#tap');
+// clic sur l'étiquette : on amène le bouton Installer à l'écran et il « vibre » pour attirer l'œil
+$('#tap span').addEventListener('click',()=>{
+  const s=secs[stepMode?cur:Math.round(progress())], k=(s&&s.dataset.pieces||'').split(' ').filter(Boolean).find(x=>!installed.has(x)&&!busy.has(x));
+  const b=k&&$(`.mbtn[data-piece="${k}"]`); if(!b) return;
+  b.scrollIntoView({behavior:RM?'auto':'smooth',block:'center'});
+  setTimeout(()=>{ b.classList.remove('wizz'); void b.offsetWidth; b.classList.add('wizz'); b.focus({preventScroll:true}); },RM?0:450);
+});
+$$('.mbtn').forEach(b=>b.addEventListener('animationend',e=>{ if(e.animationName==='wizz') b.classList.remove('wizz'); }));
 if(scene) scene.onHint(h=>{ if(h){ tap.style.left=h.x+'px'; tap.style.top=h.y+'px'; tap.classList.add('on'); } else tap.classList.remove('on'); });
 
 /* Défilement : fondu du fond organique vers la scène 3D */
