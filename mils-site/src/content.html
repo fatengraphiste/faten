@@ -517,6 +517,30 @@ header.nav .brand,header.nav .slots{pointer-events:auto}
 .snav:active svg{stroke:#14161a}
 @media (max-width:900px){body.step .proofbtn.on{border:0;padding:10px 18px}}
 .proofbtn.on svg{stroke:currentColor}
+/* ---------- Mobile : références en clair, plein écran ---------- */
+@media (max-width:900px){
+  .sheet-bg{background:#fff;backdrop-filter:none}
+  .sheet-panel{top:0;max-height:none;border-radius:0;background:#fff;color:#14161a;border:0;animation:sheetup .35s var(--out)}
+  .sheet-head{padding:calc(14px + env(safe-area-inset-top)) 20px 12px;border-bottom:1px solid #eceef2;color:#c95f10}
+  .sheet-x{border-color:#d5d8de;color:#14161a;background:#f4f5f7}
+  .sheet-body{padding:16px 20px calc(28px + env(safe-area-inset-bottom))}
+  .sheet-body .logofolio span{border:1px solid #e6e8ec;box-shadow:0 2px 8px rgba(0,0,0,.05);height:84px;aspect-ratio:auto!important;display:flex!important;align-items:center;justify-content:center}
+  .sheet-body .logofolio img{max-width:100%;max-height:100%;width:auto;height:auto}
+  .sheet-body .site{background:#fff;border:1px solid #e6e8ec;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+  .sheet-body .site figcaption{color:#3a3d45}
+  /* étape « Ils nous font confiance » : page claire, sans la 3D */
+  body.step.lightstep #gl,body.step.lightstep .stagefade{opacity:0!important;pointer-events:none}
+  body.step section.refs.cur{background:#fff;color:#14161a;padding-top:76px}
+  body.step section.refs .eyebrow{color:#7a7f88}
+  body.step section.refs h2{color:#14161a}
+  body.step section.refs .lead{color:#3a3d45}
+  body.step section.refs .africa{color:#5a5f68}
+  body.step section.refs .clientgrid{grid-template-columns:repeat(2,1fr)!important;gap:10px!important;margin-top:18px}
+  body.step section.refs .clientgrid span{height:74px;border:1px solid #e6e8ec;box-shadow:0 2px 8px rgba(0,0,0,.05);padding:10px 14px!important}
+  body.step.lightstep .stepbar{background:linear-gradient(rgba(255,255,255,0),#fff 38%)}
+  body.step.lightstep .sdots i{background:#d5d8de}
+  body.step.lightstep .sdots i.on{background:var(--orange)}
+}
 /* ---------- Mouvement réduit ---------- */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -1013,6 +1037,7 @@ function go(i,dir){
   i=Math.max(0,Math.min(secs.length-1,i)); const old=cur; cur=i;
   secs.forEach((s,j)=>{ s.classList.toggle('cur',j===i); s.classList.toggle('back',j<i); });
   const s=secs[i]; s.classList.add('in'); s.scrollTop=0;
+  document.body.classList.toggle('lightstep',s.id==='s10');
   if(s.id==='s2') counters();
   applyProgress(i); updateBar();
 }
@@ -1055,7 +1080,7 @@ document.addEventListener('click',e=>{ const a=e.target.closest('a[href^="#s"]')
 const mq=matchMedia('(max-width:900px)');
 function setMode(){
   const at=stepMode?cur:Math.round(progress());     // étape courante, mesurée avant de changer de mode
-  stepMode=mq.matches; document.body.classList.toggle('step',stepMode);
+  stepMode=mq.matches; document.body.classList.toggle('step',stepMode); if(!stepMode) document.body.classList.remove('lightstep');
   if(stepMode) go(at); else { secs.forEach(s=>s.classList.remove('cur','back')); onScroll(); }
 }
 mq.addEventListener('change',setMode); setMode();
