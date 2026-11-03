@@ -1,45 +1,69 @@
 #!/usr/bin/env python3
-"""Telecharge les photos produits Smeg pour une liste de references.
-Usage: pip install requests beautifulsoup4 ; python3 download_smeg.py
-Cree un dossier images/<REF>/ par produit. Pause entre requetes.
-A utiliser uniquement avec l'autorisation de Smeg (revendeur/distributeur)."""
-import os, re, time, requests
-from urllib.parse import urljoin, quote
+"""Telecharge les photos produits depuis https://www.smeg.com/fr/produits/<REF>
+Usage:
+  py -m pip install requests beautifulsoup4 playwright
+  py -m playwright install chromium
+  py download_smeg.py
+Cree images/<REF>/ pour chaque reference, plus debug/<REF>.html (page brute)
+et introuvables.txt (references sans image). A utiliser avec l'autorisation de Smeg."""
+import os, re, time, json, requests
+from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
-BASE = "https://www.smeg.fr"
-H = {"User-Agent": "Mozilla/5.0"}
+BASE = "https://www.smeg.com/fr/produits/"
+H = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+     "Accept-Language": "fr-FR,fr;q=0.9"}
+IMG = re.compile(r'https?:[^"\'\s\\<>)]+?\.(?:jpg|jpeg|png|webp)(?:\?[^"\'\s\\<>)]*)?', re.I)
 s = requests.Session(); s.headers.update(H)
 
-def find_product_page(ref):
-    r = s.get(f"{BASE}/catalogsearch/result/?q={quote(ref)}", timeout=30)
-    soup = BeautifulSoup(r.text, "html.parser")
-    for a in soup.find_all("a", href=True):
-        if ref.lower() in a["href"].lower():
-            return urljoin(BASE, a["href"])
-    if ref.lower() in r.url.lower():  # redirection directe
-        return r.url
-    return None
+def get_html_requests(url):
+    r = s.get(url, timeout=30); r.raise_for_status(); return r.text
 
-def images(url):
-    html = s.get(url, timeout=30).text
-    found = set(re.findall(r'https?://[^"\'\s\\]+?\.(?:jpg|jpeg|png|webp)', html, re.I))
-    return sorted(u for u in found if "media" in u.lower() or "catalog" in u.lower())
+def get_html_browser(url):
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as p:
+        b = p.chromium.launch(); pg = b.new_page(user_agent=H["User-Agent"])
+        pg.goto(url, wait_until="networkidle", timeout=60000)
+        pg.mouse.wheel(0, 4000); pg.wait_for_timeout(1500)
+        html = pg.content(); b.close(); return html
 
-os.makedirs("images", exist_ok=True)
+def extract(html, url, ref):
+    soup = BeautifulSoup(html, "html.parser")
+    urls = set(IMG.findall(html.replace("\\/", "/")))
+    for t in soup.find_all(["img", "source", "meta"]):
+        for a in ("src", "data-src", "data-zoom", "content", "srcset", "data-srcset"):
+            v = t.get(a)
+            if v:
+                for part in str(v).split(","):
+                    u = part.strip().split(" ")[0]
+                    if re.search(r'\.(jpg|jpeg|png|webp)', u, re.I):
+                        urls.add(urljoin(url, u))
+    # garde surtout les images liees au produit (nom contient la ref) ; sinon tout
+    key = ref.lower()
+    prod = {u for u in urls if key in u.lower()}
+    return sorted(prod or {u for u in urls if not re.search(r'logo|icon|flag|sprite|banner', u, re.I)})
+
+def save(u, folder, ref, i):
+    ext = os.path.splitext(u.split("?")[0])[1] or ".jpg"
+    c = s.get(u, timeout=60)
+    if c.ok and len(c.content) > 3000:
+        with open(os.path.join(folder, f"{ref}_{i}{ext}"), "wb") as f: f.write(c.content)
+        return True
+    return False
+
+os.makedirs("images", exist_ok=True); os.makedirs("debug", exist_ok=True)
 missing = []
 for ref in [l.strip() for l in open("refs.txt") if l.strip()]:
+    url = BASE + ref
     try:
-        page = find_product_page(ref)
-        if not page:
-            missing.append(ref); print("introuvable:", ref); continue
-        d = os.path.join("images", ref); os.makedirs(d, exist_ok=True)
-        for i, u in enumerate(images(page), 1):
-            ext = os.path.splitext(u.split("?")[0])[1] or ".jpg"
-            with open(os.path.join(d, f"{ref}_{i}{ext}"), "wb") as f:
-                f.write(s.get(u, timeout=60).content)
-            time.sleep(0.5)
-        print("ok:", ref, page)
+        html = get_html_requests(url); imgs = extract(html, url, ref)
+        if not imgs:
+            html = get_html_browser(url); imgs = extract(html, url, ref)
+        open(os.path.join("debug", ref + ".html"), "w", encoding="utf-8").write(html)
+        folder = os.path.join("images", ref); os.makedirs(folder, exist_ok=True)
+        n = sum(save(u, folder, ref, i) for i, u in enumerate(imgs, 1))
+        print(f"{'ok' if n else 'AUCUNE IMAGE'}: {ref} ({n} images)")
+        if not n: missing.append(ref)
     except Exception as e:
         missing.append(ref); print("erreur:", ref, e)
     time.sleep(2)
