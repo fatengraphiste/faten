@@ -9,9 +9,13 @@ Pour chaque image : détecte si le fond est uni et clair (blanc, gris, beige).
   est mise au carré sur fond blanc, pour que chaque dossier produit reste complet.
 
 Toutes les images sortent au même format : carré `taille`×`taille`, en .webp.
+Formats lus : jpg, jpeg, jfif, png, webp, bmp, gif, tif/tiff, avif, ico, tga,
+et heic/heif (photos iPhone) si `pillow-heif` est installé.
 
 Usage :
     python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE [--taille 1200] [--fond FFFFFF] [--ombre]
+    python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE --conversion-seule
+        (convertit seulement en .webp : même taille, même contenu, transparence gardée)
 """
 import argparse
 import csv
@@ -19,9 +23,27 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
-EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+try:  # photos iPhone (.heic) : optionnel
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:
+    pass
+
+EXTENSIONS = {".jpg", ".jpeg", ".jpe", ".jfif", ".png", ".webp", ".bmp", ".dib", ".gif",
+              ".tif", ".tiff", ".avif", ".heic", ".heif", ".ico", ".tga"}
+
+
+def ouvrir(chemin):
+    """Ouvre n'importe quel format : 1re image d'un GIF, rotation EXIF des photos,
+    TIFF 16 bits ramenés en 8 bits."""
+    im = Image.open(chemin)
+    im.seek(0)
+    im = ImageOps.exif_transpose(im)
+    if im.mode in ("I", "I;16", "I;16B", "I;16L", "I;16N"):
+        im = im.point(lambda v: v / 256).convert("L")
+    return im
 
 
 def couleur_hex(h):
@@ -131,7 +153,7 @@ def charger(chemin, fond):
     Un fond transparent est remplacé par la couleur de fond : sinon les zones
     transparentes ressortent en noir.
     """
-    im = Image.open(chemin)
+    im = ouvrir(chemin)
     if im.mode in ("RGBA", "LA", "PA") or "transparency" in im.info:
         rgba = np.asarray(im.convert("RGBA"), dtype=np.float32)
         alpha = rgba[..., 3] / 255.0
@@ -195,17 +217,32 @@ def main():
     p.add_argument("--marge", type=float, default=0.08)
     p.add_argument("--ombre", action="store_true")
     p.add_argument("--qualite", type=int, default=92)
+    p.add_argument("--conversion-seule", action="store_true",
+                   help="convertit en .webp sans aucun autre traitement")
     args = p.parse_args()
 
     gris = couleur_hex(args.fond)
     fichiers = sorted(f for f in args.source.rglob("*") if f.suffix.lower() in EXTENSIONS)
     args.sortie.mkdir(parents=True, exist_ok=True)
     rapport = []
+    deja = set()
     for f in fichiers:
         rel = f.relative_to(args.source)
         try:
             out = args.sortie / rel.with_suffix(".webp")
+            if out in deja:  # photo.jpg et photo.png -> photo.webp et photo_png.webp
+                out = out.with_name(f"{f.stem}_{f.suffix[1:].lower()}.webp")
+            deja.add(out)
             out.parent.mkdir(parents=True, exist_ok=True)
+
+            if args.conversion_seule:
+                im = ouvrir(f)
+                transp = im.mode in ("RGBA", "LA", "PA") or "transparency" in im.info
+                im = im.convert("RGBA" if transp else "RGB")
+                im.save(out, "WEBP", quality=args.qualite, method=6)
+                rapport.append((rel, "convertie en webp", "%d×%d" % im.size))
+                continue
+
             rgb, alpha = charger(f, gris)
 
             if alpha is not None:                      # fond transparent

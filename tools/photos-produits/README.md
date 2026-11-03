@@ -23,6 +23,15 @@ pip install numpy pillow opencv-python-headless
 python traiter_photos.py "photos_originales" "photos_traitees"
 ```
 
+Formats acceptés en entrée : jpg, jpeg, jfif, png, webp, bmp, gif, tif/tiff, avif, ico, tga
+(et heic/heif des iPhone après `pip install pillow-heif`). Tout sort en `.webp`.
+
+Conversion seule en `.webp` (même taille, même contenu, transparence gardée) :
+
+```bash
+python traiter_photos.py "photos_originales" "photos_webp" --conversion-seule
+```
+
 Options : `--taille 1200`, `--fond FFFFFF`, `--marge 0.08`, `--ombre` (désactivée par défaut), `--qualite 92`.
 
 Voir `exemples/avant-apres.png` (haut : original, bas : résultat).
