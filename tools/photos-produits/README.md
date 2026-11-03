@@ -4,10 +4,17 @@ Met toutes les photos produits au même format : carré 1:1 (1200×1200 px), fon
 produit centré avec la même marge de 8 % sur toutes les photos, export `.webp`.
 Sur une photo déjà sur fond blanc, le produit n'est pas retouché : il est seulement recadré et centré.
 
-- Les photos sur **fond uni clair** (blanc, gris, beige) : produit recadré et centré, même marge partout.
-- Les photos sur **fond transparent** (PNG/WebP détourés) : posées sur le blanc, puis centrées.
-- Les **photos de détail** (produit coupé par le cadre) : pas de recentrage, l'image entière est mise au carré.
-- Les photos **décorées / d'ambiance** : aucune retouche du contenu, l'image entière est mise au carré.
+Chaque photo est classée automatiquement dans un des 3 modèles :
+
+| Modèle | Reconnu quand… | Traitement |
+|---|---|---|
+| 1. Mise en scène | fond non uni (décor) | format seul : redimensionnée et recadrée au carré, fond d'origine |
+| 2. Gros plan | le produit est coupé par le cadre | format seul : redimensionnée et recadrée au carré, fond d'origine |
+| 3. Produit centré | produit entier sur fond blanc/gris/beige ou transparent | produit centré sur fond blanc, même marge pour tous |
+
+Pour les modèles 1 et 2, aucun fond n'est ajouté : les bandes blanches éventuelles autour
+de la photo sont retirées, puis l'image remplit le carré (recadrage au centre).
+Le modèle retenu est indiqué pour chaque photo dans `rapport.csv`.
 - Toutes les images sortent au même format carré (1200×1200 par défaut).
 - Le nom de fichier et l'arborescence des dossiers sont conservés.
 

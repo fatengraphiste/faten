@@ -1,12 +1,15 @@
 """Uniformise les photos produits SMEG pour WooCommerce.
 
-Pour chaque image : détecte si le fond est uni et clair (blanc, gris, beige).
-- Fond uni  -> recadrage, produit centré sur un carré blanc (ombre en option).
-- Fond transparent (PNG/WebP) -> posé sur le fond blanc, puis traité comme ci-dessus.
-- Photo de détail (produit coupé par le cadre) -> pas de recadrage : l'image entière
-  est mise au carré sur fond blanc, sans déplacer le produit.
-- Fond décoré / mise en situation -> aucune retouche du contenu : l'image entière
-  est mise au carré sur fond blanc, pour que chaque dossier produit reste complet.
+Chaque photo est classée dans un des 3 modèles :
+1. Mise en scène (produit dans un décor) : fond non uni.
+2. Gros plan (détail du produit) : le produit est coupé par le cadre.
+3. Produit centré : produit entier sur fond uni clair (blanc, gris, beige) ou transparent.
+
+- Modèle 3 -> produit recadré et centré sur un carré blanc, avec la même marge
+  pour tous les produits (ombre en option).
+- Modèles 1 et 2 -> composition d'origine conservée : ni fond changé, ni fond
+  ajouté. Les éventuelles bandes blanches ajoutées autour de la photo sont
+  retirées, puis l'image est redimensionnée et recadrée au carré (centre).
 
 Toutes les images sortent au même format : carré `taille`×`taille`, en .webp.
 Formats lus : jpg, jpeg, jfif, png, webp, bmp, gif, tif/tiff, avif, ico, tga,
@@ -179,33 +182,50 @@ def masque_alpha(alpha):
 def est_detail(masque, seuil=0.05, droit=0.85):
     """Gros plan : le produit est coupé par le cadre.
 
-    Deux cas : il touche au moins deux bords de l'image, ou l'image a déjà une
-    marge blanche mais le contenu s'arrête sur au moins deux bords parfaitement
+    Cas reconnus : il touche au moins deux bords de l'image ; il touche un bord
+    et s'arrête ailleurs sur une coupe droite ; ou l'image a déjà une marge
+    blanche mais le contenu s'arrête sur au moins deux bords parfaitement
     droits (photo recadrée collée sur du blanc). Un produit entier a des
     contours arrondis : ses bords ne sont pleins que sur une petite partie.
     """
     cotes = [masque[0], masque[-1], masque[:, 0], masque[:, -1]]
-    if sum(c.mean() > seuil for c in cotes) >= 2:
+    touche = sum(c.mean() > seuil for c in cotes)
+    if touche >= 2:
         return True
     ys, xs = np.where(masque > 0)
     y0, y1, x0, x1 = ys.min(), ys.max(), xs.min(), xs.max()
     e = 2  # quelques pixels vers l'intérieur pour ignorer l'anticrénelage
-    bords = [masque[min(y0 + e, y1), x0:x1 + 1], masque[max(y1 - e, y0), x0:x1 + 1],
-             masque[y0:y1 + 1, min(x0 + e, x1)], masque[y0:y1 + 1, max(x1 - e, x0)]]
-    return sum(b.mean() > droit for b in bords) >= 2
+    bords = [masque[min(y0 + e, y1), x0:x1 + 1].mean(), masque[max(y1 - e, y0), x0:x1 + 1].mean(),
+             masque[y0:y1 + 1, min(x0 + e, x1)].mean(), masque[y0:y1 + 1, max(x1 - e, x0)].mean()]
+    # coupé par un bord de l'image + une coupe droite nette ailleurs (gros plan en biais)
+    if touche == 1 and max(bords) > 0.7:
+        return True
+    return sum(b > droit for b in bords) >= 2
 
 
-def mettre_au_carre(rgb, taille, fond):
-    """Image entière, sans recadrage ni déplacement, centrée sur un carré de fond."""
+def retirer_bandes_blanches(rgb, tolerance=8, part=0.995):
+    """Retire les lignes/colonnes entièrement blanches au bord de l'image
+    (bandes ajoutées pour faire un carré). Le contenu de la photo n'est pas touché."""
+    blanc = (255 - rgb.min(axis=2)) < tolerance
+    lignes = np.where(blanc.mean(axis=1) < part)[0]
+    cols = np.where(blanc.mean(axis=0) < part)[0]
+    if len(lignes) < 0.2 * rgb.shape[0] or len(cols) < 0.2 * rgb.shape[1]:
+        return rgb  # presque tout blanc : on ne touche à rien
+    return rgb[lignes.min():lignes.max() + 1, cols.min():cols.max() + 1]
+
+
+def carre_sans_fond(rgb, taille):
+    """Modèles 1 et 2 : remplit le carré avec la photo (aucun fond ajouté).
+    L'image est redimensionnée sur son petit côté puis recadrée au centre."""
+    rgb = retirer_bandes_blanches(rgb)
     h, w = rgb.shape[:2]
-    echelle = taille / max(h, w)
-    nw, nh = max(1, round(w * echelle)), max(1, round(h * echelle))
+    echelle = taille / min(h, w)
+    nw, nh = max(taille, round(w * echelle)), max(taille, round(h * echelle))
     interp = cv2.INTER_AREA if echelle < 1 else cv2.INTER_LANCZOS4
     img = cv2.resize(rgb, (nw, nh), interpolation=interp)
-    toile = np.ones((taille, taille, 3), np.float32) * fond
-    ox, oy = (taille - nw) // 2, (taille - nh) // 2
-    toile[oy:oy + nh, ox:ox + nw] = img
-    return Image.fromarray(np.clip(toile, 0, 255).astype(np.uint8))
+    ox, oy = (nw - taille) // 2, (nh - taille) // 2
+    img = img[oy:oy + taille, ox:ox + taille]
+    return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
 
 
 def main():
@@ -253,27 +273,24 @@ def main():
             else:
                 fond = analyser_fond(rgb)
                 if fond is None:
-                    mettre_au_carre(rgb, args.taille, gris).save(out, "WEBP", quality=args.qualite, method=6)
-                    rapport.append((rel, "mise au carré sans retouche", "fond décoré / ambiance"))
+                    carre_sans_fond(rgb, args.taille).save(out, "WEBP", quality=args.qualite, method=6)
+                    rapport.append((rel, "modèle 1 : mise en scène", "format seul, fond d'origine"))
                     continue
                 masque, dist = masque_produit(rgb, fond)
                 origine = "fond %d,%d,%d" % tuple(fond)
 
             if masque.sum() < 0.01 * masque.size:
-                mettre_au_carre(rgb, args.taille, gris).save(out, "WEBP", quality=args.qualite, method=6)
-                rapport.append((rel, "mise au carré sans retouche", "produit non détecté"))
+                carre_sans_fond(rgb, args.taille).save(out, "WEBP", quality=args.qualite, method=6)
+                rapport.append((rel, "modèle 1 : mise en scène", "produit non détecté, format seul"))
                 continue
             if alpha is None and est_detail(masque):
-                k = gris / np.maximum(fond, 1)          # ancien fond -> nouveau fond
-                franc = np.clip((dist - 2) / 40.0, 0, 1)[..., None]
-                img = mettre_au_carre(rgb * (k + (1 - k) * franc), args.taille, gris)
-                img.save(out, "WEBP", quality=args.qualite, method=6)
-                rapport.append((rel, "détail : mis au carré sans recentrage", origine))
+                carre_sans_fond(rgb, args.taille).save(out, "WEBP", quality=args.qualite, method=6)
+                rapport.append((rel, "modèle 2 : gros plan", "format seul, fond d'origine"))
                 continue
 
             img = composer(rgb, masque, dist, fond, args.taille, gris, args.marge, args.ombre)
             img.save(out, "WEBP", quality=args.qualite, method=6)
-            rapport.append((rel, "traitée", origine))
+            rapport.append((rel, "modèle 3 : produit centré", origine))
         except Exception as e:  # une image cassée ne bloque pas le lot
             rapport.append((rel, "erreur", str(e)))
         finally:
