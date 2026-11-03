@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Telecharge les photos produits depuis https://www.smeg.com/fr/produits/<REF>
 Usage:
   py -m pip install requests beautifulsoup4 playwright
