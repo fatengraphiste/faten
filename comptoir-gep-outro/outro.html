@@ -1,0 +1,184 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Comptoir GEP Outro</title>
+<style>
+html,body{margin:0;background:#19226d;overflow:hidden}
+svg{display:block}
+text{font-family:'Inter','Liberation Sans',sans-serif;font-weight:700;fill:#fff}
+</style></head>
+<body>
+<svg id="s" width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <clipPath id="c0"><rect id="cr0" x="0" y="0" width="0" height="120"/></clipPath>
+  <clipPath id="c1"><rect id="cr1" x="0" y="0" width="0" height="120"/></clipPath>
+  <clipPath id="c2"><rect id="cr2" x="0" y="0" width="0" height="120"/></clipPath>
+</defs>
+<rect width="1920" height="1080" fill="#19226d"/>
+
+<!-- decorative corner paths -->
+<g fill="none" stroke="#db4041" stroke-width="6" stroke-linecap="round">
+  <path id="deco1" pathLength="1" d="M70 150 V70 H150"/>
+  <path id="deco2" pathLength="1" d="M1850 930 V1010 H1770"/>
+</g>
+
+<!-- LOGO -->
+<g id="logo">
+  <g id="logoStroke" fill="none" stroke-linejoin="round" stroke-linecap="round" stroke-width="3.2"></g>
+  <g id="logoFill"></g>
+</g>
+
+<!-- FRAME -->
+<g id="frame" fill="none" stroke="#db4041" stroke-width="14" stroke-linecap="butt">
+  <path id="fTop" pathLength="1"/>
+  <path id="fBot" pathLength="1"/>
+</g>
+<g id="nubs" fill="#db4041"></g>
+
+<!-- CONTACT ROWS -->
+<g id="rows"></g>
+</svg>
+
+<script>
+const LOGO_PATHS=[
+ {c:'w',d:"M121.35,153.7c-.58-1.06-1.12-2.13-1.64-3.2h-25.8c-4.53,.11-8.68-.57-12.46-2.02-3.78-1.46-6.88-3.42-9.3-5.9-2.43-2.48-4.48-5.31-6.15-8.49-1.67-3.18-2.7-6.52-3.07-10.03-.38-3.5-.38-7.01,0-10.52,.38-3.5,1.4-6.85,3.07-10.03,1.67-3.18,3.72-6.01,6.15-8.49,2.43-2.48,5.52-4.45,9.3-5.9,3.77-1.46,7.93-2.18,12.46-2.18,1.4,0,6.66,.16,15.77,.49,3.47,.12,6.71,.21,9.72,.25,.6-1.28,1.24-2.55,1.93-3.81,4.43-8.16,10.11-15.26,16.94-21.19h-44.35c-8.84,0-16.99,1.81-24.43,5.42-7.44,3.61-13.54,8.31-18.28,14.07-4.75,5.77-8.31,12.4-10.68,19.9-2.37,7.5-3.26,14.96-2.67,22.41,.59,7.44,2.94,14.78,7.04,22,4.1,7.23,9.81,13.37,17.15,18.44,6.36,4.42,12.35,7.2,17.96,8.33,5.61,1.13,13.1,1.7,22.49,1.7h35.96c-6.89-5.94-12.63-13.05-17.09-21.22Z"},
+ {c:'w',d:"M776.18,72.68c-9.6-6.69-20.17-10.03-31.71-10.03h-3.52c-11.54,0-22.11,3.29-31.71,9.87-7.44,5.18-13.37,11.83-17.79,19.98-4.42,8.14-6.63,16.91-6.63,26.29s2.21,18.12,6.63,26.21c4.42,8.09,10.35,14.72,17.79,19.9,9.6,6.69,20.17,10.03,31.71,10.03h3.52c11.54,0,22.11-3.29,31.71-9.87,7.44-5.18,13.37-11.83,17.79-19.98,4.42-8.14,6.63-16.91,6.63-26.29s-2.21-18.12-6.63-26.21c-4.42-8.09-10.35-14.72-17.79-19.9Zm-9.38,68.59c-6.25,6.26-13.69,9.38-22.32,9.38h-3.52c-8.63,0-16.07-3.13-22.32-9.38-6.26-6.26-9.38-13.75-9.38-22.49s3.13-16.23,9.38-22.49c6.25-6.26,13.69-9.38,22.32-9.38h3.52c8.63,0,16.07,3.13,22.32,9.38,6.26,6.26,9.38,13.75,9.38,22.49s-3.13,16.23-9.38,22.49Z"},
+ {c:'w',d:"M700.29,62.44l-149.26-.22c-.72-.03-1.44-.05-2.17-.05h-105.92c-2.48,0-4.15,1.13-5.01,3.4l.16-.16-1.94,3.4-.65,.97-29.93,50.63-29.93-50.63-.65-.97-1.78-3.4v.16c-.86-2.26-2.48-3.4-4.85-3.4h-41.62c7.14,6.04,13.07,13.31,17.66,21.71,5.88,10.75,8.86,22.49,8.86,34.91s-2.97,24.16-8.83,34.94c-4.55,8.39-10.43,15.65-17.5,21.68h41.44c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-55.97l14.24,24.27,9.22,15.69c.75,1.19,3.61,1.78,8.57,1.78s7.82-.59,8.57-1.78l9.22-15.69,14.24-24.27v55.97c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.29,1.54,3.8,1.54h14.07c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64V86.16l42.35,.59h44.33c5.39,0,10.05,1.94,13.99,5.82,3.94,3.88,5.9,8.52,5.9,13.91s-1.97,10.06-5.9,13.99c-3.94,3.94-8.6,5.9-13.99,5.9h-68.91v43.84c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-19.41h44.33c7.01,0,13.64-1.56,19.9-4.69,4.85-2.37,9.11-5.55,12.78-9.54,3.67-3.99,6.52-8.57,8.57-13.75,2.05-5.18,3.07-10.62,3.07-16.34,0-7.26-1.55-13.88-4.63-19.9h42.03v85.74c0,1.51,.51,2.75,1.54,3.72,1.02,.97,2.24,1.46,3.64,1.46h14.07c1.24,0,2.43-.45,3.56-1.34,.97-1.1,1.46-2.37,1.46-3.83V86.59l27.34,.18c.58-1.22,1.19-2.43,1.84-3.63,4.29-7.91,9.74-14.84,16.26-20.7Z"},
+ {c:'w',d:"M812.31,170.23c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64V98.32h-24.59v71.91Z"},
+ {c:'w',d:"M968.81,129.22c4.21-6.96,6.31-14.53,6.31-22.73,0-12.19-4.34-22.62-13.02-31.3-8.68-8.68-19.12-13.02-31.3-13.02h-114.44v.12c-.93,.21-1.77,.67-2.51,1.41-1.03,1.03-1.54,2.24-1.54,3.64v22.47h24.59v-3.58l49.57,.52h44.33c3.56,0,6.87,.89,9.95,2.67,3.07,1.78,5.5,4.18,7.28,7.2,1.78,3.02,2.67,6.31,2.67,9.87,0,5.39-1.97,10.06-5.9,13.99-3.94,3.94-8.6,5.9-13.99,5.9h-68.91v43.84c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-19.41h39.63l15.37,22.32c.32,.54,.78,.95,1.37,1.21,.59,.27,1.13,.4,1.62,.4s1.19-.05,2.1-.16c.92-.11,1.59-.16,2.02-.16l16.66,.16c1.29,0,2.05-.92,2.27-2.75,.21-1.83-.11-3.34-.97-4.53l-14.4-22c6.9-3.77,12.46-9.14,16.66-16.1Z"},
+ {c:'r',d:"M188.55,100.43c-3.19,1.8-5.69,4.3-7.48,7.51-1.8,3.22-2.69,6.87-2.69,10.98s.9,7.75,2.69,10.95c1.79,3.2,4.3,5.69,7.51,7.48,3.21,1.8,6.87,2.69,10.98,2.69,3.47,0,6.59-.67,9.35-2.01,2.76-1.34,5.04-3.1,6.83-5.27,.7-.85,1.32-1.73,1.87-2.63v9.62h21.2v-8.22h-12.32v-4.59h12.32v-8.05h-12.32v-12.34h26.41v-.03l3.58-.06c1.97,0,3.58,.57,4.82,1.72,1.24,1.14,1.86,2.58,1.86,4.32s-.63,3.29-1.89,4.56c-1.26,1.26-2.86,1.89-4.79,1.89l-3.59-.03-8.91-.03v21.01s8.92,0,8.92,0v-12.96l4.17-.06c4.14-.04,7.62-1.41,10.44-4.11,2.82-2.7,4.23-6.02,4.23-9.97s-1.43-7.22-4.29-10.06c-2.86-2.84-6.32-4.26-10.36-4.41h-39.47v9.58c-1.26-2.66-3.1-4.85-5.53-6.56-3.41-2.41-7.6-3.61-12.57-3.61-4.1,0-7.75,.9-10.95,2.69Zm19.11,10.92h9.94v8.15h-13.91v8.04h4.69c-.52,.64-1.1,1.2-1.75,1.68-1.72,1.26-3.82,1.89-6.3,1.89-3.63,0-6.48-1.07-8.55-3.22-2.07-2.15-3.11-5.14-3.11-8.96,0-3.59,.99-6.46,2.96-8.61,1.97-2.15,4.59-3.22,7.87-3.22,1.89,0,3.54,.37,4.94,1.09,1.4,.73,2.47,1.79,3.22,3.17Z"},
+ {c:'w',d:"M157.22,103.33c.77-1.42,1.66-2.81,2.69-4.23l.3-.41c.15-.2,.29-.41,.46-.62,.32-.41,.71-.87,1.15-1.37,.09-.1,.18-.21,.27-.31,.71-.78,1.47-1.56,2.28-2.3l.35-.29,.27-.27c.97-.84,1.96-1.63,2.98-2.34,5.76-3.93,11.91-5.84,18.8-5.84h92.21c.44,0,.89,0,1.32,.02,2.97,.11,5.72,.58,8.41,1.43,.38,.12,.75,.25,1.13,.38,.75,.27,1.5,.58,2.24,.91,.75,.34,1.5,.71,2.23,1.11,1.14,.62,2.28,1.33,3.41,2.12,.57,.39,1.13,.81,1.67,1.23,1.06,.83,2.08,1.73,3.02,2.67,.47,.47,.94,.96,1.38,1.45,1.8,2.01,3.4,4.29,4.77,6.79,.33,.6,.64,1.21,.92,1.81,.14,.3,.28,.6,.41,.91,.18,.41,.3,.83,.46,1.24h23.62c-.73-3.51-1.8-6.93-3.23-10.23-.22-.52-.46-1.04-.7-1.55-.48-1.03-1-2.05-1.55-3.06-2.21-4.04-4.8-7.72-7.76-11.04-.74-.83-1.51-1.64-2.3-2.42-1.58-1.57-3.25-3.04-5.02-4.43-.88-.69-1.79-1.36-2.72-2.01-1.8-1.25-3.63-2.39-5.5-3.41-1.25-.68-2.51-1.31-3.78-1.88-1.28-.57-2.57-1.1-3.87-1.57-.65-.24-1.31-.46-1.97-.67-4.62-1.46-9.43-2.29-14.43-2.47-.71-.03-1.43-.04-2.15-.04h-92.21c-11.54,0-22.11,3.29-31.71,9.87-1.96,1.37-3.81,2.84-5.57,4.41h0s0,0,0,0c-1.61,1.45-3.14,2.98-4.57,4.6-.04,.05-.08,.1-.12,.15-.67,.76-1.33,1.54-1.96,2.34-.43,.54-.83,1.11-1.24,1.66-1.57,2.15-3.02,4.4-4.33,6.81-2.59,4.76-4.39,9.75-5.47,14.93h23.57c.52-1.39,1.12-2.76,1.85-4.1Z"},
+ {c:'w',d:"M309.87,131.48c-.13,.31-.27,.62-.41,.91-.29,.62-.6,1.24-.93,1.85-1.87,3.45-4.13,6.39-6.89,8.97-.46,.43-.93,.85-1.41,1.25-.92,.78-1.73,1.4-2.44,1.9-.51,.35-1.09,.72-1.78,1.13-5.25,3.17-10.82,4.71-17.02,4.71h-92.21c-6.85,0-12.98-1.95-18.74-5.96-4.56-3.17-8.1-7.14-10.84-12.15-.71-1.3-1.3-2.62-1.81-3.96h-23.58c1.07,5.17,2.88,10.13,5.47,14.85,4.42,8.09,10.35,14.72,17.79,19.9,9.6,6.69,20.17,10.03,31.71,10.03h92.21c10.37,0,19.96-2.66,28.76-7.98,.99-.6,1.98-1.22,2.95-1.89,1.44-1,2.8-2.07,4.13-3.18,.8-.67,1.59-1.37,2.35-2.09,4.48-4.2,8.27-9.1,11.32-14.71,.55-1.02,1.07-2.05,1.55-3.08,.24-.52,.48-1.04,.7-1.56,1.43-3.33,2.5-6.76,3.23-10.29h-23.6c-.17,.45-.31,.9-.5,1.34Z"},
+ {c:'w',rect:[109.09,107.43,22.71,22.71]},
+ {c:'w',rect:[289.75,107.43,22.71,22.71]}
+];
+// stagger [start, dur] in normalized draw window
+const STAG=[[0.18,0.55],[0.30,0.55],[0.00,0.70],[0.45,0.40],[0.28,0.62],[0.50,0.45],[0.10,0.60],[0.12,0.55],[0.60,0.30],[0.62,0.30]];
+const NS='http://www.w3.org/2000/svg';
+const mk=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||document.getElementById('s')).appendChild(e);return e;};
+const SW='#ffffff', RD='#db4041';
+const strokes=[],fills=[];
+LOGO_PATHS.forEach((p,i)=>{
+  const col=p.c==='r'?RD:SW;
+  const at=p.rect?{x:p.rect[0],y:p.rect[1],width:p.rect[2],height:p.rect[3]}:{d:p.d};
+  const st=mk(p.rect?'rect':'path',Object.assign({pathLength:1,stroke:col,'stroke-dasharray':'1 1.02','stroke-dashoffset':1},at),document.getElementById('logoStroke'));
+  const fl=mk(p.rect?'rect':'path',Object.assign({fill:col,opacity:0},at),document.getElementById('logoFill'));
+  strokes.push(st);fills.push(fl);
+});
+
+// frame geometry
+const FW=1040,FH=520,FX=(1920-FW)/2,FY=450,R=112,GAP=24,FS=14;
+const my=FY+FH/2;
+document.getElementById('fTop').setAttribute('d',
+ `M${FX} ${my-GAP} V${FY+R} A${R} ${R} 0 0 1 ${FX+R} ${FY} H${FX+FW-R} A${R} ${R} 0 0 1 ${FX+FW} ${FY+R} V${my-GAP}`);
+document.getElementById('fBot').setAttribute('d',
+ `M${FX} ${my+GAP} V${FY+FH-R} A${R} ${R} 0 0 0 ${FX+R} ${FY+FH} H${FX+FW-R} A${R} ${R} 0 0 0 ${FX+FW} ${FY+FH-R} V${my+GAP}`);
+// nubs (small squares in the side gaps, like the provided frame)
+const nubs=[];
+[FX-FS/2,FX+FW-FS/2].forEach(x=>nubs.push(mk('rect',{x:x,y:my-GAP+2,width:FS,height:GAP*2-4,opacity:0},document.getElementById('nubs'))));
+
+// contact rows
+const ROWS=[
+ {txt:'+216 29 611 748',icon:'wa'},
+ {txt:'devis@comptoir-gep.tn',icon:'mail'},
+ {txt:'www.comptoir-gep.tn',icon:'web'}
+];
+const ICON={
+ wa:['M7.9 20A9 9 0 1 0 4 16.1L2 22Z','M8.6 9c0 3.6 2.8 6.4 6.4 6.4l1.4-1.5-2.1-1.1-1 .9c-1-.4-1.9-1.3-2.3-2.3l.9-1-1.1-2.1Z'],
+ mail:['M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z','M3.5 7.5l8.5 6 8.5-6'],
+ web:['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z','M3 12h18','M12 3c2.6 2.5 3.9 5.5 3.9 9s-1.3 6.5-3.9 9c-2.6-2.5-3.9-5.5-3.9-9S9.4 5.5 12 3Z']
+};
+const rowsG=document.getElementById('rows');
+const rowEls=[];
+const ROWY=[FY+FH/2-150,FY+FH/2,FY+FH/2+150];
+const ICS=80, GAPX=34, FSZ=66;
+const meas=[];
+ROWS.forEach((r,i)=>{
+  const g=mk('g',{},rowsG);
+  const t=mk('text',{x:0,y:0,'font-size':FSZ,'dominant-baseline':'central'},g);
+  t.textContent=r.txt;
+  const w=t.getComputedTextLength();
+  meas.push(w);
+});
+const maxW=Math.max(...meas);
+// left-align all rows inside a block centred in the frame
+const blockW=ICS+GAPX+maxW;
+const bx=(1920-blockW)/2;
+ROWS.forEach((r,i)=>{
+  const g=rowsG.children[i];
+  const cy=ROWY[i];
+  const t=g.firstChild;
+  t.setAttribute('x',bx+ICS+GAPX);t.setAttribute('y',cy+2);
+  t.setAttribute('clip-path',`url(#c${i})`);
+  // clip rect
+  const cr=document.getElementById('cr'+i);
+  cr.setAttribute('x',bx+ICS+GAPX-6);cr.setAttribute('y',cy-55);cr.setAttribute('height',110);
+  // icon: circle ring + glyph
+  const ig=mk('g',{transform:`translate(${bx},${cy-ICS/2}) scale(${ICS/24})`},g);
+  const ring=mk('circle',{cx:12,cy:12,r:15.2,fill:'none',stroke:'#db4041','stroke-width':1.3,pathLength:1,'stroke-dasharray':'1 1.02','stroke-dashoffset':1,transform:'rotate(-90 12 12)'},ig);
+  const gl=ICON[r.icon].map(d=>mk('path',{d:d,fill:'none',stroke:'#fff','stroke-width':1.7,'stroke-linecap':'round','stroke-linejoin':'round',pathLength:1,'stroke-dasharray':'1 1.02','stroke-dashoffset':1},ig));
+  ig.setAttribute('transform',`translate(${bx+ICS/2},${cy}) scale(${ICS/30}) translate(-12,-12)`);
+  rowEls.push({ring,gl,cr,w:meas[i],x0:bx+ICS+GAPX-6});
+});
+
+// ---- timeline ----
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3);
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eob=x=>{const c1=1.4,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2);};
+
+window.DUR=5; // seconds (overridden by ?d=3)
+function render(tReal){
+  const k=window.DUR/5;          // time scale (3s version compresses)
+  const t=tReal/k;                // timeline in "5s units"
+  // deco corners
+  const d1=eo(seg(t,0.1,1.0));
+  document.getElementById('deco1').setAttribute('stroke-dasharray','1 1.02');
+  document.getElementById('deco1').setAttribute('stroke-dashoffset',1-d1);
+  document.getElementById('deco2').setAttribute('stroke-dasharray','1 1.02');
+  document.getElementById('deco2').setAttribute('stroke-dashoffset',1-d1);
+  // logo draw 0.2 -> 1.9
+  const dw=seg(t,0.2,1.9);
+  strokes.forEach((s,i)=>{
+    const [a,b]=STAG[i];
+    const p=eio(clamp((dw-a)/b));
+    s.setAttribute('stroke-dashoffset',1-p);
+  });
+  // fill-in 1.55 -> 2.2 ; stroke fades
+  const fi=eo(seg(t,1.55,2.2));
+  fills.forEach(f=>f.setAttribute('opacity',fi));
+  const strokeFade=1-seg(t,2.0,2.5)*0.0; // keep stroke (white outline blends w/ fill)
+  // logo transform: centre big -> up/small
+  const lw=1013.44,lh=238.97;
+  const mv=eio(seg(t,2.2,3.0));
+  const sc0=1.05,sc1=0.78;
+  const sc=sc0+(sc1-sc0)*mv;
+  const cx=960,cy0=540,cy1=285;
+  const cy=cy0+(cy1-cy0)*mv;
+  // subtle pop on fill
+  const pop=1+0.02*Math.sin(Math.PI*seg(t,1.7,2.3));
+  document.getElementById('logo').setAttribute('transform',
+    `translate(${cx},${cy}) scale(${sc*pop}) translate(${-lw/2},${-lh/2})`);
+  // frame draw 2.8 -> 3.7
+  const fp=eio(seg(t,2.75,3.6));
+  ['fTop','fBot'].forEach(id=>{
+    const e=document.getElementById(id);
+    e.setAttribute('stroke-dasharray','1 1.02');
+    e.setAttribute('stroke-dashoffset',1-fp);
+  });
+  nubs.forEach(n=>n.setAttribute('opacity',seg(t,3.3,3.6)));
+  // rows
+  rowEls.forEach((r,i)=>{
+    const s=3.15+i*0.28;
+    const ringP=eio(seg(t,s,s+0.5));
+    r.ring.setAttribute('stroke-dashoffset',1-ringP);
+    const glP=eio(seg(t,s+0.25,s+0.75));
+    r.gl.forEach(g=>g.setAttribute('stroke-dashoffset',1-glP));
+    const tp=eo(seg(t,s+0.3,s+0.85));
+    r.cr.setAttribute('width',(r.w+14)*tp);
+  });
+  // gentle final settle: tiny breathing glow none; fade-in handled
+}
+window.render=render;
+render(0);
+</script>
+</body></html>
