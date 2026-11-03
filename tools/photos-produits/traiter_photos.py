@@ -17,6 +17,8 @@ et heic/heif (photos iPhone) si `pillow-heif` est installé.
 
 Usage :
     python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE [--taille 1200] [--fond FFFFFF] [--ombre]
+    python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE --nouveaux
+        (ne traite que les photos ajoutées depuis le dernier lancement)
     python traiter_photos.py DOSSIER_SOURCE DOSSIER_SORTIE --conversion-seule
         (convertit seulement en .webp : même taille, même contenu, transparence gardée)
 """
@@ -228,6 +230,26 @@ def carre_sans_fond(rgb, taille):
     return Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
 
 
+def enregistrer(img, out, qualite):
+    """Écrit d'abord un fichier temporaire puis le renomme : si le script est
+    interrompu, il ne reste jamais d'image à moitié écrite."""
+    tmp = out.with_name(out.name + ".tmp")
+    img.save(tmp, "WEBP", quality=qualite, method=6)
+    tmp.replace(out)
+
+
+def deja_faite(out):
+    """Image de sortie présente et lisible (pas abîmée par une interruption)."""
+    if not out.exists():
+        return False
+    try:
+        with Image.open(out) as im:
+            im.verify()
+        return True
+    except Exception:
+        return False
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("source", type=Path)
@@ -239,6 +261,8 @@ def main():
     p.add_argument("--qualite", type=int, default=92)
     p.add_argument("--conversion-seule", action="store_true",
                    help="convertit en .webp sans aucun autre traitement")
+    p.add_argument("--nouveaux", action="store_true",
+                   help="ne traite que les photos absentes du dossier de sortie")
     args = p.parse_args()
 
     gris = couleur_hex(args.fond)
@@ -254,12 +278,15 @@ def main():
                 out = out.with_name(f"{f.stem}_{f.suffix[1:].lower()}.webp")
             deja.add(out)
             out.parent.mkdir(parents=True, exist_ok=True)
+            if args.nouveaux and deja_faite(out):
+                rapport.append((rel, "déjà faite", "non retraitée"))
+                continue
 
             if args.conversion_seule:
                 im = ouvrir(f)
                 transp = im.mode in ("RGBA", "LA", "PA") or "transparency" in im.info
                 im = im.convert("RGBA" if transp else "RGB")
-                im.save(out, "WEBP", quality=args.qualite, method=6)
+                enregistrer(im, out, args.qualite)
                 rapport.append((rel, "convertie en webp", "%d×%d" % im.size))
                 continue
 
@@ -273,23 +300,23 @@ def main():
             else:
                 fond = analyser_fond(rgb)
                 if fond is None:
-                    carre_sans_fond(rgb, args.taille).save(out, "WEBP", quality=args.qualite, method=6)
+                    enregistrer(carre_sans_fond(rgb, args.taille), out, args.qualite)
                     rapport.append((rel, "modèle 1 : mise en scène", "format seul, fond d'origine"))
                     continue
                 masque, dist = masque_produit(rgb, fond)
                 origine = "fond %d,%d,%d" % tuple(fond)
 
             if masque.sum() < 0.01 * masque.size:
-                carre_sans_fond(rgb, args.taille).save(out, "WEBP", quality=args.qualite, method=6)
+                enregistrer(carre_sans_fond(rgb, args.taille), out, args.qualite)
                 rapport.append((rel, "modèle 1 : mise en scène", "produit non détecté, format seul"))
                 continue
             if alpha is None and est_detail(masque):
-                carre_sans_fond(rgb, args.taille).save(out, "WEBP", quality=args.qualite, method=6)
+                enregistrer(carre_sans_fond(rgb, args.taille), out, args.qualite)
                 rapport.append((rel, "modèle 2 : gros plan", "format seul, fond d'origine"))
                 continue
 
             img = composer(rgb, masque, dist, fond, args.taille, gris, args.marge, args.ombre)
-            img.save(out, "WEBP", quality=args.qualite, method=6)
+            enregistrer(img, out, args.qualite)
             rapport.append((rel, "modèle 3 : produit centré", origine))
         except Exception as e:  # une image cassée ne bloque pas le lot
             rapport.append((rel, "erreur", str(e)))
@@ -297,7 +324,8 @@ def main():
             print(*rapport[-1], sep=" | ")
 
     # utf-8-sig + « ; » : s'ouvre directement en colonnes avec les accents dans Excel (FR)
-    with open(args.sortie / "rapport.csv", "w", newline="", encoding="utf-8-sig") as fh:
+    nom_rapport = "rapport_nouveaux.csv" if args.nouveaux else "rapport.csv"
+    with open(args.sortie / nom_rapport, "w", newline="", encoding="utf-8-sig") as fh:
         csv.writer(fh, delimiter=";").writerows([("fichier", "statut", "détail"), *rapport])
 
 

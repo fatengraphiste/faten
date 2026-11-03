@@ -33,6 +33,14 @@ python traiter_photos.py "photos_originales" "photos_traitees"
 Formats acceptés en entrée : jpg, jpeg, jfif, png, webp, bmp, gif, tif/tiff, avif, ico, tga
 (et heic/heif des iPhone après `pip install pillow-heif`). Tout sort en `.webp`.
 
+Traiter seulement les photos ajoutées depuis le dernier lancement (les images déjà
+présentes dans le dossier de sortie sont gardées, une image abîmée par une interruption
+est refaite ; le rapport de ce passage est `rapport_nouveaux.csv`) :
+
+```bash
+python traiter_photos.py "photos_originales" "photos_traitees" --nouveaux
+```
+
 Conversion seule en `.webp` (même taille, même contenu, transparence gardée) :
 
 ```bash
