@@ -1,0 +1,253 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Comptoir GEP Outro 9:16</title>
+<style>
+html,body{margin:0;background:#19226d;overflow:hidden}
+svg{display:block}
+text{font-family:'Inter','Liberation Sans',sans-serif;fill:#fff}
+</style></head>
+<body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="vig" cx="540" cy="900" r="1200" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#2c3bb0" stop-opacity=".75"/>
+    <stop offset=".55" stop-color="#19226d" stop-opacity="0"/>
+    <stop offset="1" stop-color="#0c1240" stop-opacity=".85"/>
+  </radialGradient>
+  <radialGradient id="redglow">
+    <stop offset="0" stop-color="#db4041" stop-opacity=".55"/>
+    <stop offset="1" stop-color="#db4041" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="sweep" x1="0" x2="1" y1="0" y2="0">
+    <stop offset="0" stop-color="#db4041" stop-opacity="0"/>
+    <stop offset=".5" stop-color="#db4041" stop-opacity="1"/>
+    <stop offset="1" stop-color="#db4041" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="neon" x="-10%" y="-40%" width="120%" height="180%">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+  <clipPath id="logoClip"></clipPath>
+</defs>
+<rect width="1080" height="1920" fill="#19226d"/>
+<g id="cam">
+  <rect width="1080" height="1920" fill="url(#vig)"/>
+  <g id="grid" stroke="#fff" stroke-opacity=".07" stroke-width="2" fill="none"></g>
+  <g id="rings" fill="none"></g>
+  <g id="floaters" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"></g>
+  <g id="parts"></g>
+  <g id="corners" fill="none" stroke="#db4041" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></g>
+
+  <circle id="glow" r="480" fill="url(#redglow)" cx="540" cy="960"/>
+
+  <g id="logo">
+    <g id="logoStroke" fill="none" stroke-linejoin="round" stroke-linecap="round" stroke-width="3.2" filter="url(#neon)"></g>
+    <g id="logoFill"></g>
+    <rect id="shine" x="0" y="-60" width="170" height="420" fill="url(#sweep)" clip-path="url(#logoClip)" transform="skewX(-20)"/>
+  </g>
+
+  <!-- tagline -->
+  <g id="tag" transform="translate(540,742)">
+    <clipPath id="tagClip"><rect id="tagClipR" x="0" y="-40" width="0" height="80"/></clipPath>
+    <text id="tagT" x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size="42" font-weight="800" letter-spacing="9" clip-path="url(#tagClip)">DEMANDEZ VOTRE DEVIS</text>
+    <path id="tagLine" pathLength="1" stroke-dasharray="1 1.02" stroke-dashoffset="1" d="M-420 44 H420" stroke="#db4041" stroke-width="6" stroke-linecap="butt" fill="none"/>
+    <rect id="sqL" x="-452" y="38" width="12" height="12" fill="#db4041"/>
+    <rect id="sqR" x="440" y="38" width="12" height="12" fill="#db4041"/>
+  </g>
+
+  <g id="cards"></g>
+</g>
+<!-- transition wipe + flash -->
+<g id="wipe" transform="translate(540,960) rotate(-18)">
+  <rect id="w1" x="-260" y="-2600" width="520" height="5200" fill="#db4041"/>
+  <rect id="w2" x="-380" y="-2600" width="70" height="5200" fill="#fff"/>
+</g>
+<rect id="flash" width="1080" height="1920" fill="#fff" opacity="0"/>
+
+<script>
+const LOGO_PATHS=[
+ {c:'w',d:"M121.35,153.7c-.58-1.06-1.12-2.13-1.64-3.2h-25.8c-4.53,.11-8.68-.57-12.46-2.02-3.78-1.46-6.88-3.42-9.3-5.9-2.43-2.48-4.48-5.31-6.15-8.49-1.67-3.18-2.7-6.52-3.07-10.03-.38-3.5-.38-7.01,0-10.52,.38-3.5,1.4-6.85,3.07-10.03,1.67-3.18,3.72-6.01,6.15-8.49,2.43-2.48,5.52-4.45,9.3-5.9,3.77-1.46,7.93-2.18,12.46-2.18,1.4,0,6.66,.16,15.77,.49,3.47,.12,6.71,.21,9.72,.25,.6-1.28,1.24-2.55,1.93-3.81,4.43-8.16,10.11-15.26,16.94-21.19h-44.35c-8.84,0-16.99,1.81-24.43,5.42-7.44,3.61-13.54,8.31-18.28,14.07-4.75,5.77-8.31,12.4-10.68,19.9-2.37,7.5-3.26,14.96-2.67,22.41,.59,7.44,2.94,14.78,7.04,22,4.1,7.23,9.81,13.37,17.15,18.44,6.36,4.42,12.35,7.2,17.96,8.33,5.61,1.13,13.1,1.7,22.49,1.7h35.96c-6.89-5.94-12.63-13.05-17.09-21.22Z"},
+ {c:'w',d:"M776.18,72.68c-9.6-6.69-20.17-10.03-31.71-10.03h-3.52c-11.54,0-22.11,3.29-31.71,9.87-7.44,5.18-13.37,11.83-17.79,19.98-4.42,8.14-6.63,16.91-6.63,26.29s2.21,18.12,6.63,26.21c4.42,8.09,10.35,14.72,17.79,19.9,9.6,6.69,20.17,10.03,31.71,10.03h3.52c11.54,0,22.11-3.29,31.71-9.87,7.44-5.18,13.37-11.83,17.79-19.98,4.42-8.14,6.63-16.91,6.63-26.29s-2.21-18.12-6.63-26.21c-4.42-8.09-10.35-14.72-17.79-19.9Zm-9.38,68.59c-6.25,6.26-13.69,9.38-22.32,9.38h-3.52c-8.63,0-16.07-3.13-22.32-9.38-6.26-6.26-9.38-13.75-9.38-22.49s3.13-16.23,9.38-22.49c6.25-6.26,13.69-9.38,22.32-9.38h3.52c8.63,0,16.07,3.13,22.32,9.38,6.26,6.26,9.38,13.75,9.38,22.49s-3.13,16.23-9.38,22.49Z"},
+ {c:'w',d:"M700.29,62.44l-149.26-.22c-.72-.03-1.44-.05-2.17-.05h-105.92c-2.48,0-4.15,1.13-5.01,3.4l.16-.16-1.94,3.4-.65,.97-29.93,50.63-29.93-50.63-.65-.97-1.78-3.4v.16c-.86-2.26-2.48-3.4-4.85-3.4h-41.62c7.14,6.04,13.07,13.31,17.66,21.71,5.88,10.75,8.86,22.49,8.86,34.91s-2.97,24.16-8.83,34.94c-4.55,8.39-10.43,15.65-17.5,21.68h41.44c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-55.97l14.24,24.27,9.22,15.69c.75,1.19,3.61,1.78,8.57,1.78s7.82-.59,8.57-1.78l9.22-15.69,14.24-24.27v55.97c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.29,1.54,3.8,1.54h14.07c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64V86.16l42.35,.59h44.33c5.39,0,10.05,1.94,13.99,5.82,3.94,3.88,5.9,8.52,5.9,13.91s-1.97,10.06-5.9,13.99c-3.94,3.94-8.6,5.9-13.99,5.9h-68.91v43.84c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-19.41h44.33c7.01,0,13.64-1.56,19.9-4.69,4.85-2.37,9.11-5.55,12.78-9.54,3.67-3.99,6.52-8.57,8.57-13.75,2.05-5.18,3.07-10.62,3.07-16.34,0-7.26-1.55-13.88-4.63-19.9h42.03v85.74c0,1.51,.51,2.75,1.54,3.72,1.02,.97,2.24,1.46,3.64,1.46h14.07c1.24,0,2.43-.45,3.56-1.34,.97-1.1,1.46-2.37,1.46-3.83V86.59l27.34,.18c.58-1.22,1.19-2.43,1.84-3.63,4.29-7.91,9.74-14.84,16.26-20.7Z"},
+ {c:'w',d:"M812.31,170.23c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64V98.32h-24.59v71.91Z"},
+ {c:'w',d:"M968.81,129.22c4.21-6.96,6.31-14.53,6.31-22.73,0-12.19-4.34-22.62-13.02-31.3-8.68-8.68-19.12-13.02-31.3-13.02h-114.44v.12c-.93,.21-1.77,.67-2.51,1.41-1.03,1.03-1.54,2.24-1.54,3.64v22.47h24.59v-3.58l49.57,.52h44.33c3.56,0,6.87,.89,9.95,2.67,3.07,1.78,5.5,4.18,7.28,7.2,1.78,3.02,2.67,6.31,2.67,9.87,0,5.39-1.97,10.06-5.9,13.99-3.94,3.94-8.6,5.9-13.99,5.9h-68.91v43.84c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-19.41h39.63l15.37,22.32c.32,.54,.78,.95,1.37,1.21,.59,.27,1.13,.4,1.62,.4s1.19-.05,2.1-.16c.92-.11,1.59-.16,2.02-.16l16.66,.16c1.29,0,2.05-.92,2.27-2.75,.21-1.83-.11-3.34-.97-4.53l-14.4-22c6.9-3.77,12.46-9.14,16.66-16.1Z"},
+ {c:'r',d:"M188.55,100.43c-3.19,1.8-5.69,4.3-7.48,7.51-1.8,3.22-2.69,6.87-2.69,10.98s.9,7.75,2.69,10.95c1.79,3.2,4.3,5.69,7.51,7.48,3.21,1.8,6.87,2.69,10.98,2.69,3.47,0,6.59-.67,9.35-2.01,2.76-1.34,5.04-3.1,6.83-5.27,.7-.85,1.32-1.73,1.87-2.63v9.62h21.2v-8.22h-12.32v-4.59h12.32v-8.05h-12.32v-12.34h26.41v-.03l3.58-.06c1.97,0,3.58,.57,4.82,1.72,1.24,1.14,1.86,2.58,1.86,4.32s-.63,3.29-1.89,4.56c-1.26,1.26-2.86,1.89-4.79,1.89l-3.59-.03-8.91-.03v21.01s8.92,0,8.92,0v-12.96l4.17-.06c4.14-.04,7.62-1.41,10.44-4.11,2.82-2.7,4.23-6.02,4.23-9.97s-1.43-7.22-4.29-10.06c-2.86-2.84-6.32-4.26-10.36-4.41h-39.47v9.58c-1.26-2.66-3.1-4.85-5.53-6.56-3.41-2.41-7.6-3.61-12.57-3.61-4.1,0-7.75,.9-10.95,2.69Zm19.11,10.92h9.94v8.15h-13.91v8.04h4.69c-.52,.64-1.1,1.2-1.75,1.68-1.72,1.26-3.82,1.89-6.3,1.89-3.63,0-6.48-1.07-8.55-3.22-2.07-2.15-3.11-5.14-3.11-8.96,0-3.59,.99-6.46,2.96-8.61,1.97-2.15,4.59-3.22,7.87-3.22,1.89,0,3.54,.37,4.94,1.09,1.4,.73,2.47,1.79,3.22,3.17Z"},
+ {c:'w',d:"M157.22,103.33c.77-1.42,1.66-2.81,2.69-4.23l.3-.41c.15-.2,.29-.41,.46-.62,.32-.41,.71-.87,1.15-1.37,.09-.1,.18-.21,.27-.31,.71-.78,1.47-1.56,2.28-2.3l.35-.29,.27-.27c.97-.84,1.96-1.63,2.98-2.34,5.76-3.93,11.91-5.84,18.8-5.84h92.21c.44,0,.89,0,1.32,.02,2.97,.11,5.72,.58,8.41,1.43,.38,.12,.75,.25,1.13,.38,.75,.27,1.5,.58,2.24,.91,.75,.34,1.5,.71,2.23,1.11,1.14,.62,2.28,1.33,3.41,2.12,.57,.39,1.13,.81,1.67,1.23,1.06,.83,2.08,1.73,3.02,2.67,.47,.47,.94,.96,1.38,1.45,1.8,2.01,3.4,4.29,4.77,6.79,.33,.6,.64,1.21,.92,1.81,.14,.3,.28,.6,.41,.91,.18,.41,.3,.83,.46,1.24h23.62c-.73-3.51-1.8-6.93-3.23-10.23-.22-.52-.46-1.04-.7-1.55-.48-1.03-1-2.05-1.55-3.06-2.21-4.04-4.8-7.72-7.76-11.04-.74-.83-1.51-1.64-2.3-2.42-1.58-1.57-3.25-3.04-5.02-4.43-.88-.69-1.79-1.36-2.72-2.01-1.8-1.25-3.63-2.39-5.5-3.41-1.25-.68-2.51-1.31-3.78-1.88-1.28-.57-2.57-1.1-3.87-1.57-.65-.24-1.31-.46-1.97-.67-4.62-1.46-9.43-2.29-14.43-2.47-.71-.03-1.43-.04-2.15-.04h-92.21c-11.54,0-22.11,3.29-31.71,9.87-1.96,1.37-3.81,2.84-5.57,4.41h0s0,0,0,0c-1.61,1.45-3.14,2.98-4.57,4.6-.04,.05-.08,.1-.12,.15-.67,.76-1.33,1.54-1.96,2.34-.43,.54-.83,1.11-1.24,1.66-1.57,2.15-3.02,4.4-4.33,6.81-2.59,4.76-4.39,9.75-5.47,14.93h23.57c.52-1.39,1.12-2.76,1.85-4.1Z"},
+ {c:'w',d:"M309.87,131.48c-.13,.31-.27,.62-.41,.91-.29,.62-.6,1.24-.93,1.85-1.87,3.45-4.13,6.39-6.89,8.97-.46,.43-.93,.85-1.41,1.25-.92,.78-1.73,1.4-2.44,1.9-.51,.35-1.09,.72-1.78,1.13-5.25,3.17-10.82,4.71-17.02,4.71h-92.21c-6.85,0-12.98-1.95-18.74-5.96-4.56-3.17-8.1-7.14-10.84-12.15-.71-1.3-1.3-2.62-1.81-3.96h-23.58c1.07,5.17,2.88,10.13,5.47,14.85,4.42,8.09,10.35,14.72,17.79,19.9,9.6,6.69,20.17,10.03,31.71,10.03h92.21c10.37,0,19.96-2.66,28.76-7.98,.99-.6,1.98-1.22,2.95-1.89,1.44-1,2.8-2.07,4.13-3.18,.8-.67,1.59-1.37,2.35-2.09,4.48-4.2,8.27-9.1,11.32-14.71,.55-1.02,1.07-2.05,1.55-3.08,.24-.52,.48-1.04,.7-1.56,1.43-3.33,2.5-6.76,3.23-10.29h-23.6c-.17,.45-.31,.9-.5,1.34Z"},
+ {c:'w',rect:[109.09,107.43,22.71,22.71]},
+ {c:'w',rect:[289.75,107.43,22.71,22.71]}
+];const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const mk=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||$('s')).appendChild(e);return e;};
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3);
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eob=x=>{const c1=1.7,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2);};
+const rnd=(()=>{let a=1234567;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};})();
+const DASH={pathLength:1,'stroke-dasharray':'1 1.02','stroke-dashoffset':1};
+const RED='#db4041';
+const lw=1013.44,lh=238.97;
+
+/* ---- logo ---- */
+const STAG=[[0.18,0.55],[0.30,0.55],[0.00,0.70],[0.45,0.40],[0.28,0.62],[0.50,0.45],[0.10,0.60],[0.12,0.55],[0.60,0.30],[0.62,0.30]];
+const strokes=[],fills=[];
+LOGO_PATHS.forEach(p=>{
+  const col=p.c==='r'?RED:'#fff';
+  const at=p.rect?{x:p.rect[0],y:p.rect[1],width:p.rect[2],height:p.rect[3]}:{d:p.d};
+  strokes.push(mk(p.rect?'rect':'path',Object.assign({stroke:col},DASH,at),$('logoStroke')));
+  fills.push(mk(p.rect?'rect':'path',Object.assign({fill:col,opacity:0},at),$('logoFill')));
+  mk(p.rect?'rect':'path',at,$('logoClip'));
+});
+
+/* ---- grid ---- */
+const gridLines=[];
+for(let x=0;x<=1080;x+=120){gridLines.push({e:mk('path',Object.assign({d:`M${x} 960 V0`},DASH),$('grid')),dist:Math.abs(x-540)});
+                           gridLines.push({e:mk('path',Object.assign({d:`M${x} 960 V1920`},DASH),$('grid')),dist:Math.abs(x-540)});}
+for(let y=0;y<=1920;y+=120){gridLines.push({e:mk('path',Object.assign({d:`M540 ${y} H0`},DASH),$('grid')),dist:Math.abs(y-960)});
+                           gridLines.push({e:mk('path',Object.assign({d:`M540 ${y} H1080`},DASH),$('grid')),dist:Math.abs(y-960)});}
+
+/* ---- shock rings ---- */
+const rings=[[0.10,'#db4041',9],[0.28,'#ffffff',4],[0.46,'#db4041',5]].map(([t0,c,w])=>({t0,e:mk('circle',{cx:540,cy:960,r:10,stroke:c,'stroke-width':w,fill:'none',opacity:0},$('rings'))}));
+
+/* ---- corners ---- */
+const M=64,L=110;
+const cornerPaths=[`M${M} ${M+L} V${M} H${M+L}`,`M${1080-M-L} ${M} H${1080-M} V${M+L}`,`M${1080-M} ${1920-M-L} V${1920-M} H${1080-M-L}`,`M${M+L} ${1920-M} H${M} V${1920-M-L}`].map(d=>mk('path',Object.assign({d},DASH),$('corners')));
+
+/* ---- icons ---- */
+const ICON={
+ wa:['M7.9 20A9 9 0 1 0 4 16.1L2 22Z','M8.6 9c0 3.6 2.8 6.4 6.4 6.4l1.4-1.5-2.1-1.1-1 .9c-1-.4-1.9-1.3-2.3-2.3l.9-1-1.1-2.1Z'],
+ mail:['M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z','M3.5 7.5l8.5 6 8.5-6'],
+ web:['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z','M3 12h18','M12 3c2.6 2.5 3.9 5.5 3.9 9s-1.3 6.5-3.9 9c-2.6-2.5-3.9-5.5-3.9-9S9.4 5.5 12 3Z']
+};
+const KEYS=['wa','mail','web'];
+
+/* ---- floating small icons ---- */
+const floaters=[];
+for(let i=0;i<9;i++){
+  const g=mk('g',{opacity:0},$('floaters'));
+  ICON[KEYS[i%3]].forEach(d=>mk('path',{d,'stroke-width':1.1},g));
+  floaters.push({g,x:80+rnd()*920,y0:rnd()*1920,sp:18+rnd()*26,sc:2.2+rnd()*2.2,rot:(rnd()-.5)*50,ph:rnd()*6.28,op:.09+rnd()*.1});
+}
+/* ---- particles ---- */
+const parts=[];
+for(let i=0;i<60;i++){
+  const red=rnd()<.28;
+  const e=mk('circle',{r:(1.5+rnd()*4.5)*(red?1.1:1),fill:red?RED:'#fff',opacity:0},$('parts'));
+  parts.push({e,x:rnd()*1080,y0:rnd()*1920,sp:20+rnd()*60,ph:rnd()*6.28,op:.25+rnd()*.5,dx:(rnd()-.5)*30});
+}
+
+/* ---- cards ---- */
+const CW=900,CH=168,CR=84;
+const CARDS=[
+ {key:'wa',label:'WHATSAPP',val:'+216 29 611 748',y:960,primary:true},
+ {key:'mail',label:'E-MAIL',val:'devis@comptoir-gep.tn',y:1160},
+ {key:'web',label:'SITE WEB',val:'www.comptoir-gep.tn',y:1360}
+];
+const cardEls=CARDS.map((c,i)=>{
+  const g=mk('g',{opacity:0},$('cards'));
+  const defs=mk('defs',{},g);
+  const cp=mk('clipPath',{id:'cc'+i},defs);
+  const cr=mk('rect',{x:-CW/2+165,y:-70,width:0,height:140},cp);
+  const fill=mk('rect',{x:-CW/2,y:-CH/2,width:CW,height:CH,rx:CR,fill:c.primary?RED:'#fff','fill-opacity':0},g);
+  const pulse=mk('rect',Object.assign({x:-CW/2,y:-CH/2,width:CW,height:CH,rx:CR,fill:'none',stroke:RED,'stroke-width':5,opacity:0}),g);
+  const out=mk('rect',Object.assign({x:-CW/2,y:-CH/2,width:CW,height:CH,rx:CR,fill:'none',stroke:c.primary?'#fff':RED,'stroke-width':c.primary?0:6},DASH),g);
+  const ix=-CW/2+CR;
+  const ig=mk('g',{transform:`translate(${ix},0)`},g);
+  const ripple=mk('circle',{r:62,fill:'none',stroke:c.primary?'#fff':RED,'stroke-width':4,opacity:0},ig);
+  const disc=mk('circle',{r:62,fill:c.primary?'#fff':RED},ig);
+  const gl=mk('g',{transform:'scale(2.8) translate(-12,-12)'},ig);
+  const paths=ICON[c.key].map(d=>mk('path',Object.assign({d,fill:'none',stroke:c.primary?RED:'#fff','stroke-width':1.8,'stroke-linecap':'round','stroke-linejoin':'round'},DASH),gl));
+  const lab=mk('text',{x:-CW/2+165,y:-30,'font-size':26,'font-weight':700,'letter-spacing':5,'fill-opacity':.62,'dominant-baseline':'central','clip-path':`url(#cc${i})`},g);lab.textContent=c.label;
+  const val=mk('text',{x:-CW/2+165,y:20,'font-size':c.val.length>18?50:54,'font-weight':800,'dominant-baseline':'central','clip-path':`url(#cc${i})`},g);val.textContent=c.val;
+  return {g,cr,fill,pulse,out,ig,ripple,disc,paths,primary:c.primary,y:c.y};
+});
+
+/* ---- timeline ---- */
+window.DUR=5;
+function render(tReal){
+  const t=tReal/(window.DUR/5);
+  /* camera push-in */
+  const z=1+0.035*seg(t,0,5);
+  $('cam').setAttribute('transform',`translate(540,960) scale(${z}) translate(-540,-960)`);
+  /* grid */
+  gridLines.forEach(g=>{const s=0.15+g.dist/1400;g.e.setAttribute('stroke-dashoffset',1-eo(seg(t,s,s+0.7)));});
+  /* rings */
+  rings.forEach(r=>{const p=seg(t,r.t0,r.t0+1.0);const e=eo(p);
+    r.e.setAttribute('r',20+e*1400);r.e.setAttribute('opacity',p>0&&p<1?0.85*(1-p):0);});
+  /* corners */
+  cornerPaths.forEach((c,i)=>c.setAttribute('stroke-dashoffset',1-eo(seg(t,0.15+i*0.1,0.9+i*0.1))));
+  /* particles */
+  const fadeIn=seg(t,0.2,1.2);
+  parts.forEach(p=>{
+    const y=((p.y0-p.sp*tReal*(5/window.DUR))%1960+1960)%1960-20;
+    p.e.setAttribute('cx',p.x+Math.sin(tReal*2+p.ph)*p.dx);p.e.setAttribute('cy',y);
+    p.e.setAttribute('opacity',fadeIn*p.op*(0.6+0.4*Math.sin(tReal*5+p.ph)));
+  });
+  floaters.forEach(f=>{
+    const y=((f.y0-f.sp*t)%2000+2000)%2000-40;
+    f.g.setAttribute('transform',`translate(${f.x},${y}) rotate(${f.rot+t*8}) scale(${f.sc}) translate(-12,-12)`);
+    f.g.setAttribute('opacity',fadeIn*f.op);
+  });
+  /* logo draw */
+  const dw=seg(t,0.25,1.65);
+  strokes.forEach((s,i)=>{const [a,b]=STAG[i];s.setAttribute('stroke-dashoffset',1-eio(clamp((dw-a)/b)));});
+  const fi=eo(seg(t,1.4,1.95));
+  fills.forEach(f=>f.setAttribute('opacity',fi));
+  $('logoStroke').setAttribute('opacity',1-0.65*seg(t,1.6,2.2));
+  /* logo move */
+  const mv=eio(seg(t,2.15,2.75));
+  const pop=1+0.07*Math.sin(Math.PI*seg(t,1.45,1.95))*(1-seg(t,1.95,1.95));
+  const sc=(1.0+(0.89-1.0)*mv)*(1+0.05*Math.sin(Math.PI*seg(t,1.4,1.9)));
+  const cy=960+(520-960)*mv;
+  $('logo').setAttribute('transform',`translate(540,${cy}) scale(${sc}) translate(${-lw/2},${-lh/2})`);
+  $('glow').setAttribute('cy',cy);
+  $('glow').setAttribute('r',420+40*Math.sin(tReal*3)+260*seg(t,1.3,1.9)*(1-seg(t,1.9,2.6)));
+  $('glow').setAttribute('opacity',seg(t,1.2,1.9)*(0.5+0.3*(1-mv)));
+  /* red light sweeps over logo (twice) */
+  const s1=seg(t,1.9,2.5), s2=seg(t,4.2,4.8);
+  const sw=s1>0&&s1<1?eio(s1):(s2>0?eio(s2):0);
+  $('shine').setAttribute('x',-250+sw*1500);
+  $('shine').setAttribute('opacity',(s1>0&&s1<1)||(s2>0&&s2<1)?1:0);
+  /* flash */
+  const fp=seg(t,1.45,1.8);
+  $('flash').setAttribute('opacity',fp>0&&fp<1?0.28*Math.sin(Math.PI*fp)**2:0);
+  /* wipe */
+  const wp=seg(t,2.0,2.75);
+  const wx=-1500+eio(wp)*3000;
+  $('wipe').setAttribute('transform',`translate(540,960) rotate(-18) translate(${wx},0)`);
+  $('wipe').setAttribute('opacity',wp>0&&wp<1?1:0);
+  /* tagline */
+  const tg=eo(seg(t,2.45,3.05));
+  $('tagClipR').setAttribute('x',-470*tg);$('tagClipR').setAttribute('width',940*tg);
+  $('tagLine').setAttribute('stroke-dashoffset',1-eio(seg(t,2.6,3.2)));
+  $('sqL').setAttribute('opacity',seg(t,2.9,3.15));$('sqR').setAttribute('opacity',seg(t,2.9,3.15));
+  $('tag').setAttribute('transform',`translate(540,${742+22*(1-tg)})`);
+  /* cards */
+  cardEls.forEach((c,i)=>{
+    const s=2.55+i*0.24;
+    const a=seg(t,s,s+0.3);
+    const slide=1-eob(seg(t,s,s+0.65));
+    c.g.setAttribute('opacity',a);
+    c.g.setAttribute('transform',`translate(540,${c.y+130*slide})`);
+    c.out.setAttribute('stroke-dashoffset',1-eio(seg(t,s,s+0.6)));
+    c.fill.setAttribute('fill-opacity',(c.primary?1:0.09)*eo(seg(t,s+0.35,s+0.8)));
+    const pop=eob(seg(t,s+0.3,s+0.85));
+    c.ig.setAttribute('transform',`translate(${-CW/2+CR},0) scale(${pop})`);
+    const rp=seg(t,s+0.55,s+1.15);
+    c.ripple.setAttribute('r',62+50*eo(rp));c.ripple.setAttribute('opacity',rp>0&&rp<1?0.8*(1-rp):0);
+    c.paths.forEach(p=>p.setAttribute('stroke-dashoffset',1-eio(seg(t,s+0.4,s+0.95))));
+    c.cr.setAttribute('width',700*eo(seg(t,s+0.45,s+1.0)));
+    /* idle pulse on whatsapp */
+    if(c.primary){
+      const q=((tReal*(5/window.DUR)-3.7)/0.9);
+      if(q>0){const ph=q%1;
+        c.pulse.setAttribute('transform',`scale(${1+0.06*eo(ph)},${1+0.2*eo(ph)})`);
+        c.pulse.setAttribute('opacity',0.7*(1-ph));}
+    }
+  });
+}
+window.render=render;
+render(0);
+</script>
+</body></html>
