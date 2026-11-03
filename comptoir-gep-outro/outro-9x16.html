@@ -31,28 +31,28 @@ text{font-family:'Inter','Liberation Sans',sans-serif;fill:#fff}
 </defs>
 <rect width="1080" height="1920" fill="#19226d"/>
 <g id="cam">
-  <rect width="1080" height="1920" fill="url(#vig)"/>
-  <g id="grid" stroke="#fff" stroke-opacity=".07" stroke-width="2" fill="none"></g>
+  
+  <g id="grid"></g>
   <g id="rings" fill="none"></g>
-  <g id="floaters" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"></g>
+  <g id="floaters"></g>
   <g id="parts"></g>
   <g id="corners" fill="none" stroke="#db4041" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></g>
 
-  <circle id="glow" r="480" fill="url(#redglow)" cx="540" cy="960"/>
+  <circle id="glow" r="1" cx="540" cy="960" opacity="0"/>
 
   <g id="logo">
-    <g id="logoStroke" fill="none" stroke-linejoin="round" stroke-linecap="round" stroke-width="3.2" filter="url(#neon)"></g>
+    <g id="logoStroke" fill="none" stroke-linejoin="round" stroke-linecap="round" stroke-width="3.2"></g>
     <g id="logoFill"></g>
-    <rect id="shine" x="0" y="-60" width="170" height="420" fill="url(#sweep)" clip-path="url(#logoClip)" transform="skewX(-20)"/>
+    <rect id="shine" x="0" y="-60" width="120" height="420" fill="#db4041" clip-path="url(#logoClip)" transform="skewX(-20)"/>
   </g>
 
   <!-- tagline -->
-  <g id="tag" transform="translate(540,742)">
+  <g id="tag" transform="translate(540,752)">
     <clipPath id="tagClip"><rect id="tagClipR" x="0" y="-40" width="0" height="80"/></clipPath>
-    <text id="tagT" x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size="42" font-weight="800" letter-spacing="9" clip-path="url(#tagClip)">DEMANDEZ VOTRE DEVIS</text>
-    <path id="tagLine" pathLength="1" stroke-dasharray="1 1.02" stroke-dashoffset="1" d="M-420 44 H420" stroke="#db4041" stroke-width="6" stroke-linecap="butt" fill="none"/>
-    <rect id="sqL" x="-452" y="38" width="12" height="12" fill="#db4041"/>
-    <rect id="sqR" x="440" y="38" width="12" height="12" fill="#db4041"/>
+    <text id="tagT" x="0" y="0" text-anchor="middle" dominant-baseline="central" font-size="36" font-weight="800" letter-spacing="7" clip-path="url(#tagClip)">DEMANDEZ VOTRE DEVIS</text>
+    <path id="tagLine" pathLength="1" stroke-dasharray="1 1.02" stroke-dashoffset="1" d="M-330 40 H330" stroke="#db4041" stroke-width="6" stroke-linecap="butt" fill="none"/>
+    <rect id="sqL" x="-362" y="34" width="12" height="12" fill="#db4041"/>
+    <rect id="sqR" x="350" y="34" width="12" height="12" fill="#db4041"/>
   </g>
 
   <g id="cards"></g>
@@ -102,9 +102,9 @@ LOGO_PATHS.forEach(p=>{
 
 /* ---- grid ---- */
 const gridLines=[];
-for(let x=0;x<=1080;x+=120){gridLines.push({e:mk('path',Object.assign({d:`M${x} 960 V0`},DASH),$('grid')),dist:Math.abs(x-540)});
+for(let x=0;x<0;x+=120){gridLines.push({e:mk('path',Object.assign({d:`M${x} 960 V0`},DASH),$('grid')),dist:Math.abs(x-540)});
                            gridLines.push({e:mk('path',Object.assign({d:`M${x} 960 V1920`},DASH),$('grid')),dist:Math.abs(x-540)});}
-for(let y=0;y<=1920;y+=120){gridLines.push({e:mk('path',Object.assign({d:`M540 ${y} H0`},DASH),$('grid')),dist:Math.abs(y-960)});
+for(let y=0;y<0;y+=120){gridLines.push({e:mk('path',Object.assign({d:`M540 ${y} H0`},DASH),$('grid')),dist:Math.abs(y-960)});
                            gridLines.push({e:mk('path',Object.assign({d:`M540 ${y} H1080`},DASH),$('grid')),dist:Math.abs(y-960)});}
 
 /* ---- shock rings ---- */
@@ -112,7 +112,7 @@ const rings=[[0.10,'#db4041',9],[0.28,'#ffffff',4],[0.46,'#db4041',5]].map(([t0,
 
 /* ---- corners ---- */
 const M=64,L=110;
-const cornerPaths=[`M${M} ${M+L} V${M} H${M+L}`,`M${1080-M-L} ${M} H${1080-M} V${M+L}`,`M${1080-M} ${1920-M-L} V${1920-M} H${1080-M-L}`,`M${M+L} ${1920-M} H${M} V${1920-M-L}`].map(d=>mk('path',Object.assign({d},DASH),$('corners')));
+const cornerPaths=[`M${M} ${M+L} V${M} H${M+L}`,`M${1080-M-L} ${M} H${1080-M} V${M+L}`,`M${1080-M} ${1920-M-L} V${1920-M} H${1080-M-L}`,`M${M+L} ${1920-M} H${M} V${1920-M-L}`].slice(0,0).map(d=>mk('path',Object.assign({d},DASH),$('corners')));
 
 /* ---- icons ---- */
 const ICON={
@@ -124,42 +124,42 @@ const KEYS=['wa','mail','web'];
 
 /* ---- floating small icons ---- */
 const floaters=[];
-for(let i=0;i<9;i++){
+for(let i=0;i<0;i++){
   const g=mk('g',{opacity:0},$('floaters'));
   ICON[KEYS[i%3]].forEach(d=>mk('path',{d,'stroke-width':1.1},g));
   floaters.push({g,x:80+rnd()*920,y0:rnd()*1920,sp:18+rnd()*26,sc:2.2+rnd()*2.2,rot:(rnd()-.5)*50,ph:rnd()*6.28,op:.09+rnd()*.1});
 }
 /* ---- particles ---- */
 const parts=[];
-for(let i=0;i<60;i++){
+for(let i=0;i<0;i++){
   const red=rnd()<.28;
   const e=mk('circle',{r:(1.5+rnd()*4.5)*(red?1.1:1),fill:red?RED:'#fff',opacity:0},$('parts'));
   parts.push({e,x:rnd()*1080,y0:rnd()*1920,sp:20+rnd()*60,ph:rnd()*6.28,op:.25+rnd()*.5,dx:(rnd()-.5)*30});
 }
 
 /* ---- cards ---- */
-const CW=900,CH=168,CR=84;
+const CW=760,CH=140,CR=70;
 const CARDS=[
- {key:'wa',label:'WHATSAPP',val:'+216 29 611 748',y:960,primary:true},
- {key:'mail',label:'E-MAIL',val:'devis@comptoir-gep.tn',y:1160},
- {key:'web',label:'SITE WEB',val:'www.comptoir-gep.tn',y:1360}
+ {key:'wa',label:'WHATSAPP',val:'+216 29 611 748',y:930,primary:true},
+ {key:'mail',label:'E-MAIL',val:'devis@comptoir-gep.tn',y:1105},
+ {key:'web',label:'SITE WEB',val:'www.comptoir-gep.tn',y:1280}
 ];
 const cardEls=CARDS.map((c,i)=>{
   const g=mk('g',{opacity:0},$('cards'));
   const defs=mk('defs',{},g);
   const cp=mk('clipPath',{id:'cc'+i},defs);
-  const cr=mk('rect',{x:-CW/2+165,y:-70,width:0,height:140},cp);
+  const cr=mk('rect',{x:-CW/2+140,y:-60,width:0,height:120},cp);
   const fill=mk('rect',{x:-CW/2,y:-CH/2,width:CW,height:CH,rx:CR,fill:c.primary?RED:'#fff','fill-opacity':0},g);
   const pulse=mk('rect',Object.assign({x:-CW/2,y:-CH/2,width:CW,height:CH,rx:CR,fill:'none',stroke:RED,'stroke-width':5,opacity:0}),g);
   const out=mk('rect',Object.assign({x:-CW/2,y:-CH/2,width:CW,height:CH,rx:CR,fill:'none',stroke:c.primary?'#fff':RED,'stroke-width':c.primary?0:6},DASH),g);
   const ix=-CW/2+CR;
   const ig=mk('g',{transform:`translate(${ix},0)`},g);
-  const ripple=mk('circle',{r:62,fill:'none',stroke:c.primary?'#fff':RED,'stroke-width':4,opacity:0},ig);
-  const disc=mk('circle',{r:62,fill:c.primary?'#fff':RED},ig);
-  const gl=mk('g',{transform:'scale(2.8) translate(-12,-12)'},ig);
+  const ripple=mk('circle',{r:50,fill:'none',stroke:c.primary?'#fff':RED,'stroke-width':4,opacity:0},ig);
+  const disc=mk('circle',{r:50,fill:c.primary?'#fff':RED},ig);
+  const gl=mk('g',{transform:'scale(2.2) translate(-12,-12)'},ig);
   const paths=ICON[c.key].map(d=>mk('path',Object.assign({d,fill:'none',stroke:c.primary?RED:'#fff','stroke-width':1.8,'stroke-linecap':'round','stroke-linejoin':'round'},DASH),gl));
-  const lab=mk('text',{x:-CW/2+165,y:-30,'font-size':26,'font-weight':700,'letter-spacing':5,'fill-opacity':.62,'dominant-baseline':'central','clip-path':`url(#cc${i})`},g);lab.textContent=c.label;
-  const val=mk('text',{x:-CW/2+165,y:20,'font-size':c.val.length>18?50:54,'font-weight':800,'dominant-baseline':'central','clip-path':`url(#cc${i})`},g);val.textContent=c.val;
+  const lab=mk('text',{x:-CW/2+140,y:-26,'font-size':21,'font-weight':700,'letter-spacing':4,'fill-opacity':.62,'dominant-baseline':'central','clip-path':`url(#cc${i})`},g);lab.textContent=c.label;
+  const val=mk('text',{x:-CW/2+140,y:16,'font-size':c.val.length>18?41:44,'font-weight':800,'dominant-baseline':'central','clip-path':`url(#cc${i})`},g);val.textContent=c.val;
   return {g,cr,fill,pulse,out,ig,ripple,disc,paths,primary:c.primary,y:c.y};
 });
 
@@ -168,7 +168,7 @@ window.DUR=5;
 function render(tReal){
   const t=tReal/(window.DUR/5);
   /* camera push-in */
-  const z=1+0.035*seg(t,0,5);
+  const z=1;
   $('cam').setAttribute('transform',`translate(540,960) scale(${z}) translate(-540,-960)`);
   /* grid */
   gridLines.forEach(g=>{const s=0.15+g.dist/1400;g.e.setAttribute('stroke-dashoffset',1-eo(seg(t,s,s+0.7)));});
@@ -198,20 +198,20 @@ function render(tReal){
   /* logo move */
   const mv=eio(seg(t,2.15,2.75));
   const pop=1+0.07*Math.sin(Math.PI*seg(t,1.45,1.95))*(1-seg(t,1.95,1.95));
-  const sc=(1.0+(0.89-1.0)*mv)*(1+0.05*Math.sin(Math.PI*seg(t,1.4,1.9)));
-  const cy=960+(520-960)*mv;
+  const sc=(0.8+(0.7-0.8)*mv)*(1+0.04*Math.sin(Math.PI*seg(t,1.4,1.9)));
+  const cy=960+(560-960)*mv;
   $('logo').setAttribute('transform',`translate(540,${cy}) scale(${sc}) translate(${-lw/2},${-lh/2})`);
   $('glow').setAttribute('cy',cy);
-  $('glow').setAttribute('r',420+40*Math.sin(tReal*3)+260*seg(t,1.3,1.9)*(1-seg(t,1.9,2.6)));
-  $('glow').setAttribute('opacity',seg(t,1.2,1.9)*(0.5+0.3*(1-mv)));
+  
+  
   /* red light sweeps over logo (twice) */
   const s1=seg(t,1.9,2.5), s2=seg(t,4.2,4.8);
   const sw=s1>0&&s1<1?eio(s1):(s2>0?eio(s2):0);
-  $('shine').setAttribute('x',-250+sw*1500);
+  $('shine').setAttribute('x',-250+sw*1300);
   $('shine').setAttribute('opacity',(s1>0&&s1<1)||(s2>0&&s2<1)?1:0);
   /* flash */
   const fp=seg(t,1.45,1.8);
-  $('flash').setAttribute('opacity',fp>0&&fp<1?0.28*Math.sin(Math.PI*fp)**2:0);
+  $('flash').setAttribute('opacity',fp>0&&fp<1?0:0);
   /* wipe */
   const wp=seg(t,2.0,2.75);
   const wx=-1500+eio(wp)*3000;
@@ -219,25 +219,25 @@ function render(tReal){
   $('wipe').setAttribute('opacity',wp>0&&wp<1?1:0);
   /* tagline */
   const tg=eo(seg(t,2.45,3.05));
-  $('tagClipR').setAttribute('x',-470*tg);$('tagClipR').setAttribute('width',940*tg);
+  $('tagClipR').setAttribute('x',-380*tg);$('tagClipR').setAttribute('width',760*tg);
   $('tagLine').setAttribute('stroke-dashoffset',1-eio(seg(t,2.6,3.2)));
   $('sqL').setAttribute('opacity',seg(t,2.9,3.15));$('sqR').setAttribute('opacity',seg(t,2.9,3.15));
-  $('tag').setAttribute('transform',`translate(540,${742+22*(1-tg)})`);
+  $('tag').setAttribute('transform',`translate(540,${752+18*(1-tg)})`);
   /* cards */
   cardEls.forEach((c,i)=>{
     const s=2.55+i*0.24;
     const a=seg(t,s,s+0.3);
     const slide=1-eob(seg(t,s,s+0.65));
     c.g.setAttribute('opacity',a);
-    c.g.setAttribute('transform',`translate(540,${c.y+130*slide})`);
+    c.g.setAttribute('transform',`translate(540,${c.y+100*slide})`);
     c.out.setAttribute('stroke-dashoffset',1-eio(seg(t,s,s+0.6)));
     c.fill.setAttribute('fill-opacity',(c.primary?1:0.09)*eo(seg(t,s+0.35,s+0.8)));
     const pop=eob(seg(t,s+0.3,s+0.85));
     c.ig.setAttribute('transform',`translate(${-CW/2+CR},0) scale(${pop})`);
     const rp=seg(t,s+0.55,s+1.15);
-    c.ripple.setAttribute('r',62+50*eo(rp));c.ripple.setAttribute('opacity',rp>0&&rp<1?0.8*(1-rp):0);
+    c.ripple.setAttribute('r',50+40*eo(rp));c.ripple.setAttribute('opacity',rp>0&&rp<1?0.8*(1-rp):0);
     c.paths.forEach(p=>p.setAttribute('stroke-dashoffset',1-eio(seg(t,s+0.4,s+0.95))));
-    c.cr.setAttribute('width',700*eo(seg(t,s+0.45,s+1.0)));
+    c.cr.setAttribute('width',600*eo(seg(t,s+0.45,s+1.0)));
     /* idle pulse on whatsapp */
     if(c.primary){
       const q=((tReal*(5/window.DUR)-3.7)/0.9);
