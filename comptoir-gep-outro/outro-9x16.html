@@ -29,7 +29,8 @@ text{font-family:'Inter','Liberation Sans',sans-serif;fill:#fff}
   <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
   <clipPath id="logoClip"></clipPath>
 </defs>
-<rect width="1080" height="1920" fill="#19226d"/>
+<rect width="1080" height="1920" fill="#0a1450"/>
+<image id="bg" href="bg-blue-rays.webp" x="-30" y="-50" width="1140" height="2020" preserveAspectRatio="xMidYMid slice"/>
 <g id="cam">
   
   <g id="grid"></g>
@@ -167,6 +168,7 @@ const cardEls=CARDS.map((c,i)=>{
 window.DUR=5;
 function render(tReal){
   const t=tReal/(window.DUR/5);
+  $('bg').setAttribute('transform',`translate(540,960) scale(${1+0.05*seg(t,0,5)}) translate(-540,-960)`);
   /* camera push-in */
   const z=1;
   $('cam').setAttribute('transform',`translate(540,960) scale(${z}) translate(-540,-960)`);
