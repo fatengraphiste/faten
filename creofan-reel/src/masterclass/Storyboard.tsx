@@ -5,28 +5,28 @@ import "../theme";
 
 // CREOFAN — CREATIVE AI MASTERCLASS : storyboard en 6 plans, flat design « dossiers »
 // Palette stricte : rouge, beige, rose (accent), charbon. Aucune ombre, aucun dégradé.
-const RED = "#f7322a";
-const BEIGE = "#fff5f5";
-const PINK = "#fa8985";
-const CHAR = "#1c1716";
-const FONT = "Poppins, sans-serif";
+export const RED = "#f7322a";
+export const BEIGE = "#fff5f5";
+export const PINK = "#fa8985";
+export const CHAR = "#1c1716";
+export const FONT = "Poppins, sans-serif";
 // Zone sûre Reels : haut 250, bas 380, gauche 90, droite 180
 const L = 90;
 const RGT = 900;
 
-const T = 64; // hauteur de l'onglet
+export const T = 64; // hauteur de l'onglet
 const R = 26; // rayon des coins
 const folderPath = (w: number, h: number, tw: number) =>
   `M0 ${R} A${R} ${R} 0 0 1 ${R} 0 L${tw} 0 C${tw + T * 0.55} 0 ${tw + T * 0.45} ${T} ${tw + T} ${T} L${w - R} ${T} A${R} ${R} 0 0 1 ${w} ${T + R} L${w} ${T + h - R} A${R} ${R} 0 0 1 ${w - R} ${T + h} L${R} ${T + h} A${R} ${R} 0 0 1 0 ${T + h - R} Z`;
-const ink = (c: string) => (c === RED || c === CHAR ? BEIGE : CHAR);
+export const ink = (c: string) => (c === RED || c === CHAR ? BEIGE : CHAR);
 
-type FP = { x: number; y: number; w: number; h: number; c: string; label?: string; rot?: number; tabW?: number; num?: string; children?: React.ReactNode };
-const Folder: React.FC<FP> = ({ x, y, w, h, c, label, rot = 0, tabW, num, children }) => {
+type FP = { x: number; y: number; w: number; h: number; c: string; label?: string; rot?: number; tabW?: number; num?: string; children?: React.ReactNode; stroke?: string; style?: React.CSSProperties };
+export const Folder: React.FC<FP> = ({ x, y, w, h, c, label, rot = 0, tabW, num, children, stroke = CHAR, style }) => {
   const tw = tabW ?? Math.max(200, w * 0.42);
   return (
-    <div style={{ position: "absolute", left: x, top: y, width: w, height: T + h, transform: `rotate(${rot}deg)`, transformOrigin: "50% 50%" }}>
+    <div style={{ position: "absolute", left: x, top: y, width: w, height: T + h, transform: `rotate(${rot}deg)`, transformOrigin: "50% 50%", ...style }}>
       <svg width={w} height={T + h} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
-        <path d={folderPath(w, h, tw)} fill={c} stroke={CHAR} strokeWidth={6} strokeLinejoin="round" />
+        <path d={folderPath(w, h, tw)} fill={c} stroke={stroke} strokeWidth={6} strokeLinejoin="round" />
       </svg>
       {label ? (
         <div style={{ position: "absolute", left: 28, top: 0, height: T, display: "flex", alignItems: "center", fontFamily: FONT, fontWeight: 800, fontSize: 26, letterSpacing: 3, color: ink(c), whiteSpace: "nowrap" }}>{label}</div>
@@ -38,7 +38,7 @@ const Folder: React.FC<FP> = ({ x, y, w, h, c, label, rot = 0, tabW, num, childr
 };
 
 // Lignes de liste à l'intérieur d'un dossier
-const Lines: React.FC<{ c: string; n?: number; x?: number; y?: number; w?: number; seed?: number }> = ({ c, n = 3, x = 28, y = 34, w = 300, seed = 1 }) => (
+export const Lines: React.FC<{ c: string; n?: number; x?: number; y?: number; w?: number; seed?: number }> = ({ c, n = 3, x = 28, y = 34, w = 300, seed = 1 }) => (
   <div style={{ position: "absolute", left: x, top: y, display: "flex", flexDirection: "column", gap: 16 }}>
     {Array.from({ length: n }).map((_, i) => (
       <div key={i} style={{ display: "flex", alignItems: "center", gap: 14 }}>
@@ -72,7 +72,7 @@ const Q: React.FC<{ x: number; y: number; s?: number; r?: number; c?: string }> 
   <div style={{ position: "absolute", left: x, top: y, fontFamily: FONT, fontWeight: 800, fontSize: s, lineHeight: 1, color: c, transform: `rotate(${r}deg)` }}>?</div>
 );
 // Flèche dessinée (trait + pointe), en SVG plein écran
-const Arrow: React.FC<{ d: string; c?: string; w?: number; dash?: boolean; head: [number, number, number] }> = ({ d, c = BEIGE, w = 6, dash, head: [hx, hy, ha] }) => (
+export const Arrow: React.FC<{ d: string; c?: string; w?: number; dash?: boolean; head: [number, number, number] }> = ({ d, c = BEIGE, w = 6, dash, head: [hx, hy, ha] }) => (
   <svg width={1080} height={1920} style={{ position: "absolute", inset: 0, overflow: "visible" }}>
     <path d={d} fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeDasharray={dash ? "2 18" : undefined} />
     <path d="M-22 -16 L4 0 L-22 16" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" transform={`translate(${hx} ${hy}) rotate(${ha})`} />

@@ -12,6 +12,7 @@ import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
 import { FPS } from "./theme";
 import { PLANS } from "./masterclass/Storyboard";
+import { CoverMasterclass, MasterclassReel, MC_DURATION } from "./masterclass/MasterclassReel";
 
 // Ajoute le repère de zone de sécurité (prop « showSafeZone » dans le Studio)
 const withGuide = (C: React.FC) => {
@@ -79,6 +80,8 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="CoverFlow" component={CoverFlow} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverClaudeCanva" component={CoverClaudeCanva} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverAme" component={CoverAme} durationInFrames={1} fps={30} width={1080} height={1920} />
+  <Composition id="MasterclassReel" component={MasterclassReel} durationInFrames={MC_DURATION} fps={30} width={1080} height={1920} />
+  <Composition id="CoverMasterclass" component={CoverMasterclass} durationInFrames={1} fps={30} width={1080} height={1920} />
   {PLANS.map((P, i) => (
     <Composition key={i} id={`Masterclass0${i + 1}`} component={P} durationInFrames={1} fps={30} width={1080} height={1920} />
   ))}
