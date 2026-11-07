@@ -123,7 +123,7 @@ const Plan2: React.FC<{ t: number }> = ({ t }) => {
 /* ---------- PLAN 03 — la solution (clair) ---------- */
 const Plan3: React.FC<{ t: number }> = ({ t }) => {
   const a = CUT[2];
-  const title = el(t, a + 5, 11);
+  const title = el(t, a + 6, 9);
   const lift = ease(t, 250, 18);
   const align = ease(t, a + 14, 30);
   const out = ease(t, 282, 16);
@@ -139,9 +139,6 @@ const Plan3: React.FC<{ t: number }> = ({ t }) => {
   ];
   return (
     <>
-      <Center top={interpolate(lift, [0, 1], [820, 318])} style={{ transform: `scale(${(0.4 + title * 0.6) * (1 - lift * 0.25)})` }}>
-        <MixedText text="الحل في الـ pratique!" size={84} color={CHAR} latinColor={RED} style={{ whiteSpace: "nowrap" }} />
-      </Center>
       {/* le désordre se range en une ligne, puis sort */}
       {lift < 1 || out < 1
         ? mess.map(([lb, c, x, y, r], i) => {
@@ -188,6 +185,12 @@ const Plan3: React.FC<{ t: number }> = ({ t }) => {
           </Center>
         </>
       ) : null}
+      {/* « الحل في الـ pratique! » tombe du haut sur une bannière rouge et rebondit au centre, devant tout */}
+      <Center top={interpolate(lift, [0, 1], [-300 + title * 1080, 300])} style={{ zIndex: 10, transform: `scale(${1 - lift * 0.22}) rotate(${(1 - title) * -10 + (1 - lift) * -3}deg)` }}>
+        <span style={{ display: "inline-block", backgroundColor: RED, border: `6px solid ${CHAR}`, borderRadius: 30, padding: "14px 44px 22px" }}>
+          <MixedText text="الحل في الـ pratique!" size={88} color={BEIGE} latinColor={CHAR} style={{ whiteSpace: "nowrap" }} />
+        </span>
+      </Center>
     </>
   );
 };
