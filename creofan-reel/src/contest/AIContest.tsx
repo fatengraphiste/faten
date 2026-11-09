@@ -553,3 +553,375 @@ export const CoverContest: React.FC = () => (
     </div>
   </AbsoluteFill>
 );
+/* =====================================================================
+   VERSION 2 — minimaliste « monde Creofan » : fond blanc, cartes bento
+   arrondies sans contour, grands cercles rouges, plateau dans des fenêtres
+   ===================================================================== */
+const GAP = 18;
+const W3 = (RG - L - 2 * GAP) / 3;
+const R = 44;
+
+// Tuile bento sans contour
+const Tile: React.FC<{ x: number; y: number; w: number; h: number; c: string; k?: number; r?: number; style?: React.CSSProperties; children?: React.ReactNode }> = ({ x, y, w, h, c, k = 1, r = R, style, children }) => (
+  <div style={{ position: "absolute", left: x, top: y, width: w, height: h, backgroundColor: c, borderRadius: r, overflow: "hidden", transform: `translateY(${(1 - k) * 80}px) scale(${0.9 + 0.1 * k})`, opacity: Math.min(1, k * 1.4), ...style }}>{children}</div>
+);
+const Label: React.FC<{ c: string; children: React.ReactNode; style?: React.CSSProperties }> = ({ c, children, style }) => (
+  <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 22, letterSpacing: 3, color: c, opacity: 0.75, ...style }}>{children}</div>
+);
+// Icônes au trait fin
+const Line: React.FC<{ d: string; c: string; size: number; w?: number }> = ({ d, c, size, w = 1.6 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>
+);
+const I_IMAGE = "M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4M15.5 9a1.5 1.5 0 1 0 0-.01";
+const I_LAYERS = "M12 3l9 5-9 5-9-5zM3 13l9 5 9-5";
+const I_SPARK = "M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18";
+const I_BULB = "M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z";
+const I_DOC = "M6 3h9l3 3v15H6zM9 10h6M9 14h6M9 18h4";
+const I_TARGET = "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 12h.01";
+const I_CODE = "M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14";
+
+// Fenêtre « cinéma » : la vidéo ou une image du plateau, cadrée sur le pupitre
+
+// Bloc nom du concurrent (2/3) + grand numéro (1/3)
+const NameRow: React.FC<{ t: number; at: number; nameAt: number; n: string; name: string; c: string; y?: number }> = ({ t, at, nameAt, n, name, c, y = 896 }) => (
+  <>
+    <Tile x={L} y={y} w={W3 * 2 + GAP} h={220} c={c} k={el(t, at, 14)}>
+      <Label c={ink(c)} style={{ position: "absolute", left: 36, top: 30 }}>CONTESTANT {n}</Label>
+      <Up t={t} at={nameAt} style={{ position: "absolute", left: 34, top: 82 }}>
+        <Big size={name.length > 8 ? 60 : 92} color={ink(c)}>{name}</Big>
+      </Up>
+    </Tile>
+    <Tile x={L + (W3 + GAP) * 2} y={y} w={W3} h={220} c={BEIGE} k={el(t, at + 4, 14)}>
+      <Big size={150} color={RED} style={{ position: "absolute", right: 22, bottom: 10, letterSpacing: -10 }}>{n}</Big>
+    </Tile>
+  </>
+);
+
+/* ---------- SCÈNE 0 — l'annonce (vidéo plein écran, éléments minimalistes) ---------- */
+// Petite tuile compétence posée à côté du pupitre
+const Pad: React.FC<{ t: number; at: number; x: number; y: number; icon: string; text: string; c?: string; w?: number }> = ({ t, at, x, y, icon, text, c = WHITE, w = 270 }) => (
+  <Tile x={x} y={y} w={w} h={150} c={c} k={el(t, at, 11)} r={34}>
+    <div style={{ position: "absolute", left: 24, top: 20 }}><Line d={icon} c={c === RED || c === CHAR ? BEIGE : RED} size={48} w={1.8} /></div>
+    <Big size={text.length > 9 ? 28 : 34} color={ink(c === WHITE ? BEIGE : c)} style={{ position: "absolute", left: 24, bottom: 22 }}>{text}</Big>
+  </Tile>
+);
+const PADL = L;
+const PADR = RG - 270;
+const Pill: React.FC<{ t: number; at: number; text: string; c?: string; style?: React.CSSProperties }> = ({ t, at, text, c = RED, style }) =>
+  t >= at ? (
+    <div style={{ position: "absolute", transform: `scale(${el(t, at, 9)})`, ...style }}>
+      <span style={{ display: "inline-block", backgroundColor: c, borderRadius: 999, padding: "0 30px 8px" }}><MixedText text={text} size={48} color={ink(c === WHITE ? BEIGE : c)} /></span>
+    </div>
+  ) : null;
+
+const IntroV2: React.FC<{ t: number }> = ({ t }) => {
+  const cross = outE(t, s(3.0), 10);
+  const gone = ease(t, s(3.7), 10);
+  const flash = interpolate(t, [s(5.25), s(5.25) + 3, s(5.25) + 12], [0, 0.6, 0], clamp);
+  return (
+    <>
+      <Still t={t} img="vide" from={0} to={CUT[1] + 14} z0={1.25} z1={1.0} />
+      <Dim o={0.25} />
+      <div dir="rtl" style={{ position: "absolute", right: 1080 - RG, top: 560, textAlign: "right", opacity: 1 - gone, transform: `translateY(${-gone * 60}px)` }}>
+        <Up t={t} at={2}><MixedText text="اليوم..." size={130} color={WHITE} /></Up>
+        <Up t={t} at={s(1.18)}><MixedText text="المنافسة موش على" size={70} color={WHITE} /></Up>
+        <div style={{ position: "relative", display: "inline-block" }}>
+          <Up t={t} at={s(2.46)}><MixedText text="أحلى صوت" size={110} color={PINK} /></Up>
+          <div style={{ position: "absolute", left: 0, right: 0, top: "52%", height: 12, borderRadius: 9, backgroundColor: RED, transformOrigin: "100% 50%", transform: `scaleX(${cross})` }} />
+        </div>
+      </div>
+      <Tile x={L} y={620} w={RG - L} h={190} c={WHITE} k={el(t, s(3.86), 12)}>
+        <Label c={CHAR} style={{ position: "absolute", left: 36, top: 28 }}>LIVE · CREOFAN</Label>
+        <Big size={104} color={CHAR} style={{ position: "absolute", left: 34, bottom: 22 }}>AI CONTEST</Big>
+        <div style={{ position: "absolute", right: 34, top: 30, width: 22, height: 22, borderRadius: 99, backgroundColor: RED, opacity: Math.floor(t / 15) % 2 ? 1 : 0.3 }} />
+      </Tile>
+      <NameRowFree t={t} at={s(5.25)} />
+      <AbsoluteFill style={{ backgroundColor: WHITE, opacity: flash }} />
+    </>
+  );
+};
+const NameRowFree: React.FC<{ t: number; at: number }> = ({ t, at }) => (
+  <>
+    <Tile x={L} y={1100} w={W3 * 2 + GAP} h={220} c={RED} k={el(t, at, 12)}>
+      <Label c={BEIGE} style={{ position: "absolute", left: 36, top: 30 }}>LA COMPÉTITION</Label>
+      <div style={{ position: "absolute", right: 36, bottom: 22 }}><MixedText text="أقوى ذكاء" size={88} color={BEIGE} /></div>
+    </Tile>
+    <Tile x={L + (W3 + GAP) * 2} y={1100} w={W3} h={220} c={WHITE} k={el(t, at + 5, 12)}>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 44, display: "flex", justifyContent: "center" }}><Line d={I_SPARK} c={RED} size={130} w={1.4} /></div>
+    </Tile>
+  </>
+);
+
+/* ---------- SCÈNE 1 — Nano Banana ---------- */
+const Scene1V2: React.FC<{ t: number }> = ({ t }) => {
+  const a = CUT[1];
+  const v0 = s(6.8), vEnd = v0 + 135;
+  const duo = t >= s(12.0) && t < s(14.6);
+  const prompt = el(t, s(16.3), 13);
+  const typed = Math.floor(interpolate(t, [s(17.3), s(18.2)], [0, 6], clamp));
+  const fx = duo ? "grayscale(1) contrast(1.5) sepia(1) hue-rotate(-40deg) saturate(6)" : undefined;
+  return (
+    <>
+      <Still t={t} img="vide" from={a - 14} to={v0} z0={1} z1={1.02} style={{ filter: fx }} />
+      <Clip at={v0} src={0.75} rate={0.5} dur={135} />
+      <Still t={t} img="banana" from={vEnd} to={CUT[2] + 14} style={{ filter: fx }} />
+      <Dim o={0.1} />
+      <Pad t={t} at={s(10.3)} x={PADL} y={620} icon={I_IMAGE} text="VISUELS PRO" />
+      <Pad t={t} at={s(12.08)} x={PADR} y={720} icon={I_LAYERS} text="DÉCOR" c={RED} />
+      <Pad t={t} at={s(13.32)} x={PADL} y={820} icon={I_SPARK} text="IMAGES" c={PINK} />
+      <Pill t={t} at={s(14.74)} text="الإبداع ✦" style={{ left: PADR, top: 910 }} />
+      {t >= s(16.3) ? (
+        <Tile x={L} y={500} w={RG - L} h={120} c={WHITE} k={prompt} r={999}>
+          <div style={{ position: "absolute", left: 34, top: 34 }}><Line d={I_SPARK} c={RED} size={52} w={2} /></div>
+          <Big size={52} color={CHAR} style={{ position: "absolute", left: 110, top: 34 }}>{"PROMPT".slice(0, typed)}<span style={{ color: RED, opacity: Math.floor(t / 8) % 2 }}>|</span></Big>
+          <div style={{ position: "absolute", right: 16, top: 16, width: 88, height: 88, borderRadius: 99, backgroundColor: RED, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Line d="M5 12h13M13 6l6 6-6 6" c={BEIGE} size={46} w={2.4} />
+          </div>
+        </Tile>
+      ) : null}
+      <NameRow t={t} at={v0} nameAt={s(8.42)} n="01" name="NANO BANANA" c={RED} y={1100} />
+    </>
+  );
+};
+
+/* ---------- SCÈNE 2 — ChatGPT ---------- */
+const Scene2V2: React.FC<{ t: number }> = ({ t }) => {
+  const a = CUT[2];
+  const v0 = s(18.86), vEnd = v0 + 98;
+  const merge = ease(t, s(25.2), 14);
+  const typing = t >= s(26.3) && t < s(28.2);
+  return (
+    <>
+      <Still t={t} img="vide" from={a - 14} to={v0} z0={1.05} z1={1} />
+      <Clip at={v0} src={4.0} rate={0.4} dur={98} />
+      <Still t={t} img="chatgpt" from={vEnd} to={CUT[3] + 14} />
+      <Dim o={0.1} />
+      {merge < 1 ? (
+        <div style={{ opacity: 1 - merge, transform: `translateY(${-merge * 200}px)` }}>
+          <Pad t={t} at={s(22.14)} x={PADL} y={600} icon={I_BULB} text="IDÉE" />
+          <Pad t={t} at={s(23.08)} x={PADL} y={768} icon={I_DOC} text="SCRIPT" c={PINK} />
+          <Pad t={t} at={s(23.92)} x={PADL} y={936} icon={I_TARGET} text="STRATÉGIE" />
+        </div>
+      ) : null}
+      {t >= s(25.2) ? (
+        <Tile x={L} y={480} w={RG - L} h={150} c={RED} k={el(t, s(25.2), 12)}>
+          <Label c={BEIGE} style={{ position: "absolute", left: 34, top: 24 }}>IDÉE → SCRIPT → STRATÉGIE</Label>
+          <Big size={70} color={BEIGE} style={{ position: "absolute", left: 32, bottom: 22 }}>PROJET COMPLET</Big>
+        </Tile>
+      ) : null}
+      {t >= s(26.3) ? (
+        <Tile x={PADR} y={720} w={270} h={110} c={WHITE} k={el(t, s(26.3), 10)} r={999}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
+            {typing ? [0, 1, 2].map((i) => <div key={i} style={{ width: 20, height: 20, borderRadius: 99, backgroundColor: RED, transform: `translateY(${Math.sin((t - i * 4) / 3) * 6}px)` }} />) : <Big size={32} color={CHAR}>✓ SOLUTIONS</Big>}
+          </div>
+        </Tile>
+      ) : null}
+      <Pill t={t} at={s(26.76)} text="ديما حاضر" c={CHAR} style={{ left: PADR, top: 860 }} />
+      <NameRow t={t} at={v0} nameAt={s(20.52)} n="02" name="CHATGPT" c={CHAR} y={1100} />
+    </>
+  );
+};
+
+/* ---------- SCÈNE 3 — Claude ---------- */
+const Scene3V2: React.FC<{ t: number }> = ({ t }) => {
+  const a = CUT[3];
+  const v0 = s(29.32), vEnd = v0 + 90;
+  const stress = t >= s(33.3) && t < s(34.9) ? Math.sin(t * 2.3) * 5 : 0;
+  const swap = ease(t, s(34.88), 12);
+  const code = Math.floor(interpolate(t, [s(35.8), s(37.2)], [0, 3], clamp));
+  const flow = ease(t, s(36.4), 20);
+  return (
+    <>
+      <Still t={t} img="vide" from={a - 14} to={v0} z0={1.05} z1={1} />
+      <Clip at={v0} src={6.9} rate={0.5} dur={90} />
+      <Still t={t} img="claude" from={vEnd} to={s(38.0)} />
+      <Clip at={s(38.0)} src={8.4} rate={1} dur={CUT[4] + 14 - s(38.0)} />
+      <Dim o={0.1} />
+      {swap < 1 ? (
+        <div style={{ opacity: 1 - swap }}>
+          <Tile x={PADL} y={640} w={270} h={270} c={WHITE} k={el(t, s(32.2), 11)} r={34}>
+            <svg width={270} height={270} style={{ position: "absolute", inset: 0 }}>
+              <circle cx={135} cy={135} r={84} fill="none" stroke={RED} strokeWidth={4} />
+              <path d="M135 135 L135 70" stroke={RED} strokeWidth={5} strokeLinecap="round" transform={`rotate(${t * 24} 135 135)`} />
+              <path d="M135 135 L178 135" stroke={CHAR} strokeWidth={5} strokeLinecap="round" transform={`rotate(${t * 3} 135 135)`} />
+            </svg>
+          </Tile>
+          {[["Ae", PINK, 620, s(33.32)], ["Pr", RED, 790, s(33.98)]].map(([lb, c, y, at]) => (
+            <Tile key={lb as string} x={PADR} y={y as number} w={270} h={150} c={c as string} k={el(t, at as number, 9)} r={34} style={{ rotate: `${stress}deg` }}>
+              <Big size={90} color={ink(c as string)} style={{ position: "absolute", left: 26, bottom: 18 }}>{lb}</Big>
+            </Tile>
+          ))}
+        </div>
+      ) : null}
+      {t >= s(35.6) ? (
+        <>
+          <Tile x={PADL} y={640} w={300} h={250} c={CHAR} k={el(t, s(35.6), 11)} r={34}>
+            <Label c={BEIGE} style={{ position: "absolute", left: 26, top: 24 }}>SCRIPTS</Label>
+            <div style={{ position: "absolute", right: 22, top: 18 }}><Line d={I_CODE} c={RED} size={44} w={2} /></div>
+            {[0, 1, 2].map((i) => (
+              <div key={i} style={{ position: "absolute", left: 26 + (i % 2) * 24, top: 96 + i * 42, height: 14, borderRadius: 9, backgroundColor: i % 2 ? RED : BEIGE, width: i < code ? [220, 150, 190][i] : 0 }} />
+            ))}
+          </Tile>
+          <Tile x={RG - 300} y={640} w={300} h={250} c={RED} k={el(t, s(36.3), 11)} r={34}>
+            <Label c={BEIGE} style={{ position: "absolute", left: 26, top: 24 }}>WORKFLOWS</Label>
+            <svg width={300} height={250} style={{ position: "absolute", inset: 0 }}>
+              <path d="M50 190 C 100 190, 100 120, 150 120 S 200 200, 250 200" fill="none" stroke={BEIGE} strokeWidth={5} strokeLinecap="round" pathLength={1} strokeDasharray={`${flow} 1`} />
+              {[[50, 190], [150, 120], [250, 200]].map(([x, y], i) => (
+                <circle key={i} cx={x} cy={y} r={17 * el(t, s(36.4) + i * 6, 9)} fill={i === 2 ? CHAR : BEIGE} />
+              ))}
+            </svg>
+          </Tile>
+        </>
+      ) : null}
+      {t >= s(38.04) ? (
+        <div style={{ position: "absolute", left: 0, right: 0, top: 500, display: "flex", justifyContent: "center", transform: `scale(${el(t, s(38.04), 9)})` }}>
+          <span style={{ display: "inline-block", backgroundColor: RED, borderRadius: 999, padding: "0 36px 10px" }}><MixedText text="ركّز على الإبداع ✦" size={58} color={BEIGE} /></span>
+        </div>
+      ) : null}
+      <NameRow t={t} at={v0} nameAt={s(31.04)} n="03" name="CLAUDE" c={PINK} y={1100} />
+    </>
+  );
+};
+
+/* ---------- SCÈNE 4 — les trois concurrents ---------- */
+const Crop: React.FC<{ img: string; w: number; h: number }> = ({ img, w, h }) => {
+  const k = w / 260;
+  return (
+    <div style={{ width: w, height: h, overflow: "hidden", position: "relative" }}>
+      <Img src={staticFile(`contest/${img}.jpg`)} style={{ position: "absolute", width: 720 * k, height: 1280 * k, left: -230 * k, top: -380 * k }} />
+    </div>
+  );
+};
+const FinalV2: React.FC<{ t: number }> = ({ t }) => {
+  const cards: [string, string, string, string][] = [
+    ["NANO BANANA", "01", "banana", "IMAGES"],
+    ["CHATGPT", "02", "chatgpt", "IDÉES"],
+    ["CLAUDE", "03", "claude", "WORKFLOWS"],
+  ];
+  const ask = el(t, s(43.4), 12);
+  return (
+    <>
+      <Still t={t} img="feu" from={CUT[4] - 14} to={CUT[5] + 14} z0={1.1} z1={1.0} />
+      <Dim o={0.5} />
+      <div style={{ position: "absolute", left: L, top: 310 }}>
+        <Up t={t} at={s(39.62)}><Label c={BEIGE}>AI CONTEST · LA FINALE</Label></Up>
+        <Up t={t} at={s(39.7)} style={{ marginTop: 10 }}><Big size={96} color={WHITE}>3 COMPÉTITEURS</Big></Up>
+      </div>
+      {cards.map(([name, n, img, power], i) => {
+        const k = el(t, s(39.62) + i * 7, 13);
+        return (
+          <Tile key={n} x={L + i * (W3 + GAP)} y={500} w={W3} h={600} c={i === 1 ? RED : WHITE} k={k}>
+            <Crop img={img} w={W3} h={380} />
+            <Label c={i === 1 ? BEIGE : CHAR} style={{ position: "absolute", left: 22, top: 400 }}>N°{n}</Label>
+            <Big size={name.length > 8 ? 29 : 42} color={i === 1 ? WHITE : CHAR} style={{ position: "absolute", left: 22, top: 440 }}>{name}</Big>
+            <div style={{ position: "absolute", left: 22, bottom: 24, transform: `scale(${el(t, s(41.32) + i * 9, 9)})`, transformOrigin: "0 50%" }}>
+              <span style={{ display: "inline-block", backgroundColor: i === 1 ? WHITE : RED, color: i === 1 ? RED : BEIGE, fontFamily: FONT, fontWeight: 800, fontSize: 20, letterSpacing: 1, borderRadius: 999, padding: "8px 16px" }}>{power}</span>
+            </div>
+          </Tile>
+        );
+      })}
+      {t >= s(43.4) ? (
+        <div style={{ position: "absolute", left: L, width: RG - L, top: 1140, textAlign: "center", transform: `translateY(${(1 - ask) * 60}px)`, opacity: ask }}>
+          <span style={{ display: "inline-block", backgroundColor: WHITE, borderRadius: 999, padding: "0 40px 12px" }}><MixedText text="وإنت، شكون تختار؟" size={74} color={CHAR} /></span>
+          <div style={{ marginTop: 14, opacity: outE(t, s(44.4), 10) }}><Chip text="COMMENTE 01 · 02 · 03" c={RED} /></div>
+        </div>
+      ) : null}
+    </>
+  );
+};
+
+// Transition : un grand cercle rouge couvre l'écran, puis s'ouvre sur la scène suivante
+const CircleWipe: React.FC<{ t: number; at: number; x: number; y: number }> = ({ t, at, x, y }) => {
+  if (t < at - 12 || t > at + 12) return null;
+  const e = Easing.bezier(0.7, 0, 0.3, 1);
+  if (t < at) {
+    const r = interpolate(t, [at - 12, at], [0, 2300], { ...clamp, easing: e });
+    return <AbsoluteFill style={{ backgroundColor: RED, clipPath: `circle(${r}px at ${x}px ${y}px)`, zIndex: 40 }} />;
+  }
+  const r = interpolate(t, [at, at + 12], [0, 2300], { ...clamp, easing: e });
+  return <AbsoluteFill style={{ backgroundColor: RED, zIndex: 40, WebkitMaskImage: `radial-gradient(circle at ${1080 - x}px ${1920 - y}px, transparent ${r}px, black ${r + 1}px)`, maskImage: `radial-gradient(circle at ${1080 - x}px ${1920 - y}px, transparent ${r}px, black ${r + 1}px)` }} />;
+};
+
+const CaptionsV2: React.FC<{ t: number }> = ({ t }) => {
+  let idx = -1;
+  PHRASES.forEach((p, i) => { if (t >= p[0].at - 3) idx = i; });
+  if (idx < 0) return null;
+  const p = PHRASES[idx];
+  const next = PHRASES[idx + 1];
+  const endAt = next ? next[0].at - 3 : CUT[5];
+  if (t > endAt) return null;
+  return (
+    <div dir="rtl" style={{ position: "absolute", left: L, width: RG - L, top: 1385, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "2px 14px", zIndex: 15, backgroundColor: WHITE, borderRadius: 36, padding: "10px 24px 16px", boxSizing: "border-box" }}>
+      {p.map((w, i) => {
+        const nextAt = p[i + 1]?.at ?? endAt;
+        const active = t >= w.at && t < nextAt;
+        const shown = t >= w.at - 2;
+        return (
+          <div key={i} style={{ opacity: shown ? 1 : 0.2, transform: `translateY(${shown ? 0 : 10}px)` }}>
+            <MixedText text={w.text} size={48} color={active ? RED : CHAR} latinColor={active ? RED : CHAR} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const SCENES2 = [IntroV2, Scene1V2, Scene2V2, Scene3V2, FinalV2, Outro];
+const WIPE_AT: [number, number][] = [[900, 1500], [180, 400], [900, 1200], [540, 900], [540, 1700]];
+
+export const AIContestV2: React.FC = () => {
+  const t = useCurrentFrame();
+  let i = 0;
+  while (i < 5 && t >= CUT[i + 1]) i++;
+  const Scene = SCENES2[i];
+  return (
+    <AbsoluteFill style={{ backgroundColor: i === 5 ? RED : CHAR, overflow: "hidden" }}>
+      <Scene t={t} />
+      {i < 5 ? (
+        <>
+          <CaptionsV2 t={t} />
+          <div style={{ position: "absolute", left: L, top: 236, display: "flex", alignItems: "center", gap: 14, zIndex: 20, backgroundColor: WHITE, borderRadius: 999, padding: "8px 22px 8px 10px" }}>
+            <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 50, height: 50 }} />
+            <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 20, letterSpacing: 4, color: CHAR }}>AI CONTEST</div>
+          </div>
+        </>
+      ) : null}
+      {CUT.slice(1).map((c, k) => (
+        <CircleWipe key={c} t={t} at={c} x={WIPE_AT[k][0]} y={WIPE_AT[k][1]} />
+      ))}
+      <Audio src={staticFile("voice/voix-a.mp3")} />
+      <Loop durationInFrames={1020}>
+        <Audio src={staticFile("cc/music.mp3")} volume={0.1} />
+      </Loop>
+      {SFX.map(([file, at, len, vol], k) => (
+        <Sequence key={k} from={Math.max(0, at)} durationInFrames={len}>
+          <Audio src={staticFile(file)} volume={vol * 0.5} />
+        </Sequence>
+      ))}
+    </AbsoluteFill>
+  );
+};
+
+export const CoverContestV2: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: CHAR, overflow: "hidden" }}>
+    <Img src={staticFile("contest/vide.jpg")} style={{ position: "absolute", inset: 0, width: 1080, height: 1920, objectFit: "cover" }} />
+    <AbsoluteFill style={{ backgroundColor: CHAR, opacity: 0.35 }} />
+    <div style={{ position: "absolute", left: L, top: 250, display: "flex", alignItems: "center", gap: 14, backgroundColor: WHITE, borderRadius: 999, padding: "8px 22px 8px 10px" }}>
+      <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 50, height: 50 }} />
+      <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 20, letterSpacing: 4, color: CHAR }}>AI CONTEST</div>
+    </div>
+    {(["banana", "chatgpt", "claude"] as const).map((img, i) => (
+      <div key={img} style={{ position: "absolute", left: L + i * (W3 + GAP), top: 560, width: W3, height: 600, borderRadius: R, overflow: "hidden", backgroundColor: i === 1 ? RED : WHITE }}>
+        <Crop img={img} w={W3} h={380} />
+        <Label c={i === 1 ? BEIGE : CHAR} style={{ position: "absolute", left: 22, top: 400 }}>N°0{i + 1}</Label>
+        <Big size={i === 0 ? 29 : 42} color={i === 1 ? WHITE : CHAR} style={{ position: "absolute", left: 22, top: 440 }}>{["NANO BANANA", "CHATGPT", "CLAUDE"][i]}</Big>
+      </div>
+    ))}
+    <div style={{ position: "absolute", left: L, width: RG - L, top: 1200, textAlign: "center" }}>
+      <span style={{ display: "inline-block", backgroundColor: RED, borderRadius: 999, padding: "0 44px 14px" }}><MixedText text="شكون أقوى ذكاء؟" size={84} color={WHITE} /></span>
+    </div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 1400, display: "flex", justifyContent: "center" }}>
+      <div style={{ backgroundColor: WHITE, borderRadius: 999, padding: "16px 44px" }}><Img src={staticFile("ame/logo-creofan-rouge.png")} style={{ width: 200, display: "block" }} /></div>
+    </div>
+  </AbsoluteFill>
+);

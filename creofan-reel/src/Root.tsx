@@ -12,7 +12,7 @@ import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
 import { FPS } from "./theme";
 import { PLANS } from "./masterclass/Storyboard";
-import { AIContest, CONTEST_DURATION, CoverContest } from "./contest/AIContest";
+import { AIContest, AIContestV2, CONTEST_DURATION, CoverContest, CoverContestV2 } from "./contest/AIContest";
 import { CoverMasterclass, MasterclassReel, MC_DURATION } from "./masterclass/MasterclassReel";
 
 // Ajoute le repère de zone de sécurité (prop « showSafeZone » dans le Studio)
@@ -82,6 +82,8 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="CoverClaudeCanva" component={CoverClaudeCanva} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverAme" component={CoverAme} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="AIContest" component={AIContest} durationInFrames={CONTEST_DURATION} fps={30} width={1080} height={1920} />
+  <Composition id="AIContestV2" component={AIContestV2} durationInFrames={CONTEST_DURATION} fps={30} width={1080} height={1920} />
+  <Composition id="CoverContestV2" component={CoverContestV2} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverContest" component={CoverContest} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="MasterclassReel" component={MasterclassReel} durationInFrames={MC_DURATION} fps={30} width={1080} height={1920} />
   <Composition id="CoverMasterclass" component={CoverMasterclass} durationInFrames={1} fps={30} width={1080} height={1920} />
