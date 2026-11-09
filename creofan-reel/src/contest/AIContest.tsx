@@ -449,6 +449,7 @@ const Bars: React.FC<{ t: number; at: number; next: string }> = ({ t, at, next }
   );
 };
 
+const BUZZ_AT = [s(39.7), s(40.35), s(41.0)];
 type S = [string, number, number, number];
 const SFX: S[] = [
   ["regard/drone.wav", 0, s(6.5), 0.5],
@@ -480,9 +481,9 @@ const SFX: S[] = [
   ...[0, 1, 2].map((i) => ["cc/click.wav", s(36.4) + i * 6, 3, 0.6] as S),
   ["ame/shimmer.wav", s(38.0), 50, 0.4],
   ["cc/whoosh.wav", CUT[4] + 2, 15, 0.5],
-  ...[0, 1, 2].map((i) => ["ame/boom.wav", s(39.62) + i * 8, 30, 0.22] as S),
   ...[0, 1, 2].map((i) => ["cc/pop.wav", s(41.32) + i * 9, 6, 0.5] as S),
   ["regard/bell.wav", s(43.4), 50, 0.35],
+  ...BUZZ_AT.map((f) => ["contest/buzzer.mp3", f, 26, 0.9] as S),
   ["cc/whoosh.wav", OUT - 6, 15, 0.5],
   ["ame/shimmer.wav", OUT, 60, 0.35],
   ["ame/boom.wav", OUT + 62, 60, 0.4],
@@ -666,15 +667,15 @@ const Scene1V2: React.FC<{ t: number }> = ({ t }) => {
       <Clip at={v0} src={0.75} rate={0.5} dur={135} />
       <Still t={t} img="banana" from={vEnd} to={CUT[2] + 14} style={{ filter: fx }} />
       <Dim o={0.1} />
-      <Pad t={t} at={s(10.3)} x={PADL} y={620} icon={I_IMAGE} text="VISUELS PRO" />
-      <Pad t={t} at={s(12.08)} x={PADR} y={720} icon={I_LAYERS} text="DÉCOR" c={RED} />
-      <Pad t={t} at={s(13.32)} x={PADL} y={820} icon={I_SPARK} text="IMAGES" c={PINK} />
-      <Pill t={t} at={s(14.74)} text="الإبداع ✦" style={{ left: PADR, top: 910 }} />
+      <Pad t={t} at={s(10.3)} x={PADL} y={630} icon={I_IMAGE} text="VISUELS PRO" />
+      <Pad t={t} at={s(12.08)} x={PADR} y={700} icon={I_LAYERS} text="DÉCOR" c={RED} />
+      <Pad t={t} at={s(13.32)} x={PADL} y={810} icon={I_SPARK} text="IMAGES" c={PINK} />
+      <Pill t={t} at={s(14.74)} text="الإبداع ✦" style={{ left: PADR, top: 880 }} />
       {t >= s(16.3) ? (
-        <Tile x={L} y={500} w={RG - L} h={120} c={WHITE} k={prompt} r={999}>
-          <div style={{ position: "absolute", left: 34, top: 34 }}><Line d={I_SPARK} c={RED} size={52} w={2} /></div>
-          <Big size={52} color={CHAR} style={{ position: "absolute", left: 110, top: 34 }}>{"PROMPT".slice(0, typed)}<span style={{ color: RED, opacity: Math.floor(t / 8) % 2 }}>|</span></Big>
-          <div style={{ position: "absolute", right: 16, top: 16, width: 88, height: 88, borderRadius: 99, backgroundColor: RED, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Tile x={L} y={470} w={RG - L} h={110} c={WHITE} k={prompt} r={999}>
+          <div style={{ position: "absolute", left: 30, top: 29 }}><Line d={I_SPARK} c={RED} size={52} w={2} /></div>
+          <Big size={52} color={CHAR} style={{ position: "absolute", left: 104, top: 29 }}>{"PROMPT".slice(0, typed)}<span style={{ color: RED, opacity: Math.floor(t / 8) % 2 }}>|</span></Big>
+          <div style={{ position: "absolute", right: 14, top: 14, width: 82, height: 82, borderRadius: 99, backgroundColor: RED, display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Line d="M5 12h13M13 6l6 6-6 6" c={BEIGE} size={46} w={2.4} />
           </div>
         </Tile>
@@ -710,13 +711,13 @@ const Scene2V2: React.FC<{ t: number }> = ({ t }) => {
         </Tile>
       ) : null}
       {t >= s(26.3) ? (
-        <Tile x={PADR} y={720} w={270} h={110} c={WHITE} k={el(t, s(26.3), 10)} r={999}>
+        <Tile x={PADL} y={680} w={270} h={110} c={WHITE} k={el(t, s(26.3), 10)} r={999}>
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
             {typing ? [0, 1, 2].map((i) => <div key={i} style={{ width: 20, height: 20, borderRadius: 99, backgroundColor: RED, transform: `translateY(${Math.sin((t - i * 4) / 3) * 6}px)` }} />) : <Big size={32} color={CHAR}>✓ SOLUTIONS</Big>}
           </div>
         </Tile>
       ) : null}
-      <Pill t={t} at={s(26.76)} text="ديما حاضر" c={CHAR} style={{ left: PADR, top: 860 }} />
+      <Pill t={t} at={s(26.76)} text="ديما حاضر" c={CHAR} style={{ left: PADL, top: 820 }} />
       <NameRow t={t} at={v0} nameAt={s(20.52)} n="02" name="CHATGPT" c={CHAR} y={1100} />
     </>
   );
@@ -792,40 +793,44 @@ const Crop: React.FC<{ img: string; w: number; h: number }> = ({ img, w, h }) =>
     </div>
   );
 };
+// Finale : les trois pupitres sur le plateau ; chaque nom s'allume avec le buzzer
+const BUZZ = [s(39.7), s(40.35), s(41.0)];
 const FinalV2: React.FC<{ t: number }> = ({ t }) => {
-  const cards: [string, string, string, string][] = [
-    ["NANO BANANA", "01", "banana", "IMAGES"],
-    ["CHATGPT", "02", "chatgpt", "IDÉES"],
-    ["CLAUDE", "03", "claude", "WORKFLOWS"],
+  const cols: [number, number, string, string, string][] = [
+    // [début colonne, fin colonne, nom, n°, pouvoir]
+    [0, 405, "NANO BANANA", "01", "IMAGES"],
+    [405, 675, "CHATGPT", "02", "IDÉES"],
+    [675, 1080, "CLAUDE", "03", "WORKFLOWS"],
   ];
+  const cx = [270, 540, 805];
   const ask = el(t, s(43.4), 12);
   return (
     <>
-      <Still t={t} img="feu" from={CUT[4] - 14} to={CUT[5] + 14} z0={1.1} z1={1.0} />
-      <Dim o={0.5} />
-      <div style={{ position: "absolute", left: L, top: 310 }}>
-        <Up t={t} at={s(39.62)}><Label c={BEIGE}>AI CONTEST · LA FINALE</Label></Up>
-        <Up t={t} at={s(39.7)} style={{ marginTop: 10 }}><Big size={96} color={WHITE}>3 COMPÉTITEURS</Big></Up>
-      </div>
-      {cards.map(([name, n, img, power], i) => {
-        const k = el(t, s(39.62) + i * 7, 13);
-        return (
-          <Tile key={n} x={L + i * (W3 + GAP)} y={500} w={W3} h={600} c={i === 1 ? RED : WHITE} k={k}>
-            <Crop img={img} w={W3} h={380} />
-            <Label c={i === 1 ? BEIGE : CHAR} style={{ position: "absolute", left: 22, top: 400 }}>N°{n}</Label>
-            <Big size={name.length > 8 ? 29 : 42} color={i === 1 ? WHITE : CHAR} style={{ position: "absolute", left: 22, top: 440 }}>{name}</Big>
-            <div style={{ position: "absolute", left: 22, bottom: 24, transform: `scale(${el(t, s(41.32) + i * 9, 9)})`, transformOrigin: "0 50%" }}>
-              <span style={{ display: "inline-block", backgroundColor: i === 1 ? WHITE : RED, color: i === 1 ? RED : BEIGE, fontFamily: FONT, fontWeight: 800, fontSize: 20, letterSpacing: 1, borderRadius: 999, padding: "8px 16px" }}>{power}</span>
-            </div>
+      <Img src={staticFile("contest/trio.jpg")} style={{ position: "absolute", inset: 0, width: 1080, height: 1920, objectFit: "cover", transform: `scale(${interpolate(t, [CUT[4] - 14, CUT[5]], [1.12, 1.0], clamp)})`, transformOrigin: "50% 45%" }} />
+      {/* chaque pupitre reste dans l'ombre jusqu'à son buzzer */}
+      {cols.map(([x0, x1], i) => (
+        <React.Fragment key={i}>
+          <div style={{ position: "absolute", left: x0, top: 0, width: x1 - x0, height: 1920, backgroundColor: CHAR, opacity: 0.65 * (1 - ease(t, BUZZ[i], 6)) }} />
+          <div style={{ position: "absolute", left: x0, top: 0, width: x1 - x0, height: 1920, backgroundColor: WHITE, opacity: interpolate(t, [BUZZ[i], BUZZ[i] + 2, BUZZ[i] + 10], [0, 0.35, 0], clamp) }} />
+        </React.Fragment>
+      ))}
+      {cols.map(([, , name, n, power], i) => (
+        <React.Fragment key={n}>
+          <Tile x={cx[i] - 125} y={1060} w={250} h={118} c={i === 1 ? RED : WHITE} k={el(t, BUZZ[i], 10)} r={30}>
+            <Label c={i === 1 ? BEIGE : CHAR} style={{ position: "absolute", left: 0, right: 0, top: 16, textAlign: "center", fontSize: 18 }}>N°{n}</Label>
+            <Big size={name.length > 8 ? 30 : 38} color={i === 1 ? WHITE : CHAR} style={{ position: "absolute", left: 0, right: 0, bottom: 22, textAlign: "center" }}>{name}</Big>
           </Tile>
-        );
-      })}
+          <div style={{ position: "absolute", left: cx[i] - 125, width: 250, top: 1196, textAlign: "center", transform: `scale(${el(t, s(41.32) + i * 12, 9)})` }}>
+            <span style={{ display: "inline-block", backgroundColor: i === 1 ? WHITE : RED, color: i === 1 ? RED : BEIGE, fontFamily: FONT, fontWeight: 800, fontSize: 20, letterSpacing: 1, borderRadius: 999, padding: "8px 18px" }}>{power}</span>
+          </div>
+        </React.Fragment>
+      ))}
       {t >= s(43.4) ? (
-        <div style={{ position: "absolute", left: L, width: RG - L, top: 1140, textAlign: "center", transform: `translateY(${(1 - ask) * 60}px)`, opacity: ask }}>
-          <span style={{ display: "inline-block", backgroundColor: WHITE, borderRadius: 999, padding: "0 40px 12px" }}><MixedText text="وإنت، شكون تختار؟" size={74} color={CHAR} /></span>
-          <div style={{ marginTop: 14, opacity: outE(t, s(44.4), 10) }}><Chip text="COMMENTE 01 · 02 · 03" c={RED} /></div>
+        <div style={{ position: "absolute", left: L, width: RG - L, top: 1262, textAlign: "center", transform: `translateY(${(1 - ask) * 40}px)`, opacity: ask }}>
+          <span style={{ display: "inline-block", backgroundColor: RED, borderRadius: 999, padding: "0 40px 10px" }}><MixedText text="وإنت، شكون تختار؟" size={62} color={WHITE} /></span>
         </div>
       ) : null}
+      {t >= s(44.3) ? <div style={{ position: "absolute", left: 0, right: 0, top: 330, textAlign: "center", transform: `scale(${el(t, s(44.3), 9)})` }}><Chip text="COMMENTE 01 · 02 · 03" c={WHITE} style={{ color: RED }} /></div> : null}
     </>
   );
 };
