@@ -74,7 +74,8 @@ const Spark: React.FC<{ size: number; c: string; rot?: number }> = ({ size, c, r
 const Bulb: React.FC<{ size: number; c: string }> = ({ size, c }) => (
   <Ico size={size}><circle cx={12} cy={9.5} r={6} fill={c} /><rect x={9} y={16} width={6} height={2.2} rx={1} fill={c} /><rect x={10} y={19.2} width={4} height={1.8} rx={0.9} fill={c} /></Ico>
 );
-const EXPLORE = "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3z";
+// Republier (deux flèches en boucle, comme sur TikTok / Instagram)
+const REPOST = "M17 2.5l3.5 3.5-3.5 3.5M3.5 11.5v-1A4.5 4.5 0 0 1 8 6h12.5M7 21.5L3.5 18 7 14.5M20.5 12.5v1A4.5 4.5 0 0 1 16 18H3.5";
 const FOLLOW = "M15 19c0-3.3-2.7-6-6-6s-6 2.7-6 6M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M19 8v6M16 11h6";
 const HEART = "M12 20.5S3 15 3 8.8A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 9 2.4C21 15 12 20.5 12 20.5z";
 
@@ -344,7 +345,7 @@ const Final: React.FC<{ t: number }> = ({ t }) => {
 const ICONS = [
   { label: "Suivre", d: FOLLOW, fill: false },
   { label: "J'aime", d: HEART, fill: true },
-  { label: "Explorer", d: EXPLORE, fill: false },
+  { label: "Partager", d: REPOST, fill: false },
 ];
 const Outro: React.FC<{ t: number }> = ({ t }) => (
   <>
