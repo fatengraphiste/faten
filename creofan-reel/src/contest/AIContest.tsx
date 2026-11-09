@@ -789,14 +789,6 @@ const Scene3V2: React.FC<{ t: number }> = ({ t }) => {
 };
 
 /* ---------- SCÈNE 4 — les trois concurrents ---------- */
-const Crop: React.FC<{ img: string; w: number; h: number }> = ({ img, w, h }) => {
-  const k = w / 260;
-  return (
-    <div style={{ width: w, height: h, overflow: "hidden", position: "relative" }}>
-      <Img src={staticFile(`contest/${img}.jpg`)} style={{ position: "absolute", width: 720 * k, height: 1280 * k, left: -230 * k, top: -380 * k }} />
-    </div>
-  );
-};
 // Finale : les trois pupitres sur le plateau ; chaque nom s'allume avec le buzzer
 const BUZZ = [s(39.7), s(40.35), s(41.0)];
 const FinalV2: React.FC<{ t: number }> = ({ t }) => {
@@ -911,26 +903,27 @@ export const AIContestV2: React.FC = () => {
   );
 };
 
-export const CoverContestV2: React.FC = () => (
-  <AbsoluteFill style={{ backgroundColor: CHAR, overflow: "hidden" }}>
-    <Img src={staticFile("contest/vide.jpg")} style={{ position: "absolute", inset: 0, width: 1080, height: 1920, objectFit: "cover" }} />
-    <AbsoluteFill style={{ backgroundColor: CHAR, opacity: 0.35 }} />
-    <div style={{ position: "absolute", left: L, top: 250, display: "flex", alignItems: "center", gap: 14, backgroundColor: WHITE, borderRadius: 999, padding: "8px 22px 8px 10px" }}>
-      <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 50, height: 50 }} />
-      <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 20, letterSpacing: 4, color: CHAR }}>AI CONTEST</div>
-    </div>
-    {(["banana", "chatgpt", "claude"] as const).map((img, i) => (
-      <div key={img} style={{ position: "absolute", left: L + i * (W3 + GAP), top: 560, width: W3, height: 600, borderRadius: R, overflow: "hidden", backgroundColor: i === 1 ? RED : WHITE }}>
-        <Crop img={img} w={W3} h={380} />
-        <Label c={i === 1 ? BEIGE : CHAR} style={{ position: "absolute", left: 22, top: 400 }}>N°0{i + 1}</Label>
-        <Big size={i === 0 ? 29 : 42} color={i === 1 ? WHITE : CHAR} style={{ position: "absolute", left: 22, top: 440 }}>{["NANO BANANA", "CHATGPT", "CLAUDE"][i]}</Big>
+export const CoverContestV2: React.FC = () => {
+  const cx = [270, 540, 805];
+  return (
+    <AbsoluteFill style={{ backgroundColor: CHAR, overflow: "hidden" }}>
+      <Img src={staticFile("contest/trio.jpg")} style={{ position: "absolute", inset: 0, width: 1080, height: 1920, objectFit: "cover" }} />
+      <div style={{ position: "absolute", left: L, top: 250, display: "flex", alignItems: "center", gap: 14, backgroundColor: WHITE, borderRadius: 999, padding: "8px 22px 8px 10px" }}>
+        <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 50, height: 50 }} />
+        <div style={{ fontFamily: FONT, fontWeight: 600, fontSize: 20, letterSpacing: 4, color: CHAR }}>AI CONTEST</div>
       </div>
-    ))}
-    <div style={{ position: "absolute", left: L, width: RG - L, top: 1200, textAlign: "center" }}>
-      <span style={{ display: "inline-block", backgroundColor: RED, borderRadius: 999, padding: "0 44px 14px" }}><MixedText text="شكون أقوى ذكاء؟" size={84} color={WHITE} /></span>
-    </div>
-    <div style={{ position: "absolute", left: 0, right: 0, top: 1400, display: "flex", justifyContent: "center" }}>
-      <div style={{ backgroundColor: WHITE, borderRadius: 999, padding: "16px 44px" }}><Img src={staticFile("ame/logo-creofan-rouge.png")} style={{ width: 200, display: "block" }} /></div>
-    </div>
-  </AbsoluteFill>
-);
+      {["NANO BANANA", "CHATGPT", "CLAUDE"].map((name, i) => (
+        <div key={name} style={{ position: "absolute", left: cx[i] - 125, top: 1060, width: 250, height: 118, borderRadius: 30, backgroundColor: i === 1 ? RED : WHITE }}>
+          <Label c={i === 1 ? BEIGE : CHAR} style={{ position: "absolute", left: 0, right: 0, top: 16, textAlign: "center", fontSize: 18 }}>N°0{i + 1}</Label>
+          <Big size={name.length > 8 ? 30 : 38} color={i === 1 ? WHITE : CHAR} style={{ position: "absolute", left: 0, right: 0, bottom: 22, textAlign: "center" }}>{name}</Big>
+        </div>
+      ))}
+      <div style={{ position: "absolute", left: L, width: RG - L, top: 1215, textAlign: "center" }}>
+        <span style={{ display: "inline-block", backgroundColor: RED, borderRadius: 999, padding: "0 46px 14px" }}><MixedText text="شكون أقوى ذكاء؟" size={84} color={WHITE} /></span>
+      </div>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 1400, display: "flex", justifyContent: "center" }}>
+        <div style={{ backgroundColor: WHITE, borderRadius: 999, padding: "16px 44px" }}><Img src={staticFile("ame/logo-creofan-rouge.png")} style={{ width: 200, display: "block" }} /></div>
+      </div>
+    </AbsoluteFill>
+  );
+};
