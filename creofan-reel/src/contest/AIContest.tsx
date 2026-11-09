@@ -74,7 +74,7 @@ const Spark: React.FC<{ size: number; c: string; rot?: number }> = ({ size, c, r
 const Bulb: React.FC<{ size: number; c: string }> = ({ size, c }) => (
   <Ico size={size}><circle cx={12} cy={9.5} r={6} fill={c} /><rect x={9} y={16} width={6} height={2.2} rx={1} fill={c} /><rect x={10} y={19.2} width={4} height={1.8} rx={0.9} fill={c} /></Ico>
 );
-const SHARE = "M4 13v6.5h16V13M12 3.5v11M7.5 8L12 3.5 16.5 8";
+const EXPLORE = "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3z";
 const FOLLOW = "M15 19c0-3.3-2.7-6-6-6s-6 2.7-6 6M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M19 8v6M16 11h6";
 const HEART = "M12 20.5S3 15 3 8.8A4.8 4.8 0 0 1 12 6.4a4.8 4.8 0 0 1 9 2.4C21 15 12 20.5 12 20.5z";
 
@@ -344,7 +344,7 @@ const Final: React.FC<{ t: number }> = ({ t }) => {
 const ICONS = [
   { label: "Suivre", d: FOLLOW, fill: false },
   { label: "J'aime", d: HEART, fill: true },
-  { label: "Partager", d: SHARE, fill: false },
+  { label: "Explorer", d: EXPLORE, fill: false },
 ];
 const Outro: React.FC<{ t: number }> = ({ t }) => (
   <>
@@ -460,6 +460,9 @@ const SFX: S[] = [
   ["regard/sub.wav", s(5.25), 27, 0.5],
   ["cc/whoosh.wav", CUT[1] + 2, 15, 0.5],
   ["regard/snap.wav", s(8.42), 4, 0.6],
+  ["cc/whoosh.wav", s(7.9), 15, 0.45],
+  ["cc/whoosh.wav", s(19.5), 15, 0.45],
+  ["cc/whoosh.wav", s(29.9), 15, 0.45],
   ...[10.3, 12.08, 13.32].map((x) => ["cc/pop.wav", s(x), 6, 0.55] as S),
   ["cc/whoosh.wav", s(12.0), 15, 0.35],
   ["regard/glass.wav", s(13.3), 30, 0.3],
@@ -656,15 +659,15 @@ const NameRowFree: React.FC<{ t: number; at: number }> = ({ t, at }) => (
 /* ---------- SCÈNE 1 — Nano Banana ---------- */
 const Scene1V2: React.FC<{ t: number }> = ({ t }) => {
   const a = CUT[1];
-  const v0 = s(6.8), vEnd = v0 + 135;
+  const v0 = s(7.9), vEnd = v0 + 49;
   const duo = t >= s(12.0) && t < s(14.6);
   const prompt = el(t, s(16.3), 13);
   const typed = Math.floor(interpolate(t, [s(17.3), s(18.2)], [0, 6], clamp));
   const fx = duo ? "grayscale(1) contrast(1.5) sepia(1) hue-rotate(-40deg) saturate(6)" : undefined;
   return (
     <>
-      <Still t={t} img="vide" from={a - 14} to={v0} z0={1} z1={1.02} style={{ filter: fx }} />
-      <Clip at={v0} src={0.75} rate={0.5} dur={135} />
+      <Still t={t} img="vide" from={a - 14} to={v0} z0={1.06} z1={1} style={{ filter: fx }} />
+      <Clip at={v0} src={0.77} rate={1} dur={49} />
       <Still t={t} img="banana" from={vEnd} to={CUT[2] + 14} style={{ filter: fx }} />
       <Dim o={0.1} />
       <Pad t={t} at={s(10.3)} x={PADL} y={630} icon={I_IMAGE} text="VISUELS PRO" />
@@ -680,7 +683,7 @@ const Scene1V2: React.FC<{ t: number }> = ({ t }) => {
           </div>
         </Tile>
       ) : null}
-      <NameRow t={t} at={v0} nameAt={s(8.42)} n="01" name="NANO BANANA" c={RED} y={1100} />
+      <NameRow t={t} at={s(6.8)} nameAt={s(8.42)} n="01" name="NANO BANANA" c={RED} y={1100} />
     </>
   );
 };
@@ -688,13 +691,13 @@ const Scene1V2: React.FC<{ t: number }> = ({ t }) => {
 /* ---------- SCÈNE 2 — ChatGPT ---------- */
 const Scene2V2: React.FC<{ t: number }> = ({ t }) => {
   const a = CUT[2];
-  const v0 = s(18.86), vEnd = v0 + 98;
+  const v0 = s(19.5), vEnd = v0 + 30;
   const merge = ease(t, s(25.2), 14);
   const typing = t >= s(26.3) && t < s(28.2);
   return (
     <>
       <Still t={t} img="vide" from={a - 14} to={v0} z0={1.05} z1={1} />
-      <Clip at={v0} src={4.0} rate={0.4} dur={98} />
+      <Clip at={v0} src={4.0} rate={1} dur={30} />
       <Still t={t} img="chatgpt" from={vEnd} to={CUT[3] + 14} />
       <Dim o={0.1} />
       {merge < 1 ? (
@@ -718,7 +721,7 @@ const Scene2V2: React.FC<{ t: number }> = ({ t }) => {
         </Tile>
       ) : null}
       <Pill t={t} at={s(26.76)} text="ديما حاضر" c={CHAR} style={{ left: PADL, top: 820 }} />
-      <NameRow t={t} at={v0} nameAt={s(20.52)} n="02" name="CHATGPT" c={CHAR} y={1100} />
+      <NameRow t={t} at={s(18.86)} nameAt={s(20.52)} n="02" name="CHATGPT" c={CHAR} y={1100} />
     </>
   );
 };
@@ -726,7 +729,7 @@ const Scene2V2: React.FC<{ t: number }> = ({ t }) => {
 /* ---------- SCÈNE 3 — Claude ---------- */
 const Scene3V2: React.FC<{ t: number }> = ({ t }) => {
   const a = CUT[3];
-  const v0 = s(29.32), vEnd = v0 + 90;
+  const v0 = s(29.9), vEnd = v0 + 36;
   const stress = t >= s(33.3) && t < s(34.9) ? Math.sin(t * 2.3) * 5 : 0;
   const swap = ease(t, s(34.88), 12);
   const code = Math.floor(interpolate(t, [s(35.8), s(37.2)], [0, 3], clamp));
@@ -734,7 +737,7 @@ const Scene3V2: React.FC<{ t: number }> = ({ t }) => {
   return (
     <>
       <Still t={t} img="vide" from={a - 14} to={v0} z0={1.05} z1={1} />
-      <Clip at={v0} src={6.9} rate={0.5} dur={90} />
+      <Clip at={v0} src={6.9} rate={1} dur={36} />
       <Still t={t} img="claude" from={vEnd} to={s(38.0)} />
       <Clip at={s(38.0)} src={8.4} rate={1} dur={CUT[4] + 14 - s(38.0)} />
       <Dim o={0.1} />
@@ -779,7 +782,7 @@ const Scene3V2: React.FC<{ t: number }> = ({ t }) => {
           <span style={{ display: "inline-block", backgroundColor: RED, borderRadius: 999, padding: "0 36px 10px" }}><MixedText text="ركّز على الإبداع ✦" size={58} color={BEIGE} /></span>
         </div>
       ) : null}
-      <NameRow t={t} at={v0} nameAt={s(31.04)} n="03" name="CLAUDE" c={PINK} y={1100} />
+      <NameRow t={t} at={s(29.32)} nameAt={s(31.04)} n="03" name="CLAUDE" c={PINK} y={1100} />
     </>
   );
 };
