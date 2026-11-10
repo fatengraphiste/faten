@@ -12,6 +12,7 @@ import { TOTAL_DURATION } from "./cues";
 import { Reel } from "./Reel";
 import { FPS } from "./theme";
 import { PLANS } from "./masterclass/Storyboard";
+import { CoverFable, Fable52, FABLE_DURATION } from "./fable/Fable52";
 import { AIContest, AIContestV2, CONTEST_DURATION, CoverContest, CoverContestV2 } from "./contest/AIContest";
 import { CoverMasterclass, MasterclassReel, MC_DURATION } from "./masterclass/MasterclassReel";
 
@@ -81,6 +82,8 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="CoverFlow" component={CoverFlow} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverClaudeCanva" component={CoverClaudeCanva} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverAme" component={CoverAme} durationInFrames={1} fps={30} width={1080} height={1920} />
+  <Composition id="Fable52" component={Fable52} durationInFrames={FABLE_DURATION} fps={30} width={1080} height={1920} />
+  <Composition id="CoverFable" component={CoverFable} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="AIContest" component={AIContest} durationInFrames={CONTEST_DURATION} fps={30} width={1080} height={1920} />
   <Composition id="AIContestV2" component={AIContestV2} durationInFrames={CONTEST_DURATION} fps={30} width={1080} height={1920} />
   <Composition id="CoverContestV2" component={CoverContestV2} durationInFrames={1} fps={30} width={1080} height={1920} />
