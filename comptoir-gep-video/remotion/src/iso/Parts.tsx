@@ -2,25 +2,24 @@ import React from "react";
 import { Cam, Line, Poly, Solid, ST, Style, V3, XY, box, clamp, eio, eo, iso, oct, prism, rectUV, seg } from "./engine";
 import { GRY, NAVY, YEL } from "./theme";
 
-/* ---------- precast elements (real proportions slightly exaggerated for readability) ---------- */
-/* inverted-T poutrelle (profile in (u,v) = across, up) */
-export const beamProfile = (uc: number, z0: number, w = 0.3, web = 0.16, h = 0.5, fl = 0.1): XY[] => [
-  [uc - w / 2, z0], [uc + w / 2, z0], [uc + w / 2, z0 + fl], [uc + web / 2, z0 + fl + 0.05], [uc + web / 2, z0 + h],
-  [uc - web / 2, z0 + h], [uc - web / 2, z0 + fl + 0.05], [uc - w / 2, z0 + fl],
-];
-export const beamPolys = (c: Cam, axis: "x" | "y", uc: number, a0: number, a1: number, z0: number, h = 0.5): Poly[] => prism(c, axis, beamProfile(uc, z0, 0.3, 0.16, h), a0, a1);
-/* entrevous : block with 3 cells visible on the end face */
-export const entrevousPolys = (c: Cam, axis: "x" | "y", u0: number, u1: number, a0: number, a1: number, z0: number, h = 0.5): Poly[] => {
-  const w = u1 - u0, wall = Math.min(0.045, w / 9), cw = (w - 4 * wall) / 3;
-  const holes: XY[][] = [0, 1, 2].map((k) => rectUV(u0 + wall + k * (cw + wall), z0 + wall * 1.3, u0 + wall + k * (cw + wall) + cw, z0 + h - wall * 1.3));
-  return prism(c, axis, rectUV(u0, z0, u1, z0 + h), a0, a1, holes);
+/* ---------- precast elements : REAL sizes (see Real.ts) ---------- */
+import { DA_T, DA_W, ENT_H, PITCH, SLAB_T, entCells, entProfile, poutProfile } from "./Real";
+export { PITCH, ENT_H, SLAB_T, DA_T, DA_W };
+/* poutrelle : axis 'x'|'y', centred across on uc, bottom at z0 */
+export const beamPolys = (c: Cam, axis: "x" | "y", uc: number, a0: number, a1: number, z0: number): Poly[] => prism(c, axis, poutProfile(uc, z0), a0, a1);
+/* entrevous : 50 x 20 cm, centred across on uc */
+export const entrevousPolys = (c: Cam, axis: "x" | "y", uc: number, a0: number, a1: number, z0: number): Poly[] => prism(c, axis, entProfile(uc, z0), a0, a1, entCells(uc, z0));
+/* hollow-core slab : y0..y1 (1.2 m), spans x0..x1, 7 alveoles on the +x end face */
+export const hollowPolys = (c: Cam, y0: number, y1: number, x0: number, x1: number, z0: number): Poly[] => {
+  const w = y1 - y0, pitch = 0.157, holes: XY[][] = [];
+  for (let k = 0; k < 7; k++) holes.push(oct(y0 + w / 2 + (k - 3) * pitch, z0 + DA_T * 0.52, 0.103, 0.125));
+  return prism(c, "x", rectUV(y0, z0, y1, z0 + DA_T), x0, x1, holes);
 };
-/* hollow-core slab : width y0..y1, spans x0..x1, 7 alveoles on the +x end face */
-export const hollowPolys = (c: Cam, y0: number, y1: number, x0: number, x1: number, z0: number, th = 0.4): Poly[] => {
-  const w = y1 - y0, hw = w * 0.085, hh = th * 0.5, pitch = w / 7.6;
-  const holes: XY[][] = [];
-  for (let k = 0; k < 7; k++) holes.push(oct(y0 + w / 2 + (k - 3) * pitch, z0 + th * 0.52, hw * 1.15, hh));
-  return prism(c, "x", rectUV(y0, z0, y1, z0 + th), x0, x1, holes);
+/* centres of the beams across a room [u0,u1] */
+export const beamCenters = (u0: number, u1: number): number[] => {
+  const out: number[] = [];
+  for (let u = u0 + 0.32; u <= u1 - 0.32; u += PITCH) out.push(u);
+  return out;
 };
 
 /* ---------- prop (étai) ---------- */

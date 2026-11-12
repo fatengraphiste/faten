@@ -80,7 +80,8 @@ export const Solid: React.FC<{
         const s = styles ? styles[i] ?? style : style;
         const d = dOf(poly);
         if (mode !== "draw") return <path key={i} d={d} fill={s.fill} stroke={s.stroke} strokeWidth={s.sw} strokeLinejoin="round" fillRule="evenodd" />;
-        const pi = eio(clamp((p - i * 0.16) / (1 - Math.max(0, n - 1) * 0.16)));
+        const stag = n > 1 ? Math.min(0.16, 0.55 / (n - 1)) : 0;
+        const pi = eio(clamp((p - i * stag) / (1 - (n - 1) * stag)));
         return (
           <g key={i}>
             <path d={d} fill={s.fill} fillOpacity={sm(pi, 0.35, 0.9)} stroke="none" fillRule="evenodd" />

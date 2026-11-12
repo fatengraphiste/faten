@@ -1,5 +1,5 @@
 import React from "react";
-import CAPS from "../captions.json";
+import CAPS from "../captions_new.json";
 import { DK, FONT, NAVY, YEL } from "./theme";
 import { clamp, eo } from "./engine";
 

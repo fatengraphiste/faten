@@ -1,7 +1,7 @@
 import React from "react";
 import { A } from "../lib";
 import { Cam, DimIso, Line, Solid, ST, Tag, box, iso } from "./engine";
-import { Callout, Crane, Layer, Layers, K, Prop, Worker, beamPolys, entrevousPolys } from "./Parts";
+import { Callout, ENT_H, Layer, Layers, K, PITCH, Prop, SLAB_T, Worker, beamCenters, beamPolys, entrevousPolys } from "./Parts";
 import { FONT, NAVY, YEL } from "./theme";
 import { Legend, Leg } from "./Legend";
 
@@ -29,24 +29,23 @@ export const Scene4A: React.FC<{ t: number }> = ({ t }) => {
   add(K(W, D, 3), <Solid polys={box(c, 0, D - 0.25, 2.65, W, D, Hh)} t={t} t0={16.8} dur={0.7} style={ST.base} vanish={out} />);
   add(K(W, D, 3) + 1, <Solid polys={box(c, W - 0.25, 0.25, 2.65, W, D - 0.25, Hh)} t={t} t0={16.85} dur={0.7} style={ST.base} vanish={out} />);
   ([[W - 0.3, D - 0.3], [4.9, D - 0.3], [W - 0.3, 3.4]] as [number, number][]).forEach(([x, y], i) => add(K(x + 0.3, y + 0.3, 3) + 2, <Solid polys={box(c, x, y, 0, x + 0.3, y + 0.3, 2.65)} t={t} t0={16.6 + i * 0.1} dur={0.6} style={ST.base} vanish={out} />));
-  // band 1 : 5 beams along x spanning ~9 m
-  const yc = (k: number) => 0.56 + 0.62 * k;
-  for (let k = 0; k < 5; k++) add(K(W - 0.25, yc(k) + 0.15, 3.6), <Solid polys={beamPolys(c, "x", yc(k), 0.25, W - 0.25, Hh, 0.6)} t={t} t0={A(36) + 0.0 + k * 0.14} dur={0.6} mode="drop" dz={90} style={ST.navy} vanish={out} />);
-  for (let k = 0; k < 4; k++) add(K(W - 0.25, yc(k + 1) - 0.15, 3.5) + 0.2, <Solid polys={entrevousPolys(c, "x", yc(k) + 0.15, yc(k + 1) - 0.15, 0.25, W - 0.25, Hh, 0.5)} t={t} t0={A(39) + k * 0.13} dur={0.6} mode="drop" dz={90} style={ST.hl} vanish={out} />);
+  // band 1 : poutrelles along x (long span), then entrevous
+  const yc = beamCenters(0.25, 3.4);
+  yc.forEach((y, k) => add(K(W - 0.25, y + 0.1, Hh + ENT_H), <Solid polys={beamPolys(c, "x", y, 0.25, W - 0.25, Hh)} t={t} t0={A(36) + k * 0.14} dur={0.6} mode="drop" dz={90} style={ST.navy} vanish={out} />));
+  yc.slice(0, -1).forEach((y, k) => add(K(W - 0.25, y + PITCH / 2 + 0.25, Hh + ENT_H) + 0.2, <Solid polys={entrevousPolys(c, "x", y + PITCH / 2, 0.25, W - 0.25, Hh)} t={t} t0={A(39) + k * 0.13} dur={0.6} mode="drop" dz={90} style={ST.hl} vanish={out} />));
   // band 2 : two small rooms, beams along y
-  const xa = (k: number) => 0.55 + 0.62 * k;
-  for (let k = 0; k < 7; k++) add(K(xa(k) + 0.15, D - 0.25, 3.6), <Solid polys={beamPolys(c, "y", xa(k), 3.65, D - 0.25, Hh, 0.6)} t={t} t0={A(46) - 0.1 + k * 0.07} dur={0.55} mode="drop" dz={80} style={ST.navy} vanish={out} />);
-  for (let k = 0; k < 6; k++) add(K(xa(k + 1) - 0.15, D - 0.25, 3.5) + 0.2, <Solid polys={entrevousPolys(c, "y", xa(k) + 0.15, xa(k + 1) - 0.15, 3.65, D - 0.25, Hh, 0.5)} t={t} t0={A(47) + k * 0.06} dur={0.5} mode="drop" dz={80} style={ST.hl} vanish={out} />);
-  const xb = (k: number) => 5.55 + 0.62 * k;
-  for (let k = 0; k < 6; k++) add(K(xb(k) + 0.15, D - 0.25, 3.6) + 0.1, <Solid polys={beamPolys(c, "y", xb(k), 3.65, D - 0.25, Hh, 0.6)} t={t} t0={A(46) + 0.1 + k * 0.07} dur={0.55} mode="drop" dz={80} style={ST.navy} vanish={out} />);
-  for (let k = 0; k < 5; k++) add(K(xb(k + 1) - 0.15, D - 0.25, 3.5) + 0.3, <Solid polys={entrevousPolys(c, "y", xb(k) + 0.15, xb(k + 1) - 0.15, 3.65, D - 0.25, Hh, 0.5)} t={t} t0={A(47) + 0.15 + k * 0.06} dur={0.5} mode="drop" dz={80} style={ST.hl} vanish={out} />);
+  [[0.25, 5.0, 0], [5.25, 9.25, 0.15]].forEach(([u0, u1, dl], r) => {
+    const xs = beamCenters(u0, u1);
+    xs.forEach((x, k) => add(K(x + 0.1, D - 0.25, Hh + ENT_H) + r * 5, <Solid polys={beamPolys(c, "y", x, 3.65, D - 0.25, Hh)} t={t} t0={A(46) - 0.1 + dl + k * 0.07} dur={0.55} mode="drop" dz={80} style={ST.navy} vanish={out} />));
+    xs.slice(0, -1).forEach((x, k) => add(K(x + PITCH / 2 + 0.25, D - 0.25, Hh + ENT_H) + r * 5 + 0.2, <Solid polys={entrevousPolys(c, "y", x + PITCH / 2, 3.65, D - 0.25, Hh)} t={t} t0={A(47) + dl + k * 0.06} dur={0.5} mode="drop" dz={80} style={ST.hl} vanish={out} />));
+  });
   return (
     <g>
       <Layers items={L} />
-      <Callout c={c} at={[2, 1.3, Hh + 0.62]} dx={-120} dy={-120} text="POUTRELLES" t={t} t0={A(36) + 0.5} />
-      <Callout c={c} at={[6.2, 2.2, Hh + 0.5]} dx={170} dy={-135} text="ENTREVOUS" t={t} t0={A(39) + 0.5} />
-      <Line pts={[iso(c, 0, 0, Hh + 0.7), iso(c, W, 0, Hh + 0.7), iso(c, W, D, Hh + 0.7), iso(c, 0, D, Hh + 0.7), iso(c, 0, 0, Hh + 0.7)]} t={t} t0={A(43)} dur={0.9} stroke={YEL} sw={3.5} vanish={out} />
-      {(() => { const p = iso(c, W / 2, D / 2, Hh + 0.9); return <Tag x={p[0]} y={p[1] + 40} text="PLANS COMPLEXES" t={t} t0={A(46)} size={24} check />; })()}
+      <Callout c={c} at={[2, 1.3, Hh + 0.12]} dx={-120} dy={-120} text="POUTRELLES" t={t} t0={A(36) + 0.5} />
+      <Callout c={c} at={[6.2, 2.2, Hh + 0.2]} dx={170} dy={-135} text="ENTREVOUS 50 × 20 cm" t={t} t0={A(39) + 0.5} />
+      <Line pts={[iso(c, 0, 0, Hh + 0.3), iso(c, W, 0, Hh + 0.3), iso(c, W, D, Hh + 0.3), iso(c, 0, D, Hh + 0.3), iso(c, 0, 0, Hh + 0.3)]} t={t} t0={A(43)} dur={0.9} stroke={YEL} sw={3.5} vanish={out} />
+      {(() => { const p = iso(c, W / 2, D / 2, Hh + 0.4); return <Tag x={p[0]} y={p[1] + 40} text="PLANS COMPLEXES" t={t} t0={A(46)} size={24} check />; })()}
       <Legend t={t} items={LEG4A} />
     </g>
   );
@@ -64,12 +63,12 @@ export const Scene4B: React.FC<{ t: number }> = ({ t }) => {
   add(-1000, <Solid polys={box(c, -0.6, -0.6, -0.3, W + 0.6, D + 1.4, 0)} t={t} t0={21.0} dur={0.7} style={ST.thin} vanish={out} />);
   add(K(0.3, D, 3), <Solid polys={box(c, 0, 0, 0, 0.3, D, Hh)} t={t} t0={21.05} dur={0.6} style={ST.base} vanish={out} />);
   add(K(W, 0.3, 3), <Solid polys={box(c, 0.3, 0, 0, W, 0.3, Hh)} t={t} t0={21.1} dur={0.6} style={ST.base} vanish={out} />);
-  const yc = (k: number) => 0.7 + 0.62 * k;
+  const yb = beamCenters(0.3, D);
   // props first (étais) – two rows
-  [3.2, 6.4].forEach((px, r) => { for (let k = 0; k < 5; k++) add(K(px, yc(k), 0) + 1, <Prop c={c} x={px} y={yc(k)} z1={Hh} t={t} t0={21.4 + r * 0.25 + k * 0.05} vanish={out} />); });
-  for (let k = 0; k < 5; k++) add(K(W - 0.3, yc(k) + 0.15, 3.6) + 5, <Solid polys={beamPolys(c, "x", yc(k), 0.3, W - 0.3, Hh, 0.6)} t={t} t0={21.15 + k * 0.1} dur={0.55} mode="drop" dz={80} style={ST.navy} vanish={out} />);
-  for (let k = 0; k < 4; k++) add(K(W - 0.3, yc(k + 1) - 0.15, 3.5) + 6, <Solid polys={entrevousPolys(c, "x", yc(k) + 0.15, yc(k + 1) - 0.15, 0.3, W - 0.3, Hh, 0.5)} t={t} t0={21.6 + k * 0.18} dur={0.55} mode="drop" dz={70} style={ST.hl} vanish={out} />);
-  add(K(W, D, 3.7) + 7, <Solid polys={box(c, 0.3, 0.3, Hh + 0.5, W - 0.3, D - 0.3, Hh + 0.62)} t={t} t0={22.45} dur={0.8} style={{ stroke: NAVY, sw: 2, fill: "#fff9d6" }} mode="fade" vanish={out} />);
+  [3.2, 6.4].forEach((px, r) => yb.forEach((y, k) => add(K(px, y, 0) + 1, <Prop c={c} x={px} y={y} z1={Hh} t={t} t0={21.4 + r * 0.25 + k * 0.05} vanish={out} />)));
+  yb.forEach((y, k) => add(K(W - 0.3, y + 0.1, Hh + ENT_H) + 5, <Solid polys={beamPolys(c, "x", y, 0.3, W - 0.3, Hh)} t={t} t0={21.15 + k * 0.1} dur={0.55} mode="drop" dz={80} style={ST.navy} vanish={out} />));
+  yb.slice(0, -1).forEach((y, k) => add(K(W - 0.3, y + PITCH / 2 + 0.25, Hh + ENT_H) + 6, <Solid polys={entrevousPolys(c, "x", y + PITCH / 2, 0.3, W - 0.3, Hh)} t={t} t0={21.6 + k * 0.18} dur={0.55} mode="drop" dz={70} style={ST.hl} vanish={out} />));
+  add(K(W, D, 3.7) + 7, <Solid polys={box(c, 0.3, 0.3, Hh + ENT_H, W - 0.3, D - 0.3, Hh + ENT_H + SLAB_T)} t={t} t0={22.45} dur={0.8} style={{ stroke: NAVY, sw: 2, fill: "#fdeeee" }} mode="fade" vanish={out} />);
   add(K(W, D, 0) + 8, <Worker c={c} p={[2.2, D + 0.9, 0]} t={t} t0={21.2} carry vanish={22.9} />);
   // crossed crane icon (the voice says "no crane")
   const cx = 880, cy = 520, p = Math.min(1, Math.max(0, (t - A(51) + 0.05) / 0.5));
@@ -83,12 +82,12 @@ export const Scene4B: React.FC<{ t: number }> = ({ t }) => {
           <path d={`M${cx - 44} ${cy + 44} L${cx + 44} ${cy - 44}`} stroke={YEL} strokeWidth={9} strokeLinecap="round" pathLength={1} strokeDasharray="1 1.02" strokeDashoffset={1 - Math.max(0, p * 2 - 1)} />
         </g>
       )}
-      <Callout c={c} at={[2.2, 0.7, Hh + 0.6]} dx={-90} dy={-150} text="POUTRELLE" t={t} t0={21.3} />
+      <Callout c={c} at={[2.2, 0.7, Hh + 0.3]} dx={-90} dy={-150} text="POUTRELLE · 9 m" t={t} t0={21.3} />
       <Callout c={c} at={[3.2, 2.0, 1.5]} dx={-70} dy={160} text="ÉTAI" t={t} t0={21.8} />
-      <DimIso c={c} a={[0.3, 0, Hh + 0.62]} b={[W - 0.3, 0, Hh + 0.62]} off={[0, -1.2, 1.1]} label="9 m" t={t} t0={A(57) - 0.5} size={44} />
+      <DimIso c={c} a={[0.3, 0, Hh + 0.3]} b={[W - 0.3, 0, Hh + 0.3]} off={[0, -1.2, 1.1]} label="9 m" t={t} t0={A(57) - 0.5} size={44} />
       {/* beyond 9 m : dashed yellow extension and question */}
-      <Line pts={[iso(c, W - 0.3, -1.2, Hh + 1.72), iso(c, W + 1.6, -1.2, Hh + 1.72)]} t={t} t0={A(63)} dur={0.6} stroke={YEL} sw={4} dash="14 10" />
-      {(() => { const q = iso(c, W + 1.6, -1.2, Hh + 1.72); return <Tag x={q[0] - 30} y={q[1] - 72} text="> 9 m ?" t={t} t0={A(61)} size={36} />; })()}
+      <Line pts={[iso(c, W - 0.3, -1.2, Hh + 1.4), iso(c, W + 1.6, -1.2, Hh + 1.4)]} t={t} t0={A(63)} dur={0.6} stroke={YEL} sw={4} dash="14 10" />
+      {(() => { const q = iso(c, W + 1.6, -1.2, Hh + 1.4); return <Tag x={q[0] - 30} y={q[1] - 72} text="> 9 m ?" t={t} t0={A(61)} size={36} />; })()}
       <Legend t={t} items={LEG4B} />
       <text x={-100} y={-100} fontSize={1} fontFamily={FONT}>{""}</text>
     </g>
