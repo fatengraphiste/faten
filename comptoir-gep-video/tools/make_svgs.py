@@ -21,12 +21,12 @@ text{{font-family:'Montserrat',Arial,sans-serif;fill:{NAVY}}}
 <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 1 L10 5 L0 9 z" fill="{RED}"/></marker>
 <pattern id="conc" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="3" cy="4" r="1.2" fill="{NAVY}" opacity=".32"/><circle cx="12" cy="9" r="1.1" fill="{NAVY}" opacity=".32"/><circle cx="6" cy="15" r="1" fill="{NAVY}" opacity=".32"/><circle cx="16" cy="16" r="1.2" fill="{NAVY}" opacity=".32"/></pattern>
 </defs>
-<rect width="{w}" height="{h}" fill="#ffffff"/>
+<rect id="bg" width="{w}" height="{h}" fill="#ffffff"/>
 '''
 def title(t,sub,x=70,y=95):
     return f'<g id="titre"><text x="{x}" y="{y}" font-size="34" font-weight="800">{t}</text><rect x="{x}" y="{y+22}" width="90" height="7" fill="{RED}"/><text x="{x}" y="{y+68}" font-size="22" font-weight="500" opacity=".75">{sub}</text></g>\n'
-def pill(x,y,w,h,txt,bg=RED,size=22):
-    return f'<g><rect x="{x-w/2}" y="{y-h/2}" width="{w}" height="{h}" rx="{h/2}" fill="{bg}"/><text x="{x}" y="{y+1}" font-size="{size}" font-weight="800" fill="#fff" style="fill:#fff" text-anchor="middle" dominant-baseline="central" letter-spacing="1">{txt}</text></g>'
+def pill(x,y,w,h,txt,bg=RED,size=22,gid=''):
+    return f'<g id="{gid}"><rect x="{x-w/2}" y="{y-h/2}" width="{w}" height="{h}" rx="{h/2}" fill="{bg}"/><text x="{x}" y="{y+1}" font-size="{size}" font-weight="800" fill="#fff" style="fill:#fff" text-anchor="middle" dominant-baseline="central" letter-spacing="1">{txt}</text></g>'
 def dimH(gid,x1,x2,y,label,e1,e2,above=True,lab_dy=None):
     d=-18 if above else 36
     if lab_dy is not None:d=lab_dy
@@ -97,9 +97,9 @@ def svg_da_coupe():
     o+=dimV('cote-epaisseur',x1+60,y0,y1,'16 cm',x1+8,x1+8)
     o+='<g id="numeros">'
     for i,cx in enumerate(centers):
-        o+=f'<path class="ex" stroke-dasharray="4 6" d="M{cx:.1f} {y0-26} V{cy-.5*10.6*s-8:.1f}"/><circle cx="{cx:.1f}" cy="{y0-50}" r="21" fill="{RED}"/><text x="{cx:.1f}" y="{y0-49}" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="800" style="fill:#fff">{i+1}</text>'
+        o+=f'<g class="num"><path class="ex" stroke-dasharray="4 6" d="M{cx:.1f} {y0-26} V{cy-.5*10.6*s-8:.1f}"/><circle cx="{cx:.1f}" cy="{y0-50}" r="21" fill="{RED}"/><text x="{cx:.1f}" y="{y0-49}" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="800" style="fill:#fff">{i+1}</text></g>'
     o+='</g>\n'
-    o+=pill(540,y1+130,300,50,'7 ALVÉOLES')+'\n'
+    o+=pill(540,y1+130,300,50,'7 ALVÉOLES',RED,22,'pill-7')+'\n'
     o+=callout('legende-cle',[(x0+4,y0+.5*hh),(x0-30,y0+.5*hh+50),(x0-30,y1+215)],x0-30,y1+250,'Clé de joint','start')
     o+=callout('legende-toron',[(centers[4]+1.9*s,y1-7),(centers[4]+1.9*s,y1+215)],centers[4]-60,y1+250,'Torons de précontrainte','start')
     o+=callout('legende-alveole',[(centers[5],cy),(centers[5],y0-40),(x1-40,y0-40)],x1-40,y0-52,'','end',22) if False else ''
@@ -130,7 +130,12 @@ def svg_da_3d():
     r1=(q1[0]+60*C30,q1[1]+60*S30);r2=(q2[0]+60*C30,q2[1]+60*S30)
     m2=((r1[0]+r2[0])/2,(r1[1]+r2[1])/2)
     o+=f'<g id="cote-longueur"><path class="ex" d="M{q1[0]+8:.1f} {q1[1]+4:.1f} L{r1[0]+6:.1f} {r1[1]+4:.1f} M{q2[0]+8:.1f} {q2[1]+4:.1f} L{r2[0]+6:.1f} {r2[1]+4:.1f}"/><path class="dl" d="M{r1[0]:.1f} {r1[1]:.1f} L{r2[0]:.1f} {r2[1]:.1f}"/><text class="dim" transform="translate({m2[0]+40:.1f},{m2[1]+12:.1f}) rotate(-30)" text-anchor="middle">L selon besoins</text></g>\n'
-    o+=pill(540,830,460,52,'DA16 · DA20 · DA26.5 · DA32',NAVY,22)+'\n'
+    o+='<g id="numeros">'
+    for i in range(7):
+        px,py=P(O,s,12.9+15.7*i,3.3+5.3,0)
+        o+=f'<g class="num"><circle cx="{px:.1f}" cy="{py:.1f}" r="15" fill="{RED}"/><text x="{px:.1f}" y="{py+1:.1f}" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="800" style="fill:#fff">{i+1}</text></g>'
+    o+='</g>\n'
+    o+=pill(540,830,460,52,'DA16 · DA20 · DA26.5 · DA32',NAVY,22,'pill-types')+'\n'
     o+='</svg>'
     return o,W,H
 # =============== C. Poutrelle + entrevous — coupe assemblée ===============

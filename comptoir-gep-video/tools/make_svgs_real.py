@@ -3,6 +3,7 @@ sys.path.insert(0,'tools')
 from make_svgs import *
 R_=json.load(open('assets/real_section.json'))
 PITCH=R_['meta']['pitch_mm']
+META={}
 def area(p):return sum(p[i][0]*p[(i+1)%len(p)][1]-p[(i+1)%len(p)][0]*p[i][1] for i in range(len(p)))/2
 def pth(pts,s,ox,oy,dx=0):
     return 'M'+' L'.join(f'{ox+(x+dx)*s:.1f} {oy+y*s:.1f}' for x,y in pts)+' Z'
@@ -13,43 +14,41 @@ def part(gid,d,cls,extra=''):
     return f'<g id="{gid}"><path class="{cls}" d="{d}"/><path fill="url(#conc)" d="{d}"/>{extra}</g>\n'
 # ===== 03 coupe assemblée (formes réelles de la brochure) =====
 def svg_pe_coupe():
-    W,H=1080,800;s=0.55;ox=540-PITCH*s;oy=450
+    W,H=1080,860;s=1.0;ox=540-PITCH/2*s;oy=430
     o=head(W,H)+title('POUTRELLES + ENTREVOUS · COUPE','Montage 16+5 · plancher préfabriqué')
     slab_top=-55.4
-    # slab spanning poutrelles
-    x_l,x_r=-95,2*PITCH+95
+    x_l,x_r=-95,PITCH+95
     d=f'M{ox+x_l*s:.1f} {oy+slab_top*s:.1f} H{ox+x_r*s:.1f} V{oy:.1f} H{ox+x_l*s:.1f} Z'
     o+=f'<g id="table"><path class="t" d="{d}"/><path fill="url(#conc)" d="{d}"/><path class="l" stroke-dasharray="3 9" d="M{ox+(x_l+10)*s:.1f} {oy+slab_top/2*s:.1f} H{ox+(x_r-10)*s:.1f}"/></g>\n'
-    for i in range(3):
-        o+=part(f'gousset-{i+1}',pth(GOUS,s,ox,oy,dx=i*PITCH),'t')
     for i in range(2):
-        cx=PITCH/2+i*PITCH
-        d=pth(ENT,s,ox,oy,dx=cx)
-        ex=''.join(f'<path class="l" fill="#fff" d="{pth(c,s,ox,oy,dx=cx)}"/>' for c in CELLS)
-        o+=f'<g id="entrevous-{i+1}"><path class="o" d="{d}"/><path fill="url(#conc)" d="{d}"/>{ex}</g>\n'
-    for i in range(3):
-        dots=''.join(f'<circle cx="{ox+(x+i*PITCH)*s:.1f}" cy="{oy+y*s:.1f}" r="3.2" fill="{NAVY}"/>' for x,y in DOTS)
+        o+=part(f'gousset-{i+1}',pth(GOUS,s,ox,oy,dx=i*PITCH),'t')
+    cx=PITCH/2
+    d=pth(ENT,s,ox,oy,dx=cx)
+    ex=''.join(f'<path class="l" fill="#fff" d="{pth(c,s,ox,oy,dx=cx)}"/>' for c in CELLS)
+    o+=f'<g id="entrevous-1"><path class="o" d="{d}"/><path fill="url(#conc)" d="{d}"/>{ex}</g>\n'
+    for i in range(2):
+        dots=''.join(f'<circle cx="{ox+(x+i*PITCH)*s:.1f}" cy="{oy+y*s:.1f}" r="3.8" fill="{NAVY}"/>' for x,y in DOTS)
         o+=part(f'poutrelle-{i+1}',pth(POUT,s,ox,oy,dx=i*PITCH),'t',dots)
-    xe1=PITCH/2-ent_w/2;xe2=PITCH/2+ent_w/2
+    xe1=cx-ent_w/2;xe2=cx+ent_w/2
     yb=oy+ent_h*s
-    o+=dimH('cote-entrevous',ox+xe1*s,ox+xe2*s,yb+80,'520 mm',yb+6,yb+6,above=False)
+    o+=dimH('cote-entrevous',ox+xe1*s,ox+xe2*s,yb+75,'520 mm',yb+6,yb+6,above=False)
     xr=ox+x_r*s
-    o+=dimV('cote-hauteur',xr+40,oy,yb,'16 cm',xr+6,xr+6)
-    o+=dimV('cote-table',xr+40,oy+slab_top*s,oy,'5 cm',xr+6,xr+6)
-    o+=callout('legende-table',[(ox+(PITCH*0.9)*s,oy+slab_top*s*0.7),(ox+(PITCH*0.9)*s,oy+slab_top*s-60)],ox+(PITCH*0.9)*s-14,oy+slab_top*s-75,'Table de compression','end')
-    o+=callout('legende-treillis',[(ox+(PITCH*1.45)*s,oy+slab_top/2*s),(ox+(PITCH*1.45)*s,oy+slab_top*s-60)],ox+(PITCH*1.45)*s+14,oy+slab_top*s-75,'Treillis soudé Ø3–4','start')
-    o+=callout('legende-entrevous',[(ox+(PITCH/2-200)*s,oy+110*s),(ox+(PITCH/2-200)*s,yb+190)],ox+(PITCH/2-200)*s,yb+226,'Entrevous','middle')
-    o+=callout('legende-poutrelle',[(ox+(2*PITCH)*s,oy+110*s),(ox+(2*PITCH)*s,yb+190)],ox+(2*PITCH)*s,yb+226,'Poutrelle GEP','middle')
-    o+=pill(540,H-60,330,50,'MONTAGE 16 + 5',NAVY)+'\n'
+    o+=dimV('cote-hauteur',xr+34,oy,yb,'16 cm',xr+6,xr+6)
+    o+=dimV('cote-table',xr+34,oy+slab_top*s,oy,'5 cm',xr+6,xr+6)
+    o+=callout('legende-table',[(ox+(PITCH*0.25)*s,oy+slab_top*s*0.7),(ox+(PITCH*0.25)*s,oy+slab_top*s-70)],ox+(PITCH*0.25)*s-12,oy+slab_top*s-84,'Table de compression','end')
+    o+=callout('legende-treillis',[(ox+(PITCH*0.75)*s,oy+slab_top/2*s),(ox+(PITCH*0.75)*s,oy+slab_top*s-70)],ox+(PITCH*0.75)*s+12,oy+slab_top*s-84,'Treillis soudé Ø3–4','start')
+    o+=callout('legende-entrevous',[(ox+(cx-190)*s,oy+120*s),(ox+(cx-190)*s,yb+150)],ox+(cx-190)*s,yb+186,'Entrevous','middle')
+    o+=callout('legende-poutrelle',[(ox+PITCH*s,oy+120*s),(ox+PITCH*s,yb+150)],ox+PITCH*s,yb+186,'Poutrelle GEP','middle')
+    o+=pill(840,130,300,50,'MONTAGE 16 + 5',NAVY,22,'pill-montage')+'\n'
     return o+'</svg>',W,H
 # ===== 04 éclaté =====
 def svg_eclate():
-    W,H=1080,1080;s=0.74;ox=300
+    W,H=1080,930;s=0.92;ox=225
     o=head(W,H)+title('VUE ÉCLATÉE · PLANCHER','Les 3 éléments : poutrelles, entrevous, table de compression')
     gh=max(y for x,y in GOUS)
-    yt=255                       # slab bottom of layer 1 (y of slab bottom line)
-    ye=yt+gh*s+85                # entrevous top ref
-    yp_top=ye+ent_h*s+85         # poutrelle: reference slab-bottom line of its own coords
+    yt=245                       # slab bottom of layer 1 (y of slab bottom line)
+    ye=yt+gh*s+75                # entrevous top ref
+    yp_top=ye+ent_h*s+75         # poutrelle: reference slab-bottom line of its own coords
     # layer 1 : table + goussets
     x_l,x_r=-95,PITCH+95;slab_top=-55.4
     d=f'M{ox+x_l*s:.1f} {yt+slab_top*s:.1f} H{ox+x_r*s:.1f} V{yt:.1f} H{ox+x_l*s:.1f} Z'
@@ -75,7 +74,7 @@ def svg_eclate():
     o+='</g>\n'
     xm=ox+PITCH/2*s
     o+=f'<path class="dl" style="marker-start:none" d="M{xm:.1f} {yt+gh*s+14:.1f} V{ye-14:.1f}"/><path class="dl" style="marker-start:none" d="M{xm:.1f} {ye+ent_h*s+14:.1f} V{yp_top-14:.1f}"/>'
-    o+=pill(xm+135,(yt+gh*s+ye)/2,230,40,'3 · COULAGE',RED,20)+pill(xm+135,(ye+ent_h*s+yp_top)/2,200,40,'2 · POSE',RED,20)+'\n'
+    o+=pill(xm+135,(yt+gh*s+ye)/2,230,40,'3 · COULAGE',RED,20,'pill-coulage')+pill(xm+135,(ye+ent_h*s+yp_top)/2,200,40,'2 · POSE',RED,20,'pill-pose')+'\n'
     lx=ox+x_r*s+34
     o+=callout('eclate-leg-table',[(ox+x_r*s-4,yt+slab_top/2*s),(lx,yt+slab_top/2*s)],lx+14,yt+slab_top/2*s-10,'Table de|compression','start',20)
     o+=callout('eclate-leg-entrevous',[(ox+(cx+ent_w/2)*s-6,ye+ent_h*s/2),(lx,ye+ent_h*s/2)],lx+14,ye+ent_h*s/2+7,'Entrevous','start',20)
@@ -83,7 +82,8 @@ def svg_eclate():
     o+=dimV('eclate-cote-t',ox+x_l*s-50,yt+slab_top*s,yt,'5 cm',ox+x_l*s-6,ox+x_l*s-6,right=False)
     o+=dimV('eclate-cote-h',ox+(cx-ent_w/2)*s-50,ye,ye+ent_h*s,'16 cm',ox+(cx-ent_w/2)*s-6,ox+(cx-ent_w/2)*s-6,right=False)
     o+=dimH('eclate-cote-largeur',ox+(cx-ent_w/2)*s,ox+(cx+ent_w/2)*s,ye+ent_h*s+36,'520 mm',ye+ent_h*s+6,ye+ent_h*s+6,above=False) if False else ''
-    o+=pill(540,H-60,800,52,'1 · POUTRELLES   →   2 · ENTREVOUS   →   3 · TABLE DE COMPRESSION',NAVY,19)+'\n'
+    o+=pill(540,H-45,800,52,'1 · POUTRELLES   →   2 · ENTREVOUS   →   3 · TABLE DE COMPRESSION',NAVY,19,'pill-ordre')+'\n'
+    META['eclate']={'dy_entrevous':ye-yt,'dy_pout':yp_top-yt}
     return o+'</svg>',W,H
 # ===== 05 éléments 3D (formes réelles) =====
 def up(poly,Hh):
@@ -126,10 +126,42 @@ def svg_elements():
     o+=f'<g id="cote-entrevous-profondeur"><path class="ex" d="M{r1[0]+8:.1f} {r1[1]+4:.1f} L{t1[0]+6:.1f} {t1[1]+4:.1f} M{r2[0]+8:.1f} {r2[1]+4:.1f} L{t2[0]+6:.1f} {t2[1]+4:.1f}"/><path class="dl" d="M{t1[0]:.1f} {t1[1]:.1f} L{t2[0]:.1f} {t2[1]:.1f}"/><text class="dim" transform="translate({mt[0]+34:.1f},{mt[1]+10:.1f}) rotate(-30)" text-anchor="middle">250 mm</text></g>\n'
     a=P(O2,s,0,0,0);b=P(O2,s,0,ey,0)
     o+=f'<g id="cote-entrevous-h"><path class="ex" d="M{a[0]-8:.1f} {a[1]:.1f} H{a[0]-62:.1f} M{b[0]-8:.1f} {b[1]:.1f} H{b[0]-62:.1f}"/><path class="dl" d="M{a[0]-54:.1f} {a[1]:.1f} V{b[1]:.1f}"/><text class="dim" x="{a[0]-72:.1f}" y="{(a[1]+b[1])/2+9:.1f}" text-anchor="end">H</text></g>\n'
-    o+=pill(540,1180,520,52,'H = 12 · 16 · 20 · 25 · 30 cm',NAVY,22)+'\n'
+    o+=pill(540,1180,520,52,'H = 12 · 16 · 20 · 25 · 30 cm',NAVY,22,'pill-h')+'\n'
     p=P(O2,s,ew/2,ey,120)
     o+=callout('leg-entrevous',[(p[0],p[1]),(p[0]+30,p[1]-90)],p[0]+40,p[1]-100,'Entrevous à 3 alvéoles','start',22)
     return o+'</svg>',W,H
+
+def _poutrelle_poly():
+    ymin=min(y for x,y in POUT);ymax=max(y for x,y in POUT);xmin=min(x for x,y in POUT)
+    pp=up([(x-xmin,y-ymin) for x,y in POUT],ymax-ymin)
+    return pp,ymax-ymin,max(x for x,y in pp)
+def svg_iso_poutrelle():
+    W,H=640,380;s=0.62;pp,ph,pw=_poutrelle_poly();O=(70,230)
+    o=head(W,H)+extrude(O,s,pp,520,(),'poutrelle',side_class='o4')
+    o+='<g id="armatures" class="l" stroke-width="4">'
+    for (x,y) in ((pw*0.30,18),(pw*0.5,26),(pw*0.7,18)):
+        a=P(O,s,x,y,0);b=P(O,s,x,y,-90);o+=f'<path d="M{a[0]:.1f} {a[1]:.1f} L{b[0]:.1f} {b[1]:.1f}"/>'
+    return o+'</g></svg>',W,H
+def svg_iso_entrevous():
+    W,H=520,380;s=0.82
+    exm=min(x for x,y in ENT);ey=max(y for x,y in ENT)
+    ep=up([(x-exm,y) for x,y in ENT],ey);holes=[up([(x-exm,y) for x,y in c],ey) for c in CELLS]
+    O=(30,170)
+    return head(W,H)+extrude(O,s,ep,250,holes,'entrevous',side_class='o4')+'</svg>',W,H
+def svg_iso_dalle():
+    W,H=760,520;s=5.0;O=(110,250)
+    poly=[(0,0),(120,0),(120,16),(0,16)]
+    holes=[octpoly(12.9+15.7*k,3.3+5.3,10.3,10.6) for k in range(7)]
+    o=head(W,H)+extrude(O,s,poly,56,holes,'dalle',side_class='o4')
+    o+='<g id="numeros">'
+    for i in range(7):
+        px,py=P(O,s,12.9+15.7*i,3.3+5.3,0)
+        o+=f'<g class="num"><circle cx="{px:.1f}" cy="{py:.1f}" r="15" fill="{RED}"/><text x="{px:.1f}" y="{py+1:.1f}" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="800" style="fill:#fff">{i+1}</text></g>'
+    return o+'</g></svg>',W,H
+
 if __name__=='__main__':
     for name,fn in [('03_poutrelle_entrevous_coupe',svg_pe_coupe),('04_plancher_eclate',svg_eclate),('05_elements_3d',svg_elements)]:
         s_,w,h=fn();open(f'svg/{name}.svg','w').write(s_);print(name,w,h)
+    for name,fn in [('06_iso_poutrelle',svg_iso_poutrelle),('07_iso_entrevous',svg_iso_entrevous),('08_iso_dalle',svg_iso_dalle)]:
+        s_,w,h=fn();open(f'svg/{name}.svg','w').write(s_);print(name,w,h)
+    import json as _j;_j.dump(META,open('svg/meta.json','w'))
