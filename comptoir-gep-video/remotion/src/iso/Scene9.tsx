@@ -1,6 +1,6 @@
 import React from "react";
 import { A } from "../lib";
-import { Cam, DimIso, Line, Solid, ST, Tag, Underline, box, clamp, eio, iso, seg } from "./engine";
+import { Cam, DimIso, Line, Solid, ST, Tag, Underline, box, clamp, eio, iso, seg, Fit } from "./engine";
 import { Layer, Layers, K, PITCH, beamPolys, entrevousPolys, hollowPolys } from "./Parts";
 import { FONT, NAVY, YEL } from "./theme";
 import { Legend, Leg } from "./Legend";
@@ -22,6 +22,7 @@ export const Scene9: React.FC<{ t: number }> = ({ t }) => {
   const m = 4 + mk * 8.5;
   return (
     <g>
+      <Fit k="s9">
       <Layers items={LL} /><Layers items={LR} />
       <DimIso c={cL} a={[0, 2.2, 0]} b={[9, 2.2, 0]} off={[0, 1.3, 0]} label="≤ 9 m" t={t} t0={A(141)} size={36} />
       <DimIso c={cR} a={[0, 3.6, 0]} b={[15, 3.6, 0]} off={[0, 1.3, 0]} label="9 → 15 m" t={t} t0={A(141) + 0.4} size={36} />
@@ -39,6 +40,7 @@ export const Scene9: React.FC<{ t: number }> = ({ t }) => {
           </g>
         )}
       </g>
+      </Fit>
       <Legend t={t} items={LEG9} />
     </g>
   );
@@ -63,6 +65,7 @@ export const Scene10: React.FC<{ t: number }> = ({ t }) => {
   const fin = false;
   return (
     <g>
+      <Fit k="s10">
       {!fin && (
         <g transform={`translate(${dx} ${-dx * 0.3})`} opacity={op}>
           <Solid polys={box(c, 0, 0, 0, 6, 4, 0.08)} t={t} t0={63.4} dur={0.9} style={ST.base} />
@@ -71,6 +74,7 @@ export const Scene10: React.FC<{ t: number }> = ({ t }) => {
         </g>
       )}
       {!fin && send > 0 && [0, 1, 2].map((i) => <Line key={i} pts={[iso(c, -0.2 - i * 0.5, 0.5 + i * 0.9, 0.2), iso(c, -2.2 - i * 0.5, 0.5 + i * 0.9, 0.2)]} t={t} t0={A(157)} dur={0.5} stroke={YEL} sw={4} vanish={A(157) + 1.1} />)}
+      </Fit>
       {!fin && <Legend t={t} items={LEG10} />}
     </g>
   );

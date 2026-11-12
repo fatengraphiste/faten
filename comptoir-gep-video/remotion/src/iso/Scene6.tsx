@@ -1,6 +1,6 @@
 import React from "react";
 import { A } from "../lib";
-import { Cam, DimIso, Line, Solid, ST, Tag, box, clamp, eo, iso } from "./engine";
+import { Cam, DimIso, Line, Solid, ST, Tag, box, clamp, eo, iso, Fit } from "./engine";
 import { Crane, DA_T, ENT_H, Layer, Layers, K, PITCH, Prop, Worker, beamCenters, beamPolys, entrevousPolys, hollowPolys } from "./Parts";
 import { NAVY, YEL } from "./theme";
 import { Legend, Leg } from "./Legend";
@@ -28,6 +28,7 @@ export const Scene6: React.FC<{ t: number }> = ({ t }) => {
   const verdict = t > A(100);
   return (
     <g>
+      <Fit k="s6">
       <Layers items={[...L, ...roof]} />
       <DimIso c={c} a={[0, D, 0]} b={[W, D, 0]} off={[0, 1.5, 0]} label="14 m" t={t} t0={A(95)} size={44} />
       {t > A(98) - 0.2 && t < 41.2 && <Line pts={[iso(c, 0.5, 0.4, 0.02), iso(c, W - 0.5, 0.4, 0.02), iso(c, W - 0.5, D, 0.02), iso(c, 0.5, D, 0.02), iso(c, 0.5, 0.4, 0.02)]} t={t} t0={A(98) - 0.2} dur={0.8} stroke={YEL} sw={4} />}
@@ -36,6 +37,7 @@ export const Scene6: React.FC<{ t: number }> = ({ t }) => {
       {t > A(104) - 0.2 && <Line pts={[iso(c, 0, -1.3, Hh + th + 1.4), iso(c, 9, -1.3, Hh + th + 1.4)]} t={t} t0={A(104) - 0.2} dur={0.5} stroke={YEL} sw={5} />}
       {t > A(104) && (() => { const p = iso(c, 4.5, -1.3, Hh + th + 1.4); return <Tag x={p[0] - 30} y={p[1] - 36} text="9 m max. poutrelles" t={t} t0={A(104)} size={24} />; })()}
       {t > A(105) && (() => { const p = iso(c, W - 1, -1.3, Hh + th + 1.4); return <Tag x={p[0] - 20} y={p[1] - 10} text="14 m > 9 m" t={t} t0={A(105)} size={32} check />; })()}
+      </Fit>
       <Legend t={t} items={LEG6} />
     </g>
   );
@@ -68,11 +70,13 @@ export const Scene7: React.FC<{ t: number }> = ({ t }) => {
   const hlOn = t > A(112) - 0.1;
   return (
     <g>
+      <Fit k="s7">
       <Layers items={L} />
       {hlOn && t < out && <Line pts={[iso(c, 0, 0, Hh + 0.4), iso(c, 8, 0, Hh + 0.4), iso(c, 8, 4.25, Hh + 0.4), iso(c, 4.25, 4.25, Hh + 0.4), iso(c, 4.25, 8, Hh + 0.4), iso(c, 0, 8, Hh + 0.4), iso(c, 0, 0, Hh + 0.4)]} t={t} t0={A(112) - 0.1} dur={1.0} stroke={YEL} sw={4} vanish={out} />}
       {(() => { const p = iso(c, 4, 4, Hh + 1.2); return <Tag x={p[0] - 150} y={p[1] - 110} text="ANGLES COMPLEXES" t={t} t0={A(112)} size={26} />; })()}
       {t > A(114) && (() => { const p = iso(c, 4, 4, Hh + 1.2); return <Tag x={p[0]} y={p[1] - 230} text="POUTRELLES-ENTREVOUS" t={t} t0={A(114)} size={30} check />; })()}
       {t > A(119) && (() => { const p = iso(c, 4, 4, Hh + 1.2); return <Tag x={p[0]} y={p[1] + 130} text="ÉCONOMIQUE · MODULABLE" t={t} t0={A(119)} size={28} check />; })()}
+      </Fit>
       <Legend t={t} items={LEG7} />
     </g>
   );
@@ -108,6 +112,7 @@ export const Scene8: React.FC<{ t: number }> = ({ t }) => {
   const xo = clamp((t - A(133)) / 0.5);
   return (
     <g>
+      <Fit k="s8">
       <Layers items={[...L, ...slabs, ...props]} />
       {hooks}
       <DimIso c={c} a={[0, D, Hh + th]} b={[W, D, Hh + th]} off={[0, 1.5, 0]} label="11 m" t={t} t0={A(124) - 0.2} size={44} />
@@ -121,6 +126,7 @@ export const Scene8: React.FC<{ t: number }> = ({ t }) => {
         </g>); })()}
       {t > 57.9 && <Line pts={[iso(c, 0.6, 0.5, 0.02), iso(c, W - 0.6, 0.5, 0.02), iso(c, W - 0.6, D, 0.02), iso(c, 0.6, D, 0.02), iso(c, 0.6, 0.5, 0.02)]} t={t} t0={57.9} dur={0.8} stroke={YEL} sw={4} vanish={out} />}
       {t > 58.2 && <Tag x={540} y={1215} text="PRÊT DÈS LE JOUR 1" t={t} t0={58.2} size={30} check />}
+      </Fit>
       <Legend t={t} items={LEG8} />
     </g>
   );

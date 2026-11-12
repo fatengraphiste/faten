@@ -1,6 +1,6 @@
 import React from "react";
 import { A } from "../lib";
-import { Cam, DimIso, Line, Solid, ST, Tag, box, clamp, eo, iso } from "./engine";
+import { Cam, DimIso, Line, Solid, ST, Tag, box, clamp, eo, iso, Fit } from "./engine";
 import { Crane, DA_T, Layer, Layers, K, Prop, Worker, hollowPolys } from "./Parts";
 import { FONT, NAVY, YEL } from "./theme";
 import { Legend, Leg } from "./Legend";
@@ -62,13 +62,14 @@ export const Scene5: React.FC<{ t: number }> = ({ t }) => {
           <Solid polys={polys} t={t} t0={lt + 0.15} dur={0.7} style={{ stroke: NAVY, sw: 2.4, fill: "#fff" }} styles={[{ stroke: GRY2, sw: 1.5, fill: "#fff" }, { stroke: GRY2, sw: 1.5, fill: "#fff" }, { stroke: NAVY, sw: 2.4, fill: "#fff" }]} />
           {nums.map(({ p, k }) => { const q = clamp((t - (lt + 0.7 + k * 0.1)) / 0.3); return q <= 0 ? null : <g key={k} opacity={q} transform={`translate(${p[0]} ${p[1]}) scale(${0.6 + 0.4 * q})`}><circle r={12} fill={YEL} stroke={NAVY} strokeWidth={1.5} /><text y={1} fontSize={14} fontWeight={800} fill={NAVY} textAnchor="middle" dominantBaseline="central" fontFamily={FONT}>{k + 1}</text></g>; })}
         </g>
-        <text x={LX} y={LY + 215} fontSize={26} fontWeight={800} fill={NAVY} textAnchor="middle" fontFamily={FONT} opacity={clamp((t - lt - 1) * 3)}>7 ALVÉOLES</text>
+        <Tag x={LX} y={LY - 232} text="7 ALVÉOLES" t={t} t0={lt + 0.9} size={26} check />
       </g>
     );
   })();
   const xo = Math.min(1, Math.max(0, (t - A(84)) / 0.5));
   return (
     <g>
+      <Fit k="s5">
       <Layers items={[...L, ...slabs, ...props]} />
       {hooks}
       {lens}
@@ -83,6 +84,7 @@ export const Scene5: React.FC<{ t: number }> = ({ t }) => {
         </g>); })()}
       <Line pts={[iso(c, 0.6, 0.5, 0.02), iso(c, W - 0.6, 0.5, 0.02), iso(c, W - 0.6, D, 0.02), iso(c, 0.6, D, 0.02), iso(c, 0.6, 0.5, 0.02)]} t={t} t0={A(86) - 0.1} dur={0.9} stroke={YEL} sw={4} vanish={out} />
       <Worker c={c} p={[10.5, D - 0.6, 0]} t={t} t0={A(86)} vanish={out} />
+      </Fit>
       <Legend t={t} items={LEG5} />
     </g>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import { A } from "../lib";
-import { Cam, DimIso, Line, Solid, ST, Tag, box, iso } from "./engine";
+import { Cam, DimIso, Line, Solid, ST, Tag, box, iso, Fit } from "./engine";
 import { Callout, ENT_H, Layer, Layers, K, PITCH, Prop, SLAB_T, Worker, beamCenters, beamPolys, entrevousPolys } from "./Parts";
 import { FONT, NAVY, YEL } from "./theme";
 import { Legend, Leg } from "./Legend";
@@ -41,11 +41,13 @@ export const Scene4A: React.FC<{ t: number }> = ({ t }) => {
   });
   return (
     <g>
+      <Fit k="s4a">
       <Layers items={L} />
       <Callout c={c} at={[2, 1.3, Hh + 0.12]} dx={-120} dy={-120} text="POUTRELLES" t={t} t0={A(36) + 0.5} />
       <Callout c={c} at={[6.2, 2.2, Hh + 0.2]} dx={170} dy={-135} text="ENTREVOUS 50 × 20 cm" t={t} t0={A(39) + 0.5} />
       <Line pts={[iso(c, 0, 0, Hh + 0.3), iso(c, W, 0, Hh + 0.3), iso(c, W, D, Hh + 0.3), iso(c, 0, D, Hh + 0.3), iso(c, 0, 0, Hh + 0.3)]} t={t} t0={A(43)} dur={0.9} stroke={YEL} sw={3.5} vanish={out} />
       {(() => { const p = iso(c, W / 2, D / 2, Hh + 0.4); return <Tag x={p[0]} y={p[1] + 40} text="PLANS COMPLEXES" t={t} t0={A(46)} size={24} check />; })()}
+      </Fit>
       <Legend t={t} items={LEG4A} />
     </g>
   );
@@ -74,6 +76,7 @@ export const Scene4B: React.FC<{ t: number }> = ({ t }) => {
   const cx = 880, cy = 520, p = Math.min(1, Math.max(0, (t - A(51) + 0.05) / 0.5));
   return (
     <g>
+      <Fit k="s4b">
       <Layers items={L} />
       {t > 21.9 && t < 22.95 && (
         <g opacity={Math.min(1, (t - 21.9) * 4) * Math.min(1, (22.95 - t) * 6)}>
@@ -88,6 +91,7 @@ export const Scene4B: React.FC<{ t: number }> = ({ t }) => {
       {/* beyond 9 m : dashed yellow extension and question */}
       <Line pts={[iso(c, W - 0.3, -1.2, Hh + 1.4), iso(c, W + 1.6, -1.2, Hh + 1.4)]} t={t} t0={A(63)} dur={0.6} stroke={YEL} sw={4} dash="14 10" />
       {(() => { const q = iso(c, W + 1.6, -1.2, Hh + 1.4); return <Tag x={q[0] - 30} y={q[1] - 72} text="> 9 m ?" t={t} t0={A(61)} size={36} />; })()}
+      </Fit>
       <Legend t={t} items={LEG4B} />
       <text x={-100} y={-100} fontSize={1} fontFamily={FONT}>{""}</text>
     </g>

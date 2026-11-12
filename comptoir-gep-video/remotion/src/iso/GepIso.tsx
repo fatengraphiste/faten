@@ -13,7 +13,9 @@ import { Scene4A, Scene4B } from "./Scene4";
 import { Scene5 } from "./Scene5";
 import { Scene6, Scene7, Scene8 } from "./Scene6";
 import { Scene9, Scene10 } from "./Scene9";
-import { FPS } from "./theme";
+import { FPS, NAVY } from "./theme";
+import { BgPan } from "./Bg";
+import { LOGO_PATHS } from "../logo";
 
 /* ---- music ducking driven by the voice-over word timings (no ffmpeg needed) ---- */
 const N = 2179;
@@ -27,10 +29,10 @@ const musicVol = (f: number) => 0.2 * (1 - 0.72 * smooth(f));
 type SceneDef = { from: number; to: number; C: React.FC<{ t: number }> };
 const SCENES: SceneDef[] = [{ from: 0, to: 8.6, C: Scene1 }, { from: 8.6, to: 10.9, C: Scene2 }, { from: 10.9, to: 16.2, C: Scene3 }, { from: 16.2, to: 21.0, C: Scene4A }, { from: 21.0, to: 27.4, C: Scene4B }, { from: 27.4, to: 36.9, C: Scene5 }, { from: 36.9, to: 45.45, C: Scene6 }, { from: 45.45, to: 51.3, C: Scene7 }, { from: 51.3, to: 59.4, C: Scene8 }, { from: 59.4, to: 63.3, C: Scene9 }, { from: 63.3, to: 67.5004, C: Scene10 }];
 
-const SceneRoot: React.FC<{ r0: number; C: React.FC<{ t: number }>; len: number }> = ({ r0, C, len }) => {
+const SceneRoot: React.FC<{ r0: number; C: React.FC<{ t: number }>; len: number; first?: boolean }> = ({ r0, C, len, first }) => {
   const f = useCurrentFrame();
   const t = warp(r0 + f / FPS);               // design time (animation is authored on the first voice timeline)
-  const e = Math.min(1, f / 8, (len - f) / 8);
+  const e = Math.min(first ? 1 : f / 8, 1, (len - f) / 8);
   return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }} opacity={Math.max(0, e)}><C t={t} /></svg>;
 };
 const OutroRoot: React.FC = () => {
@@ -38,20 +40,33 @@ const OutroRoot: React.FC = () => {
   return <div style={{ position: "absolute", inset: 0, opacity: Math.min(1, f / 10) }}><Outro t={f / FPS} /></div>;
 };
 
-export const GepIso: React.FC = () => {
+const LogoSmall: React.FC<{ t: number }> = ({ t }) => {
+  const a = Math.min(1, Math.max(0, (t + 0.3) / 0.5)) * Math.min(1, Math.max(0, (NEW_END - 0.2 - t) / 0.4));
+  return (
+    <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }} opacity={a}>
+      <g transform="translate(430 268) scale(0.217)">
+        {LOGO_PATHS.map((p, i) => (p.rect ? <rect key={i} x={p.rect[0]} y={p.rect[1]} width={p.rect[2]} height={p.rect[3]} fill={NAVY} /> : <path key={i} d={p.d} fill={p.c === "r" ? "#db4041" : NAVY} />))}
+      </g>
+    </svg>
+  );
+};
+
+export const GepIso: React.FC<{ measure?: boolean }> = ({ measure }) => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
   return (
     <FontLoader>
       <IsoFonts>
         <AbsoluteFill style={{ background: "#ffffff" }}>
+          {!measure && <BgPan t={t} />}
           <Audio src={staticFile("audio/comptoir-gep-voice.mp3")} />
           <Audio src={staticFile("audio/music.wav")} volume={musicVol} />
           {SCENES.map((s, i) => {
             const r0 = unwarp(s.from), r1 = unwarp(s.to);
             const from = Math.round(r0 * FPS), len = Math.round((r1 - r0) * FPS);
-            return <Sequence key={i} from={from} durationInFrames={len}><SceneRoot r0={from / FPS} C={s.C} len={len} /></Sequence>;
+            return <Sequence key={i} from={from} durationInFrames={len}><SceneRoot r0={from / FPS} C={s.C} len={len} first={i === 0} /></Sequence>;
           })}
+          {!measure && <LogoSmall t={t} />}
           {t < NEW_END && <ArLine t={t} />}
           <Sequence from={Math.round(NEW_END * FPS)} durationInFrames={150}><OutroRoot /></Sequence>
         </AbsoluteFill>

@@ -1,5 +1,6 @@
 import React from "react";
 import { DK, FONT, GRY, NAVY, YEL, YEL_L } from "./theme";
+import { FITS } from "./fit";
 
 /* ------------------------------------------------------------------ */
 /*  Strict isometric projection : X -> (cos30, sin30), Y -> (-cos30, sin30), Z -> up */
@@ -10,6 +11,7 @@ export type Cam = { ox: number; oy: number; u: number };
 export type XY = [number, number];
 export const iso = (c: Cam, x: number, y: number, z: number): XY => [c.ox + (x - y) * COS30 * c.u, c.oy + (x + y) * 0.5 * c.u - z * c.u];
 
+export const LW = 1.6; // global line-weight factor
 export const clamp = (x: number, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 export const seg = (t: number, a: number, b: number) => clamp((t - a) / (b - a));
 export const eo = (x: number) => 1 - Math.pow(1 - x, 3);
@@ -79,13 +81,13 @@ export const Solid: React.FC<{
       {polys.map((poly, i) => {
         const s = styles ? styles[i] ?? style : style;
         const d = dOf(poly);
-        if (mode !== "draw") return <path key={i} d={d} fill={s.fill} stroke={s.stroke} strokeWidth={s.sw} strokeLinejoin="round" fillRule="evenodd" />;
+        if (mode !== "draw") return <path key={i} d={d} fill={s.fill} stroke={s.stroke} strokeWidth={s.sw * LW} strokeLinejoin="round" fillRule="evenodd" />;
         const stag = n > 1 ? Math.min(0.16, 0.55 / (n - 1)) : 0;
         const pi = eio(clamp((p - i * stag) / (1 - (n - 1) * stag)));
         return (
           <g key={i}>
             <path d={d} fill={s.fill} fillOpacity={sm(pi, 0.35, 0.9)} stroke="none" fillRule="evenodd" />
-            <path d={d} fill="none" stroke={s.stroke} strokeWidth={s.sw} strokeLinejoin="round" pathLength={1} strokeDasharray="1 1.02" strokeDashoffset={1 - pi} />
+            <path d={d} fill="none" stroke={s.stroke} strokeWidth={s.sw * LW} strokeLinejoin="round" pathLength={1} strokeDasharray="1 1.02" strokeDashoffset={1 - pi} />
           </g>
         );
       })}
@@ -100,8 +102,8 @@ export const Line: React.FC<{ pts: XY[]; t: number; t0: number; dur?: number; st
   if (vanish !== undefined && t > vanish) { const q = clamp((t - vanish) / vanishDur); if (q >= 1) return null; fade = 1 - q; }
   const p = eio(clamp((t - t0) / dur));
   const d = "M" + pts.map((q) => `${q[0].toFixed(1)} ${q[1].toFixed(1)}`).join(" L");
-  if (dash) return <path d={d} fill="none" stroke={stroke} strokeWidth={sw} strokeDasharray={dash} strokeLinecap={cap} opacity={p * fade * op} />;
-  return <path d={d} fill="none" stroke={stroke} strokeWidth={sw} strokeLinecap={cap} strokeLinejoin="round" pathLength={1} strokeDasharray="1 1.02" strokeDashoffset={1 - p} opacity={fade * op} />;
+  if (dash) return <path d={d} fill="none" stroke={stroke} strokeWidth={sw * LW} strokeDasharray={dash} strokeLinecap={cap} opacity={p * fade * op} />;
+  return <path d={d} fill="none" stroke={stroke} strokeWidth={sw * LW} strokeLinecap={cap} strokeLinejoin="round" pathLength={1} strokeDasharray="1 1.02" strokeDashoffset={1 - p} opacity={fade * op} />;
 };
 
 /* ---------- isometric dimension line ---------- */
@@ -119,8 +121,8 @@ export const DimIso: React.FC<{ c: Cam; a: V3; b: V3; off: V3; label: string; t:
   const m = lab ? iso(c, ...lab) : [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
   return (
     <g>
-      <path d={`M${a0[0]} ${a0[1]} L${A[0]} ${A[1]} M${b0[0]} ${b0[1]} L${B[0]} ${B[1]}`} stroke={col} strokeWidth={1.2} opacity={p} fill="none" />
-      <path d={`M${A[0]} ${A[1]} L${B[0]} ${B[1]}`} stroke={col} strokeWidth={2} fill="none" pathLength={1} strokeDasharray="1 1.02" strokeDashoffset={1 - p} />
+      <path d={`M${a0[0]} ${a0[1]} L${A[0]} ${A[1]} M${b0[0]} ${b0[1]} L${B[0]} ${B[1]}`} stroke={col} strokeWidth={2} opacity={p} fill="none" />
+      <path d={`M${A[0]} ${A[1]} L${B[0]} ${B[1]}`} stroke={col} strokeWidth={3.4} fill="none" pathLength={1} strokeDasharray="1 1.02" strokeDashoffset={1 - p} />
       {p > 0.85 && <polygon points={head(A[0], A[1], ang + Math.PI)} fill={col} />}
       {p > 0.85 && <polygon points={head(B[0], B[1], ang)} fill={col} />}
       <g opacity={sm(p, 0.4, 1)}>
@@ -139,8 +141,8 @@ export const Tag: React.FC<{ x: number; y: number; text: string; t: number; t0: 
   const s = 0.6 + 0.4 * ebo(p);
   return (
     <g opacity={Math.min(1, p * 3)} transform={`translate(${x} ${y}) scale(${s})`}>
-      <rect x={-tw / 2} y={-size * 0.95} width={tw} height={size * 1.9} rx={size * 0.95} fill="#fff" stroke={NAVY} strokeWidth={2} />
-      {check && <g transform={`translate(${-tw / 2 + size * 0.95} 0)`}><circle r={size * 0.55} fill={YEL} /><path d={`M${-size * 0.25} 0 L${-size * 0.05} ${size * 0.22} L${size * 0.28} ${-size * 0.2}`} fill="none" stroke={NAVY} strokeWidth={3.2} strokeLinecap="round" strokeLinejoin="round" /></g>}
+      <rect x={-tw / 2} y={-size * 0.95} width={tw} height={size * 1.9} rx={size * 0.95} fill="#fff" stroke={NAVY} strokeWidth={3} />
+      {check && <g transform={`translate(${-tw / 2 + size * 0.95} 0)`}><circle r={size * 0.55} fill={YEL} /><path d={`M${-size * 0.25} 0 L${-size * 0.05} ${size * 0.22} L${size * 0.28} ${-size * 0.2}`} fill="none" stroke={NAVY} strokeWidth={3.8} strokeLinecap="round" strokeLinejoin="round" /></g>}
       <text x={check ? size * 0.5 : 0} y={size * 0.05} fontSize={size} fontWeight={800} fill={NAVY} textAnchor="middle" dominantBaseline="central" fontFamily={FONT}>{text}</text>
     </g>
   );
@@ -151,3 +153,6 @@ export const Underline: React.FC<{ x1: number; x2: number; y: number; t: number;
   return <path d={`M${x1} ${y} L${x2} ${y}`} stroke={col} strokeWidth={6} strokeLinecap="round" pathLength={1} strokeDasharray="1 1.02" strokeDashoffset={1 - p} />;
 };
 void DK;
+
+/* keeps the scene drawing inside the safe zone (transform measured per scene) */
+export const Fit: React.FC<{ k: string; children: React.ReactNode }> = ({ k, children }) => <g transform={FITS[k] ?? ""}>{children}</g>;
