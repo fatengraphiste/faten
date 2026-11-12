@@ -1,0 +1,430 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Comptoir GEP - Plancher</title>
+<style>
+@font-face{font-family:GEPF;src:url(assets/Montserrat-latin.woff2) format('woff2');font-weight:100 900;unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:GEPF;src:url(assets/Montserrat-latin-ext.woff2) format('woff2');font-weight:100 900;unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:GEPF;src:url(assets/ArbFONTS-Montserrat-Arabic-ExtraLight.ttf);font-weight:100 400;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:GEPF;src:url(assets/ArbFONTS-Montserrat-Arabic-Bold.ttf);font-weight:500 800;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:GEPF;src:url(assets/ArbFONTS-Montserrat-Arabic-Black.ttf);font-weight:801 900;unicode-range:U+0600-06FF,U+0750-077F,U+FB50-FDFF,U+FE70-FEFF}
+html,body{margin:0;background:#19226d;overflow:hidden;width:1080px;height:1920px}
+#s{position:absolute;left:0;top:0;display:block}
+text{font-family:GEPF,sans-serif}
+#cap{position:absolute;left:60px;right:60px;bottom:380px;text-align:center;direction:rtl;font-family:GEPF,sans-serif;pointer-events:none}
+#chip{display:inline-block;background:#19226d;border:3px solid #fff;border-radius:46px;padding:22px 46px 26px;font-size:54px;font-weight:700;line-height:1.55;max-width:900px;box-sizing:content-box}
+.w{display:inline;padding:2px 12px;border-radius:18px;color:rgba(255,255,255,.55);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.w.done{color:#fff}
+.w.on{color:#fff;background:#db4041}
+.p{color:#fff;padding:0 4px}
+.ltr{direction:ltr;unicode-bidi:isolate}
+</style></head><body>
+<svg id="s" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+<defs>
+ <clipPath id="panelClip"><rect id="panelR" x="0" y="1920" width="1080" height="1920"/></clipPath>
+</defs>
+<rect width="1080" height="1920" fill="#f4f6fb"/>
+<image id="hook" x="0" y="0" width="1080" height="1920" href="hook/h001.jpg" preserveAspectRatio="xMidYMid slice"/>
+<g id="panel" clip-path="url(#panelClip)" display="none">
+  <rect width="1080" height="1920" fill="#0a1450"/>
+  <image id="bgb" x="-30" y="-50" width="1140" height="2020" href="assets/bg-blue-rays.webp" preserveAspectRatio="xMidYMid slice"/>
+</g>
+<rect id="panelEdge" x="0" y="1920" width="1080" height="18" fill="#db4041"/>
+<g id="logoW"></g><g id="logoB"></g>
+<g id="bands" transform="translate(540,960) rotate(-18) translate(-1500,0)" opacity="0"><rect x="-230" y="-2600" width="460" height="5200" fill="#db4041"/><rect x="-340" y="-2600" width="60" height="5200" fill="#ffffff"/></g>
+</svg>
+<div id="cap"><span id="chip"></span></div>
+<script src="captions.js"></script>
+<script>
+const LOGO_PATHS=[
+ {c:'w',d:"M121.35,153.7c-.58-1.06-1.12-2.13-1.64-3.2h-25.8c-4.53,.11-8.68-.57-12.46-2.02-3.78-1.46-6.88-3.42-9.3-5.9-2.43-2.48-4.48-5.31-6.15-8.49-1.67-3.18-2.7-6.52-3.07-10.03-.38-3.5-.38-7.01,0-10.52,.38-3.5,1.4-6.85,3.07-10.03,1.67-3.18,3.72-6.01,6.15-8.49,2.43-2.48,5.52-4.45,9.3-5.9,3.77-1.46,7.93-2.18,12.46-2.18,1.4,0,6.66,.16,15.77,.49,3.47,.12,6.71,.21,9.72,.25,.6-1.28,1.24-2.55,1.93-3.81,4.43-8.16,10.11-15.26,16.94-21.19h-44.35c-8.84,0-16.99,1.81-24.43,5.42-7.44,3.61-13.54,8.31-18.28,14.07-4.75,5.77-8.31,12.4-10.68,19.9-2.37,7.5-3.26,14.96-2.67,22.41,.59,7.44,2.94,14.78,7.04,22,4.1,7.23,9.81,13.37,17.15,18.44,6.36,4.42,12.35,7.2,17.96,8.33,5.61,1.13,13.1,1.7,22.49,1.7h35.96c-6.89-5.94-12.63-13.05-17.09-21.22Z"},
+ {c:'w',d:"M776.18,72.68c-9.6-6.69-20.17-10.03-31.71-10.03h-3.52c-11.54,0-22.11,3.29-31.71,9.87-7.44,5.18-13.37,11.83-17.79,19.98-4.42,8.14-6.63,16.91-6.63,26.29s2.21,18.12,6.63,26.21c4.42,8.09,10.35,14.72,17.79,19.9,9.6,6.69,20.17,10.03,31.71,10.03h3.52c11.54,0,22.11-3.29,31.71-9.87,7.44-5.18,13.37-11.83,17.79-19.98,4.42-8.14,6.63-16.91,6.63-26.29s-2.21-18.12-6.63-26.21c-4.42-8.09-10.35-14.72-17.79-19.9Zm-9.38,68.59c-6.25,6.26-13.69,9.38-22.32,9.38h-3.52c-8.63,0-16.07-3.13-22.32-9.38-6.26-6.26-9.38-13.75-9.38-22.49s3.13-16.23,9.38-22.49c6.25-6.26,13.69-9.38,22.32-9.38h3.52c8.63,0,16.07,3.13,22.32,9.38,6.26,6.26,9.38,13.75,9.38,22.49s-3.13,16.23-9.38,22.49Z"},
+ {c:'w',d:"M700.29,62.44l-149.26-.22c-.72-.03-1.44-.05-2.17-.05h-105.92c-2.48,0-4.15,1.13-5.01,3.4l.16-.16-1.94,3.4-.65,.97-29.93,50.63-29.93-50.63-.65-.97-1.78-3.4v.16c-.86-2.26-2.48-3.4-4.85-3.4h-41.62c7.14,6.04,13.07,13.31,17.66,21.71,5.88,10.75,8.86,22.49,8.86,34.91s-2.97,24.16-8.83,34.94c-4.55,8.39-10.43,15.65-17.5,21.68h41.44c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-55.97l14.24,24.27,9.22,15.69c.75,1.19,3.61,1.78,8.57,1.78s7.82-.59,8.57-1.78l9.22-15.69,14.24-24.27v55.97c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.29,1.54,3.8,1.54h14.07c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64V86.16l42.35,.59h44.33c5.39,0,10.05,1.94,13.99,5.82,3.94,3.88,5.9,8.52,5.9,13.91s-1.97,10.06-5.9,13.99c-3.94,3.94-8.6,5.9-13.99,5.9h-68.91v43.84c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-19.41h44.33c7.01,0,13.64-1.56,19.9-4.69,4.85-2.37,9.11-5.55,12.78-9.54,3.67-3.99,6.52-8.57,8.57-13.75,2.05-5.18,3.07-10.62,3.07-16.34,0-7.26-1.55-13.88-4.63-19.9h42.03v85.74c0,1.51,.51,2.75,1.54,3.72,1.02,.97,2.24,1.46,3.64,1.46h14.07c1.24,0,2.43-.45,3.56-1.34,.97-1.1,1.46-2.37,1.46-3.83V86.59l27.34,.18c.58-1.22,1.19-2.43,1.84-3.63,4.29-7.91,9.74-14.84,16.26-20.7Z"},
+ {c:'w',d:"M812.31,170.23c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64V98.32h-24.59v71.91Z"},
+ {c:'w',d:"M968.81,129.22c4.21-6.96,6.31-14.53,6.31-22.73,0-12.19-4.34-22.62-13.02-31.3-8.68-8.68-19.12-13.02-31.3-13.02h-114.44v.12c-.93,.21-1.77,.67-2.51,1.41-1.03,1.03-1.54,2.24-1.54,3.64v22.47h24.59v-3.58l49.57,.52h44.33c3.56,0,6.87,.89,9.95,2.67,3.07,1.78,5.5,4.18,7.28,7.2,1.78,3.02,2.67,6.31,2.67,9.87,0,5.39-1.97,10.06-5.9,13.99-3.94,3.94-8.6,5.9-13.99,5.9h-68.91v43.84c0,1.4,.51,2.62,1.54,3.64,1.02,1.03,2.24,1.54,3.64,1.54h14.24c1.4,0,2.61-.51,3.64-1.54,1.02-1.02,1.54-2.24,1.54-3.64v-19.41h39.63l15.37,22.32c.32,.54,.78,.95,1.37,1.21,.59,.27,1.13,.4,1.62,.4s1.19-.05,2.1-.16c.92-.11,1.59-.16,2.02-.16l16.66,.16c1.29,0,2.05-.92,2.27-2.75,.21-1.83-.11-3.34-.97-4.53l-14.4-22c6.9-3.77,12.46-9.14,16.66-16.1Z"},
+ {c:'r',d:"M188.55,100.43c-3.19,1.8-5.69,4.3-7.48,7.51-1.8,3.22-2.69,6.87-2.69,10.98s.9,7.75,2.69,10.95c1.79,3.2,4.3,5.69,7.51,7.48,3.21,1.8,6.87,2.69,10.98,2.69,3.47,0,6.59-.67,9.35-2.01,2.76-1.34,5.04-3.1,6.83-5.27,.7-.85,1.32-1.73,1.87-2.63v9.62h21.2v-8.22h-12.32v-4.59h12.32v-8.05h-12.32v-12.34h26.41v-.03l3.58-.06c1.97,0,3.58,.57,4.82,1.72,1.24,1.14,1.86,2.58,1.86,4.32s-.63,3.29-1.89,4.56c-1.26,1.26-2.86,1.89-4.79,1.89l-3.59-.03-8.91-.03v21.01s8.92,0,8.92,0v-12.96l4.17-.06c4.14-.04,7.62-1.41,10.44-4.11,2.82-2.7,4.23-6.02,4.23-9.97s-1.43-7.22-4.29-10.06c-2.86-2.84-6.32-4.26-10.36-4.41h-39.47v9.58c-1.26-2.66-3.1-4.85-5.53-6.56-3.41-2.41-7.6-3.61-12.57-3.61-4.1,0-7.75,.9-10.95,2.69Zm19.11,10.92h9.94v8.15h-13.91v8.04h4.69c-.52,.64-1.1,1.2-1.75,1.68-1.72,1.26-3.82,1.89-6.3,1.89-3.63,0-6.48-1.07-8.55-3.22-2.07-2.15-3.11-5.14-3.11-8.96,0-3.59,.99-6.46,2.96-8.61,1.97-2.15,4.59-3.22,7.87-3.22,1.89,0,3.54,.37,4.94,1.09,1.4,.73,2.47,1.79,3.22,3.17Z"},
+ {c:'w',d:"M157.22,103.33c.77-1.42,1.66-2.81,2.69-4.23l.3-.41c.15-.2,.29-.41,.46-.62,.32-.41,.71-.87,1.15-1.37,.09-.1,.18-.21,.27-.31,.71-.78,1.47-1.56,2.28-2.3l.35-.29,.27-.27c.97-.84,1.96-1.63,2.98-2.34,5.76-3.93,11.91-5.84,18.8-5.84h92.21c.44,0,.89,0,1.32,.02,2.97,.11,5.72,.58,8.41,1.43,.38,.12,.75,.25,1.13,.38,.75,.27,1.5,.58,2.24,.91,.75,.34,1.5,.71,2.23,1.11,1.14,.62,2.28,1.33,3.41,2.12,.57,.39,1.13,.81,1.67,1.23,1.06,.83,2.08,1.73,3.02,2.67,.47,.47,.94,.96,1.38,1.45,1.8,2.01,3.4,4.29,4.77,6.79,.33,.6,.64,1.21,.92,1.81,.14,.3,.28,.6,.41,.91,.18,.41,.3,.83,.46,1.24h23.62c-.73-3.51-1.8-6.93-3.23-10.23-.22-.52-.46-1.04-.7-1.55-.48-1.03-1-2.05-1.55-3.06-2.21-4.04-4.8-7.72-7.76-11.04-.74-.83-1.51-1.64-2.3-2.42-1.58-1.57-3.25-3.04-5.02-4.43-.88-.69-1.79-1.36-2.72-2.01-1.8-1.25-3.63-2.39-5.5-3.41-1.25-.68-2.51-1.31-3.78-1.88-1.28-.57-2.57-1.1-3.87-1.57-.65-.24-1.31-.46-1.97-.67-4.62-1.46-9.43-2.29-14.43-2.47-.71-.03-1.43-.04-2.15-.04h-92.21c-11.54,0-22.11,3.29-31.71,9.87-1.96,1.37-3.81,2.84-5.57,4.41h0s0,0,0,0c-1.61,1.45-3.14,2.98-4.57,4.6-.04,.05-.08,.1-.12,.15-.67,.76-1.33,1.54-1.96,2.34-.43,.54-.83,1.11-1.24,1.66-1.57,2.15-3.02,4.4-4.33,6.81-2.59,4.76-4.39,9.75-5.47,14.93h23.57c.52-1.39,1.12-2.76,1.85-4.1Z"},
+ {c:'w',d:"M309.87,131.48c-.13,.31-.27,.62-.41,.91-.29,.62-.6,1.24-.93,1.85-1.87,3.45-4.13,6.39-6.89,8.97-.46,.43-.93,.85-1.41,1.25-.92,.78-1.73,1.4-2.44,1.9-.51,.35-1.09,.72-1.78,1.13-5.25,3.17-10.82,4.71-17.02,4.71h-92.21c-6.85,0-12.98-1.95-18.74-5.96-4.56-3.17-8.1-7.14-10.84-12.15-.71-1.3-1.3-2.62-1.81-3.96h-23.58c1.07,5.17,2.88,10.13,5.47,14.85,4.42,8.09,10.35,14.72,17.79,19.9,9.6,6.69,20.17,10.03,31.71,10.03h92.21c10.37,0,19.96-2.66,28.76-7.98,.99-.6,1.98-1.22,2.95-1.89,1.44-1,2.8-2.07,4.13-3.18,.8-.67,1.59-1.37,2.35-2.09,4.48-4.2,8.27-9.1,11.32-14.71,.55-1.02,1.07-2.05,1.55-3.08,.24-.52,.48-1.04,.7-1.56,1.43-3.33,2.5-6.76,3.23-10.29h-23.6c-.17,.45-.31,.9-.5,1.34Z"},
+ {c:'w',rect:[109.09,107.43,22.71,22.71]},
+ {c:'w',rect:[289.75,107.43,22.71,22.71]}
+];const NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const svg=$('s');
+const mk=(n,a,p)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e;};
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,3);
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eob=x=>{const c1=1.6,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2);};
+const BLUE='#19226d',RED='#db4041',WHITE='#ffffff',PALE='#e9ecf8';
+const DUR=67.9;
+window.DUR=DUR;
+
+/* ---------- word anchors ---------- */
+const FLAT=[];CAPS.forEach(c=>c.words.forEach(w=>FLAT.push(w)));
+const A=i=>FLAT[i].s;
+
+/* ---------- logo ---------- */
+function buildLogo(g,whiteMode){
+  LOGO_PATHS.forEach(p=>{
+    const col=p.c==='r'?RED:(whiteMode?WHITE:BLUE);
+    if(p.rect)mk('rect',{x:p.rect[0],y:p.rect[1],width:p.rect[2],height:p.rect[3],fill:col},g);
+    else mk('path',{d:p.d,fill:col},g);
+  });
+  g.setAttribute('transform','translate(390,282) scale(0.3)');
+}
+buildLogo($('logoB'),false);buildLogo($('logoW'),true);
+
+/* ---------- item system ---------- */
+const ITEMS=[];
+function item(t0,t1,o={}){
+  const it={g:mk('g',{display:'none'}),t0,t1,enter:o.enter||'up',inD:o.inD||0.45,outD:o.outD||0.3,ox:o.ox||540,oy:o.oy||700,draws:[],pops:[],wipes:[],upd:null};
+  ITEMS.push(it);return it;
+}
+const R=(it,tag,attrs)=>mk(tag,attrs,it.g);
+function path(it,d,attrs,t0,dur){
+  const e=R(it,'path',Object.assign({d,fill:'none',pathLength:1,'stroke-dasharray':'1 1.02','stroke-dashoffset':1,'stroke-linecap':'round','stroke-linejoin':'round'},attrs));
+  it.draws.push({e,t0,dur});return e;
+}
+function dash(it,d,attrs,t0){const e=R(it,'path',Object.assign({d,fill:'none','stroke-dasharray':'16 12','stroke-linecap':'round'},attrs));pop(it,e,t0,0.5);return e;}
+function pop(it,e,t0,dur=0.45){
+  const tr0=e.getAttribute('transform');
+  if(tr0){const w=mk('g',{transform:tr0},e.parentNode);e.parentNode.insertBefore(w,e);e.removeAttribute('transform');w.appendChild(e);}
+  e.style.transformBox='fill-box';e.style.transformOrigin='center';e.setAttribute('opacity',0);it.pops.push({e,t0,dur});}
+function text(it,x,y,str,o={}){
+  const e=R(it,'text',{x,y,'font-size':o.size||40,'font-weight':o.w||800,fill:o.fill||BLUE,'text-anchor':o.anchor||'middle','dominant-baseline':'central','letter-spacing':o.ls||0});
+  e.textContent=str;if(o.t0!==undefined)pop(it,e,o.t0);return e;
+}
+function pill(it,cx,cy,w,h,str,o={}){
+  const g=R(it,'g',{});
+  mk('rect',{x:cx-w/2,y:cy-h/2,width:w,height:h,rx:h/2,fill:o.bg||RED,stroke:o.stroke||'none','stroke-width':o.sw||0},g);
+  const t=mk('text',{x:cx+(o.dx||0),y:cy+2,'font-size':o.size||34,'font-weight':800,fill:o.fg||WHITE,'text-anchor':'middle','dominant-baseline':'central','letter-spacing':o.ls||1},g);t.textContent=str;
+  if(o.check){const c=mk('path',{d:'M-14 0 L-4 11 L16 -12',fill:'none',stroke:WHITE,'stroke-width':7,'stroke-linecap':'round','stroke-linejoin':'round',transform:`translate(${cx-w/2+h/2+4},${cy})`},g);}
+  if(o.t0!==undefined)pop(it,g,o.t0);
+  return g;
+}
+function wipeImg(it,href,x,y,w,h,t0,dur,o={}){
+  const id='cp'+Math.random().toString(36).slice(2,8);
+  const cp=mk('clipPath',{id},it.g);
+  const r=mk('rect',{x,y,width:0,height:h,rx:o.rx||0},cp);
+  const im=R(it,'image',{x,y,width:w,height:h,href,preserveAspectRatio:o.par||'xMidYMid meet','clip-path':`url(#${id})`});
+  it.wipes.push({r,x,w,t0,dur});return im;
+}
+function arrowDim(it,x1,x2,y,col,t0,dur,sw=6,tick=26){
+  // double arrow with end ticks
+  path(it,`M${x1} ${y} H${x2}`,{stroke:col,'stroke-width':sw},t0,dur);
+  path(it,`M${x1+22} ${y-14} L${x1} ${y} L${x1+22} ${y+14}`,{stroke:col,'stroke-width':sw},t0+dur*0.7,dur*0.4);
+  path(it,`M${x2-22} ${y-14} L${x2} ${y} L${x2-22} ${y+14}`,{stroke:col,'stroke-width':sw},t0+dur*0.7,dur*0.4);
+  path(it,`M${x1} ${y-tick} V${y+tick}`,{stroke:col,'stroke-width':sw},t0,dur*0.3);
+  path(it,`M${x2} ${y-tick} V${y+tick}`,{stroke:col,'stroke-width':sw},t0,dur*0.3);
+}
+function checkIcon(it,cx,cy,r,t0){
+  const g=R(it,'g',{});
+  mk('circle',{cx,cy,r,fill:RED},g);
+  mk('path',{d:`M${cx-r*0.42} ${cy+r*0.02} L${cx-r*0.1} ${cy+r*0.36} L${cx+r*0.46} ${cy-r*0.34}`,fill:'none',stroke:WHITE,'stroke-width':r*0.26,'stroke-linecap':'round','stroke-linejoin':'round'},g);
+  pop(it,g,t0);return g;
+}
+
+/* ================= SCENE B  (light, overlay on hook) ================= */
+{
+  const it=item(4.7,8.55,{enter:'fade'});
+  pill(it,540,420,620,96,'ESPACE OUVERT',{bg:BLUE,size:44,t0:A(11)});
+  const ell=path(it,'M445 1100 a90 52 0 1 0 180 0 a90 52 0 1 0 -180 0',{stroke:RED,'stroke-width':9,'stroke-dasharray':'0.06 0.04'},A(16)-0.05,0.8);
+  ell.setAttribute('stroke-dasharray','1 1.02');
+  pill(it,540,1010,380,88,'0 POTEAU',{bg:RED,size:40,t0:A(17)-0.1,check:true,dx:22});
+}
+
+/* ================= SCENE C/D  cards (blue) ================= */
+{
+  const it=item(8.95,16.05,{enter:'up'});
+  text(it,540,405,'PLANCHER PRÉFABRIQUÉ',{size:42,fill:WHITE,ls:2});
+  path(it,'M300 432 H780',{stroke:RED,'stroke-width':7},9.3,0.6);
+  const cards=[[470,'photo_pout.jpg','POUTRELLES + ENTREVOUS'],[880,'photo_da.jpg','DALLE ALVÉOLÉE']];
+  cards.forEach(([y,img,lab],i)=>{
+    const g=R(it,'g',{});
+    mk('rect',{x:90,y,width:900,height:380,rx:40,fill:WHITE},g);
+    const cp=mk('clipPath',{id:'cc'+i},g);mk('rect',{x:104,y:y+14,width:872,height:290,rx:30},cp);
+    mk('image',{x:104,y:y+14,width:872,height:290,href:'assets/'+img,preserveAspectRatio:'xMidYMid slice','clip-path':`url(#cc${i})`},g);
+    const t=mk('text',{x:540,y:y+343,'font-size':36,'font-weight':800,fill:BLUE,'text-anchor':'middle','dominant-baseline':'central','letter-spacing':1.5},g);t.textContent=lab;
+    pop(it,g,9.15+i*0.3,0.5);
+    // highlight border
+    const hl=path(it,`M${90+40} ${y} H${990-40} a40 40 0 0 1 40 40 V${y+380-40} a40 40 0 0 1 -40 40 H${90+40} a40 40 0 0 1 -40 -40 V${y+40} a40 40 0 0 1 40 -40 Z`,{stroke:RED,'stroke-width':10},i===0?A(29):A(33),0.5);
+  });
+  // question bubble
+  const q=R(it,'g',{});
+  mk('circle',{cx:900,cy:860,r:72,fill:RED,stroke:WHITE,'stroke-width':8},q);
+  const qt=mk('text',{x:900,y:868,'font-size':104,'font-weight':900,fill:WHITE,'text-anchor':'middle','dominant-baseline':'central'},q);qt.textContent='?';
+  pop(it,q,A(27)-0.1,0.5);
+  // hide bubble later
+  it.upd=(t)=>{ q.setAttribute('display',t>A(29)+0.3?'none':'inline'); };
+}
+
+/* ================= WHITE SHEET (E..H) ================= */
+const SH=item(16.0,63.15,{enter:'up',inD:0.5});
+R(SH,'rect',{x:80,y:390,width:920,height:920,rx:44,fill:WHITE});
+
+/* ---- E1 poutrelles + entrevous ---- */
+{
+  const it=item(16.25,20.95,{enter:'fade'});
+  text(it,540,462,'POUTRELLES + ENTREVOUS',{size:42,ls:1.5});
+  path(it,'M300 492 H780',{stroke:RED,'stroke-width':7},16.5,0.5);
+  wipeImg(it,'assets/k_poutrelle.png',100,540,520,185,A(36),0.7);
+  wipeImg(it,'assets/k_entrevous3d.png',650,530,300,193,A(39),0.7);
+  wipeImg(it,'assets/k_application.png',100,800,880,131,17.9,0.9);
+  text(it,540,975,'Coupe du plancher poutrelles-entrevous',{size:26,w:500,fill:'#5b648f'});
+  const h=pill(it,300,1075,420,96,'HABITATIONS',{bg:BLUE,size:30,t0:A(43),dx:28});
+  const hi=R(it,'path',{d:'M-24 14 V-8 L0 -30 L24 -8 V14 Z M-7 14 V0 H7 V14',fill:'none',stroke:WHITE,'stroke-width':4,'stroke-linejoin':'round',transform:'translate(114,1075)'});pop(it,hi,A(43));
+  const p2=pill(it,760,1075,420,96,'PLANS COMPLEXES',{bg:BLUE,size:28,t0:A(46),dx:28});
+  const pi=R(it,'path',{d:'M-26 -24 H26 V4 H4 V26 H-26 Z M-10 -24 V26 M4 4 H-10',fill:'none',stroke:WHITE,'stroke-width':4,'stroke-linejoin':'round',transform:'translate(574,1075)'});pop(it,pi,A(46));
+  pill(it,540,1205,660,84,'JUSQU\'À 9 M DE PORTÉE',{bg:RED,size:32,t0:19.85});
+}
+/* ---- E2 manual, no crane ---- */
+{
+  const it=item(20.95,22.95,{enter:'fade'});
+  text(it,540,462,'MONTAGE MANUEL',{size:42,ls:1.5});
+  path(it,'M300 492 H780',{stroke:RED,'stroke-width':7},21.1,0.4);
+  // crane icon
+  const cg=R(it,'g',{transform:'translate(540,640)'});
+  mk('path',{d:'M-50 70 V-70 M-80 -70 H80 M46 -70 V-20 M46 -20 l-9 16 h18 z M-50 -70 L-80 -40 M-50 -70 L-20 -70',fill:'none',stroke:BLUE,'stroke-width':8,'stroke-linecap':'round','stroke-linejoin':'round'},cg);
+  mk('path',{d:'M-70 70 H-30',fill:'none',stroke:BLUE,'stroke-width':10,'stroke-linecap':'round'},cg);
+  pop(it,cg,21.05);
+  const cr=mk('circle',{cx:540,cy:640,r:110,fill:'none',stroke:RED,'stroke-width':14,pathLength:1,'stroke-dasharray':'1 1.02','stroke-dashoffset':1},it.g);it.draws.push({e:cr,t0:A(51)-0.05,dur:0.4});
+  const sl=mk('path',{d:'M462 718 L618 562',fill:'none',stroke:RED,'stroke-width':14,'stroke-linecap':'round',pathLength:1,'stroke-dasharray':'1 1.02','stroke-dashoffset':1},it.g);it.draws.push({e:sl,t0:A(51)+0.25,dur:0.3});
+  pill(it,540,820,360,84,'SANS GRUE',{bg:RED,size:36,t0:A(52)-0.1});
+  wipeImg(it,'assets/k_steps_pout.png',110,880,860,372,21.3,1.2);
+}
+/* ---- E3 portee 9 m  (+ >9 m ?) ---- */
+function elevation(it,xL,xR,t0,slabCol,dy=0){
+  const wl=R(it,'rect',{x:xL-90,y:740+dy,width:90,height:250,fill:BLUE});
+  const wr=R(it,'rect',{x:xR,y:740+dy,width:90,height:250,fill:BLUE});
+  pop(it,wl,t0);pop(it,wr,t0+0.1);
+  const sl=R(it,'rect',{x:xL,y:712+dy,width:xR-xL,height:46,fill:slabCol||PALE,stroke:BLUE,'stroke-width':5});
+  pop(it,sl,t0+0.2);
+  // beam ticks
+  let d='';for(let x=xL+24;x<xR-10;x+=34)d+=`M${x} ${716+dy} V${754+dy} `;
+  path(it,d,{stroke:BLUE,'stroke-width':2.5,opacity:.55},t0+0.3,0.7);
+}
+{
+  const it=item(22.95,27.35,{enter:'fade'});
+  text(it,540,462,'PORTÉE MAXIMALE',{size:42,ls:1.5});
+  path(it,'M300 492 H780',{stroke:RED,'stroke-width':7},23.1,0.4);
+  elevation(it,240,840,23.1,null,50);
+  arrowDim(it,240,840,910,RED,A(53),1.0);
+  const nine=text(it,540,1075,'9 m',{size:150,w:900,fill:RED,t0:A(57)});
+  const nt=text(it,540,1190,'POUTRELLES + ENTREVOUS',{size:30,w:700,fill:BLUE,ls:1.5,t0:A(59)});
+  it.upd=t=>{const f=t>A(60)?1:0;nine.setAttribute('display',f?'none':'inline');nt.setAttribute('display',f?'none':'inline');};
+  const big=text(it,540,1075,'> 9 m ?',{size:150,w:900,fill:RED,t0:A(61)});
+  big.setAttribute('display','inline');
+  dash(it,'M840 910 H1000',{stroke:RED,'stroke-width':6},A(63));
+  const old=it.upd;it.upd=t=>{old(t);big.style.display=t<A(60)?'none':'';};
+}
+/* ---- F2a  dalle alveolee reveal ---- */
+{
+  const it=item(27.4,29.25,{enter:'fade'});
+  const cp=mk('clipPath',{id:'cph'},it.g);mk('rect',{x:110,y:420,width:860,height:310,rx:30},cp);
+  R(it,'image',{x:110,y:420,width:860,height:310,href:'assets/photo_da.jpg',preserveAspectRatio:'xMidYMid slice','clip-path':'url(#cph)'});
+  pill(it,330,700,420,76,'DALLE ALVÉOLÉE',{bg:RED,size:30,t0:A(68)-0.1});
+  const X0=120,W0=840,Y0=840,H0=W0*145/941;
+  wipeImg(it,'assets/k_da16.png',X0,Y0,W0,H0,27.7,0.8);
+  const holes=[102,208,314,421,527,634,740].map(v=>v/941);
+  holes.forEach((f,i)=>{
+    const g=R(it,'g',{});
+    mk('circle',{cx:X0+f*W0,cy:Y0+H0*0.46,r:25,fill:RED},g);
+    const t=mk('text',{x:X0+f*W0,y:Y0+H0*0.46+2,'font-size':28,'font-weight':900,fill:WHITE,'text-anchor':'middle','dominant-baseline':'central'},g);t.textContent=i+1;
+    pop(it,g,28.35+i*0.11,0.35);
+  });
+  pill(it,540,1090,440,92,'7 ALVÉOLES',{bg:BLUE,size:40,t0:29.0-0.1});
+  text(it,540,1200,'Section DA16 · largeur 1,20 m',{size:28,w:500,fill:'#5b648f'});
+}
+/* ---- F2b 15 m ---- */
+{
+  const it=item(29.25,32.15,{enter:'fade'});
+  text(it,540,462,'GRANDE PORTÉE',{size:42,ls:1.5});
+  path(it,'M300 492 H780',{stroke:RED,'stroke-width':7},29.4,0.4);
+  elevation(it,190,890,29.4,'#d6dcf2',50);
+  arrowDim(it,190,890,910,RED,A(70)+0.1,1.0);
+  text(it,540,1075,'15 m',{size:150,w:900,fill:RED,t0:A(73)});
+  pill(it,540,1200,600,92,'0 POTEAU INTERMÉDIAIRE',{bg:BLUE,size:30,t0:A(75),check:true,dx:26});
+}
+/* ---- F3 crane ---- */
+{
+  const it=item(32.15,33.3,{enter:'fade'});
+  text(it,540,462,'POSE À LA GRUE',{size:42,ls:1.5});
+  path(it,'M300 492 H780',{stroke:RED,'stroke-width':7},32.3,0.4);
+  const im=wipeImg(it,'assets/k_crane.png',260,540,560,465,32.3,0.6);
+  pill(it,540,1130,560,92,'PLANCHER POSÉ D\'UN COUP',{bg:RED,size:30,t0:A(79)});
+  it.upd=t=>{im.setAttribute('transform',`translate(0,${-14*Math.sin((t-32.3)*5)})`);};
+}
+/* ---- F4 sans etais ---- */
+{
+  const it=item(33.3,36.85,{enter:'fade'});
+  text(it,540,462,'SOUS-FACE LIBRE',{size:42,ls:1.5});
+  path(it,'M300 492 H780',{stroke:RED,'stroke-width':7},33.45,0.4);
+  elevation(it,240,840,33.45,null,50);
+  const props=R(it,'g',{});
+  let d='';[300,420,540,660,780].forEach(x=>{d+=`M${x} 810 V1035 M${x-22} 1035 H${x+22} `;});
+  const pp=mk('path',{d,fill:'none',stroke:BLUE,'stroke-width':6,'stroke-linecap':'round',pathLength:1,'stroke-dasharray':'1 1.02','stroke-dashoffset':1},props);it.draws.push({e:pp,t0:A(82)-0.4,dur:0.6});
+  const x1=mk('path',{d:'M250 820 L830 1035 M830 820 L250 1035',fill:'none',stroke:RED,'stroke-width':16,'stroke-linecap':'round',pathLength:1,'stroke-dasharray':'1 1.02','stroke-dashoffset':1},it.g);it.draws.push({e:x1,t0:A(84),dur:0.5});
+  pill(it,300,1160,300,84,'SANS ÉTAIS',{bg:RED,size:32,t0:A(84)+0.1});
+  pill(it,720,1160,420,84,'TRAVAUX IMMÉDIATS',{bg:BLUE,size:30,t0:A(86),check:true,dx:22});
+  it.upd=t=>{props.setAttribute('opacity',t>A(85)+0.5?Math.max(0.15,1-(t-A(85)-0.5)*2):1);};
+}
+
+/* ---- Cases ---- */
+function caseChip(it,txt,t0){pill(it,540,462,780,84,txt,{bg:BLUE,size:30,t0,ls:1.5});}
+/* G1: 14 m hall */
+{
+  const it=item(36.9,45.45,{enter:'fade'});
+  caseChip(it,'CAS 1 · SALLE OUVERTE DE 14 M',A(90));
+  const x0=150,x1=930,y0=620,y1=970;
+  R(it,'rect',{x:x0,y:y0,width:x1-x0,height:y1-y0,fill:'#f0f2fb'});
+  path(it,`M${x0} ${y0} H${x1} V${y1} H${x0} Z`,{stroke:BLUE,'stroke-width':14,'stroke-linejoin':'miter'},37.6,1.0);
+  arrowDim(it,x0,x1,560,RED,A(93)+0.2,1.0);
+  text(it,540,830,'14 m',{size:130,w:900,fill:RED,t0:A(96)-0.05});
+  const nine=(x1-x0)*9/14;
+  dash(it,`M${x0+8} 730 H${x0+nine}`,{stroke:BLUE,'stroke-width':8},A(104)-0.1);
+  text(it,x0+nine/2,700,'9 m max.',{size:30,w:700,fill:BLUE,t0:A(104)});
+  pill(it,540,1100,720,104,'DALLE ALVÉOLÉE',{bg:RED,size:46,t0:A(100)-0.05,check:true,dx:34});
+  text(it,540,1210,'14 m  >  9 m',{size:54,w:800,fill:BLUE,t0:A(105)});
+}
+/* G2: complex plan */
+{
+  const it=item(45.45,51.25,{enter:'fade'});
+  caseChip(it,'CAS 2 · PLAN AVEC PETITES PIÈCES',A(108));
+  path(it,'M170 600 H920 V810 H700 V1010 H170 Z',{stroke:BLUE,'stroke-width':14,'stroke-linejoin':'miter'},A(109),1.2);
+  path(it,'M330 600 V1010 M490 600 V810 M170 800 H490 M700 810 H490 M330 800 V1010',{stroke:BLUE,'stroke-width':8},A(111),1.1);
+  path(it,'M610 560 V740 M760 740 V560',{stroke:BLUE,'stroke-width':8,opacity:0},0,1);
+  pill(it,540,1100,820,104,'POUTRELLES + ENTREVOUS',{bg:RED,size:36,t0:A(114)-0.05,check:true,dx:34});
+  pill(it,320,1215,420,84,'S\'ADAPTE AU PLAN',{bg:BLUE,size:28,t0:A(115)});
+  pill(it,760,1215,420,84,'PLUS ÉCONOMIQUE',{bg:BLUE,size:28,t0:A(119)});
+}
+/* G3: 11 m */
+{
+  const it=item(51.25,59.35,{enter:'fade'});
+  caseChip(it,'CAS 3 · PORTÉE DE 11 M',A(121));
+  const x0=205,x1=875,y0=620,y1=870;
+  R(it,'rect',{x:x0,y:y0,width:x1-x0,height:y1-y0,fill:'#f0f2fb'});
+  path(it,`M${x0} ${y0} H${x1} V${y1} H${x0} Z`,{stroke:BLUE,'stroke-width':14,'stroke-linejoin':'miter'},A(122),0.9);
+  arrowDim(it,x0,x1,565,RED,A(123),0.9);
+  text(it,540,745,'11 m',{size:110,w:900,fill:RED,t0:A(124)});
+  text(it,540,940,'Travailler dessous dès le 1er jour ?',{size:32,w:600,fill:'#5b648f',t0:A(126)});
+  pill(it,540,1030,720,104,'DALLE ALVÉOLÉE',{bg:RED,size:46,t0:A(130)-0.05,check:true,dx:34});
+  pill(it,250,1170,300,80,'SANS ÉTAIS',{bg:BLUE,size:28,t0:A(132)});
+  pill(it,560,1170,300,80,'POSE À LA GRUE',{bg:BLUE,size:26,t0:A(134)});
+  pill(it,850,1170,260,80,'DESSOUS LIBRE',{bg:BLUE,size:24,t0:A(138)});
+}
+/* H: the rule */
+{
+  const it=item(59.35,63.15,{enter:'fade'});
+  text(it,540,462,'LA RÈGLE DU CHOIX',{size:42,ls:1.5,t0:A(141)});
+  path(it,'M300 492 H780',{stroke:RED,'stroke-width':7},A(141)+0.2,0.4);
+  const x0=130,x15=950,ppm=(x15-x0)/15,x9=x0+9*ppm,yb=850,hb=110;
+  const s1=R(it,'rect',{x:x0,y:yb,width:x9-x0,height:hb,fill:BLUE});
+  const s2=R(it,'rect',{x:x9,y:yb,width:x15-x9,height:hb,fill:RED});
+  pop(it,s1,A(142));pop(it,s2,A(142)+0.15);
+  text(it,(x0+x9)/2,yb+hb/2+2,'POUTRELLES + ENTREVOUS',{size:25,fill:WHITE,ls:1,t0:A(142)+0.3});
+  text(it,(x9+x15)/2,yb+hb/2+2,'DALLE ALVÉOLÉE',{size:25,fill:WHITE,ls:1,t0:A(142)+0.4});
+  [[0,'0 m'],[9,'9 m'],[15,'15 m']].forEach(([m,l])=>text(it,x0+m*ppm,yb+hb+50,l,{size:34,fill:BLUE,t0:A(143)}));
+  const mg=R(it,'g',{});
+  mk('path',{d:'M-34 -20 H34 L0 26 Z',fill:RED,stroke:WHITE,'stroke-width':5,'stroke-linejoin':'round'},mg);
+  const mt=mk('text',{x:0,y:-62,'font-size':32,'font-weight':800,fill:BLUE,'text-anchor':'middle','dominant-baseline':'central','letter-spacing':1.5},mg);mt.textContent='VOTRE PORTÉE';
+  it.upd=t=>{const p=eio(seg(t,A(143),A(148)));const m=4+p*8.5;mg.setAttribute('transform',`translate(${x0+m*ppm},${yb-26})`);mg.setAttribute('opacity',seg(t,A(143),A(143)+0.3));};
+  pill(it,540,1190,700,92,'CHOISISSEZ SELON VOTRE PORTÉE',{bg:BLUE,size:28,t0:A(148)});
+}
+
+/* ================= I: CTA (blue, no sheet) ================= */
+{
+  const it=item(63.3,67.95,{enter:'fade'});
+  const plane=R(it,'g',{transform:'translate(540,640)'});
+  mk('path',{d:'M-130 10 L140 -90 L60 110 L10 30 Z M10 30 L140 -90',fill:'none',stroke:WHITE,'stroke-width':12,'stroke-linejoin':'round','stroke-linecap':'round',pathLength:1,'stroke-dasharray':'1 1.02'},plane);
+  const pp=plane.firstChild;it.draws.push({e:pp,t0:63.4,dur:0.9});
+  path(it,'M-260 120 C-200 60 -170 140 -110 80',{stroke:RED,'stroke-width':10},64.0,0.7).setAttribute('transform','translate(540,640)');
+  text(it,540,880,'ENVOYEZ VOTRE PLAN',{size:76,w:900,fill:WHITE,ls:1,t0:A(154)});
+  path(it,'M240 935 H840',{stroke:RED,'stroke-width':10},A(154)+0.3,0.5);
+  text(it,540,1020,'L\'équipe Comptoir GEP vous accompagne',{size:36,w:600,fill:WHITE,t0:A(157)});
+  it.upd=t=>{plane.setAttribute('transform',`translate(540,${640-10*Math.sin(t*3)})`);};
+}
+
+/* ================= captions ================= */
+const PAGES=[];
+CAPS.forEach(c=>{
+  const ws=c.words;const n=ws.length;
+  if(n<=8){PAGES.push(ws);return;}
+  const parts=Math.ceil(n/7),per=Math.ceil(n/parts);
+  for(let i=0;i<n;i+=per)PAGES.push(ws.slice(i,i+per));
+});
+const isLat=w=>/[A-Za-z]/.test(w);
+const chip=$('chip');let curPage=-1;
+function buildPage(i){
+  const ws=PAGES[i];let html='';let j=0;
+  while(j<ws.length){
+    if(isLat(ws[j].w)){
+      let k=j;let inner='';
+      let trail='';
+      while(k<ws.length&&isLat(ws[k].w)){
+        let txt=ws[k].w;
+        const m=txt.match(/[،؟]+$/);
+        if(m){trail=m[0];txt=txt.slice(0,-m[0].length);}
+        inner+=`<span class="w" data-i="${k}">${txt}</span> `;k++;}
+      html+=`<span class="ltr">${inner.trim()}</span>${trail?'<span class="p">'+trail+'</span>':''} `;j=k;
+    }else{html+=`<span class="w" data-i="${j}">${ws[j].w}</span> `;j++;}
+  }
+  chip.innerHTML=html;curPage=i;
+}
+function updCaps(t){
+  let idx=-1;
+  for(let i=0;i<PAGES.length;i++){
+    const a=PAGES[i][0].s-0.07,b=PAGES[i][PAGES[i].length-1].e+0.3;
+    if(t>=a&&t<=b)idx=i;
+  }
+  const cap=$('cap');
+  if(idx<0){cap.style.opacity=0;return;}
+  if(idx!==curPage)buildPage(idx);
+  const ws=PAGES[idx],a=ws[0].s-0.07,b=ws[ws.length-1].e+0.3;
+  cap.style.opacity=Math.min(1,(t-a)/0.12)*Math.min(1,(b-t)/0.18);
+  const spans=chip.querySelectorAll('.w');
+  spans.forEach(sp=>{const w=ws[+sp.dataset.i];
+    const cls=(t>=w.s-0.03&&t<w.e)?'w on':(t>=w.e?'w done':'w');
+    if(sp.className!==cls)sp.className=cls;});
+}
+
+/* ================= master render ================= */
+const HOOKN=89;
+function render(t){
+  // hook frame
+  const hf=Math.min(HOOKN,Math.floor(t*30)+1);
+  $('hook').setAttribute('href','hook/h'+String(hf).padStart(3,'0')+'.jpg');
+  // blue panel transition
+  const p=eio(seg(t,8.45,9.0));
+  $('panel').setAttribute('display',p>0?'inline':'none');
+  $('panelR').setAttribute('y',1920*(1-p));
+  const edge=$('panelEdge');edge.setAttribute('y',1920*(1-p)-4);edge.setAttribute('opacity',p>0&&p<1?1:0);
+  $('bgb').setAttribute('transform',`translate(540,960) scale(${1+0.06*seg(t,8.45,67.9)}) translate(-540,-960)`);
+  // logo crossfade
+  const la=seg(t,0.3,0.8);
+  $('logoB').setAttribute('opacity',la*(1-seg(t,8.6,9.0)));
+  $('logoW').setAttribute('opacity',la*seg(t,8.6,9.0));
+  // items
+  for(const it of ITEMS){
+    if(t<it.t0||t>it.t1){it.g.setAttribute('display','none');continue;}
+    it.g.setAttribute('display','inline');
+    const a=clamp((t-it.t0)/it.inD),b=clamp((it.t1-t)/it.outD);
+    const e=eo(a),ob=eo(b);
+    it.g.setAttribute('opacity',Math.min(e,ob));
+    let tr='';
+    if(it.enter==='up')tr=`translate(0,${(1-e)*60-(1-ob)*20})`;
+    it.g.setAttribute('transform',tr);
+    for(const d of it.draws)d.e.setAttribute('stroke-dashoffset',1-eio(seg(t,d.t0,d.t0+d.dur)));
+    for(const w of it.wipes)w.r.setAttribute('width',w.w*eo(seg(t,w.t0,w.t0+w.dur)));
+    for(const q of it.pops){const s=seg(t,q.t0,q.t0+q.dur);q.e.setAttribute('opacity',Math.min(1,s*3));q.e.style.transform=`scale(${0.55+0.45*eob(s)})`;}
+    if(it.upd)it.upd(t);
+  }
+  bandsUpd(t);
+  updCaps(t);
+}
+const BANDS=[16.0,27.3,36.85,63.2];
+function bandsUpd(t){
+  let on=false;
+  for(const b0 of BANDS){const p=seg(t,b0-0.05,b0+0.55);if(p>0&&p<1){on=true;const x=-1500+eio(p)*3000;$('bands').setAttribute('transform',`translate(540,960) rotate(-18) translate(${x},0)`);}}
+  $('bands').setAttribute('opacity',on?1:0);
+}
+window.render=render;
+render(0);
+</script></body></html>
