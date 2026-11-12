@@ -1,0 +1,18 @@
+import React, { useEffect, useState } from "react";
+import { continueRender, delayRender, staticFile } from "remotion";
+const LAT = "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD";
+const LATX = "U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF";
+const ARB = "U+0600-06FF,U+0750-077F,U+0870-0891,U+0897-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC";
+export const IsoFonts: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [h] = useState(() => delayRender("iso fonts"));
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    const defs: [string, string][] = [["fonts/Inter-latin.woff2", LAT], ["fonts/Inter-latin-ext.woff2", LATX], ["fonts/Cairo-arabic.woff2", ARB]];
+    Promise.all(defs.map(async ([src, unicodeRange]) => {
+      const f = new FontFace("GEPISO", `url(${staticFile(src)})`, { weight: "400 800", unicodeRange } as FontFaceDescriptors);
+      await f.load();
+      (document.fonts as unknown as { add: (x: FontFace) => void }).add(f);
+    })).then(() => setOk(true)).finally(() => continueRender(h));
+  }, [h]);
+  return <>{ok ? children : null}</>;
+};
