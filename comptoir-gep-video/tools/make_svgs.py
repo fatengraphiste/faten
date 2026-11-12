@@ -9,6 +9,7 @@ def head(w,h):
 @font-face{{font-family:'Montserrat';src:url(data:font/woff2;base64,{FONT}) format('woff2');font-weight:100 900}}
 text{{font-family:'Montserrat',Arial,sans-serif;fill:{NAVY}}}
 .o{{fill:#fff;stroke:{NAVY};stroke-width:5;stroke-linejoin:round;stroke-linecap:round}}
+.o4{{fill:#fff;stroke:{NAVY};stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round}}
 .t{{fill:{TINT};stroke:{NAVY};stroke-width:5;stroke-linejoin:round;stroke-linecap:round}}
 .l{{fill:none;stroke:{NAVY};stroke-width:3;stroke-linecap:round;stroke-linejoin:round}}
 .ex{{fill:none;stroke:{RED};stroke-width:2;stroke-linecap:round}}
