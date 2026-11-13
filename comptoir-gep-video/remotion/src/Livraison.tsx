@@ -23,10 +23,11 @@ type Stat = { t0: number; t1: number; box: Box; num: number; prefix?: string; un
 
 // ───────── contenu : derja tunisien (mots techniques en français) ─────────
 const PIECES: Piece[] = [
-  { t0: 1.45, t1: 3.05, box: { x: 70, y: 1080, w: 840, a: "r" }, lines: [{ text: "أكثر من شانطي", size: 118, hl: [2] }, { text: "مربوط بالوقت و الفلوس", size: 54, delay: 0.55, dir: "left" }] },
+  { t0: 1.0, t1: 2.0, box: { x: 70, y: 1010, w: 840, a: "r" }, lines: [{ text: "إنت مقاول", size: 150, hl: [1], dir: "up" }] },
+  { t0: 1.95, t1: 3.05, box: { x: 70, y: 1080, w: 840, a: "r" }, lines: [{ text: "أكثر من شانطي", size: 118, hl: [2] }, { text: "مربوط بالوقت و الفلوس", size: 54, delay: 0.55, dir: "left" }] },
   { t0: 3.0, t1: 4.35, box: { x: 70, y: 700, w: 940, a: "c" }, lines: [{ text: "وقت = فلوس", size: 190, hl: [2], dir: "down" }] },
   { t0: 4.7, t1: 6.95, box: { x: 70, y: 390, w: 840, a: "r" }, lines: [{ text: "عنا الحل", size: 140, hl: [1] }, { text: "إلي يربحك فلوس و وقت", size: 58, delay: 0.45, dir: "left" }] },
-  { t0: 7.35, t1: 8.95, box: { x: 70, y: 880, w: 940, a: "l" }, deco: "brackets", lines: [{ text: "DALLA الحاضرة", size: 118, hl: [1] }, { text: "الحسبة تتبدل", size: 70, delay: 0.75, dir: "up" }] },
+  { t0: 7.35, t1: 8.95, box: { x: 70, y: 880, w: 940, a: "l" }, deco: "brackets", lines: [{ text: "داله الحاضرة", size: 128, hl: [1] }, { text: "الحسبة تتبدل", size: 70, delay: 0.75, dir: "up" }] },
   { t0: 9.0, t1: 10.4, box: { x: 70, y: 1130, w: 840, a: "r" }, lines: [{ text: "تنقص برشة", size: 124, hl: [0] }, { text: "في الكفراج", size: 92, delay: 0.3, dir: "left" }] },
   { t0: 10.45, t1: 11.95, box: { x: 70, y: 390, w: 940, a: "c" }, lines: [{ text: "التركيب", size: 100 }, { text: "ساهل ماكس", size: 138, hl: [1], delay: 0.22, dir: "down" }] },
   { t0: 15.85, t1: 17.7, box: { x: 70, y: 980, w: 840, a: "r" }, lines: [{ text: "تخدم تحتها", size: 124, hl: [1] }, { text: "منهارك", size: 112, delay: 0.3, dir: "left" }] },
