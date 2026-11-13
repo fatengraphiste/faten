@@ -13,9 +13,9 @@ export const Legend: React.FC<{ t: number; items: Leg[] }> = ({ t, items }) => {
   const op = Math.min(a, b);
   return (
     <g opacity={op} transform={`translate(0 ${(1 - a) * 22})`}>
-      <rect x={70} y={1352} width={64} height={7} rx={3.5} fill={YEL} />
-      <text x={70} y={1408} fontSize={46} fontWeight={800} fill={NAVY} fontFamily={FONT}>{it.title}</text>
-      {it.sub.map((s, i) => <text key={i} x={70} y={1452 + i * 36} fontSize={28} fontWeight={500} fill={DK} fontFamily={FONT}>{s}</text>)}
+      <rect x={70} y={1218} width={64} height={7} rx={3.5} fill={YEL} />
+      <text x={70} y={1274} fontSize={46} fontWeight={800} fill={NAVY} fontFamily={FONT}>{it.title}</text>
+      {it.sub.map((s, i) => <text key={i} x={70} y={1318 + i * 36} fontSize={28} fontWeight={500} fill={DK} fontFamily={FONT}>{s}</text>)}
     </g>
   );
 };
@@ -57,5 +57,5 @@ export const ArLine: React.FC<{ t: number }> = ({ t }) => {
       out.push(" "); j = k;
     } else { out.push(<span key={j} style={{ ...sty(ws[j]), padding: "0 4px" }}>{ws[j].w}</span>, " "); j++; }
   }
-  return <div style={{ position: "absolute", right: 70, left: 70, bottom: 352, textAlign: "right", direction: "rtl", fontFamily: FONT, fontSize: 38, lineHeight: 1.5, opacity: op }}>{out}</div>;
+  return <div style={{ position: "absolute", right: 150, left: 70, bottom: 480, textAlign: "right", direction: "rtl", fontFamily: FONT, fontSize: 38, lineHeight: 1.5, opacity: op }}>{out}</div>;
 };
