@@ -23,7 +23,7 @@ type Stat = { t0: number; t1: number; box: Box; num: number; prefix?: string; un
 
 // ───────── contenu : derja tunisien (mots techniques en français) ─────────
 const PIECES: Piece[] = [
-  { t0: 1.0, t1: 2.0, box: { x: 70, y: 1010, w: 840, a: "r" }, lines: [{ text: "إنت مقاول", size: 150, hl: [1], dir: "up" }] },
+  { t0: -0.3, t1: 1.95, box: { x: 70, y: 1010, w: 840, a: "r" }, lines: [{ text: "إنت مقاول", size: 150, hl: [1], dir: "up" }] },
   { t0: 1.95, t1: 3.05, box: { x: 70, y: 1080, w: 840, a: "r" }, lines: [{ text: "أكثر من شانطي", size: 118, hl: [2] }, { text: "مربوط بالوقت و الفلوس", size: 54, delay: 0.55, dir: "left" }] },
   { t0: 3.0, t1: 4.35, box: { x: 70, y: 700, w: 940, a: "c" }, lines: [{ text: "وقت = فلوس", size: 190, hl: [2], dir: "down" }] },
   { t0: 4.7, t1: 6.95, box: { x: 70, y: 390, w: 840, a: "r" }, lines: [{ text: "عنا الحل", size: 140, hl: [1] }, { text: "إلي يربحك فلوس و وقت", size: 58, delay: 0.45, dir: "left" }] },
@@ -121,6 +121,35 @@ const PieceView: React.FC<{ p: Piece; t: number }> = ({ p, t }) => {
   );
 };
 
+// ───────── « Easing & morphing » : chiffres étirés + flou de mouvement qui se résorbent ─────────
+const MorphNumber: React.FC<{ chars: string; t: number; t0: number; t1: number; size: number; unit: string; unitSize: number }> = ({ chars, t, t0, t1, size, unit, unitSize }) => {
+  const outP = expoOut(prog(t, t1 - 0.26, 0.26));
+  const eo4 = (x: number) => 1 - Math.pow(1 - x, 4);
+  const items = [...chars];
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", whiteSpace: "nowrap", direction: "ltr" }}>
+      <svg width={0} height={0} style={{ position: "absolute" }}>
+        <defs>
+          {items.map((_, i) => { const x = prog(t, t0 + i * 0.09, 0.85); const b = (1 - eo4(x)) * 46; return <filter key={i} id={`mb${i}`} x="-80%" y="-30%" width="260%" height="160%"><feGaussianBlur stdDeviation={`${b + outP * 6} ${outP * 26}`} /></filter>; })}
+          <filter id="mbu" x="-80%" y="-30%" width="260%" height="160%"><feGaussianBlur stdDeviation={`${(1 - eo4(prog(t, t0 + 0.55, 0.8))) * 30} 0`} /></filter>
+        </defs>
+      </svg>
+      {items.map((ch, i) => {
+        const x = prog(t, t0 + i * 0.09, 0.85); const e = eo4(x);
+        const sx = (1 + (1 - e) * 2.4) * (1 - outP * 0.6); const tx = -(1 - e) * 140 + outP * 60;
+        const base: React.CSSProperties = { display: "inline-block", fontWeight: 800, fontSize: size, lineHeight: 1, color: "#fff", transformOrigin: "50% 80%", letterSpacing: -4 };
+        return (
+          <span key={i} style={{ position: "relative", display: "inline-block", opacity: cl(x * 8) * (1 - outP) }}>
+            <span style={{ ...base, position: "absolute", left: 0, top: 0, opacity: 0.32 * (1 - e), transform: `translateX(${tx - 46 * (1 - e)}px) scaleX(${sx * 1.12})`, filter: `url(#mb${i})` }}>{ch}</span>
+            <span style={{ ...base, textShadow: SHADOW, transform: `translateX(${tx}px) scaleX(${sx})`, filter: `url(#mb${i})` }}>{ch}</span>
+          </span>
+        );
+      })}
+      <span style={{ display: "inline-block", marginLeft: 22, fontWeight: 800, fontSize: unitSize, color: "#fff", textShadow: SHADOW, opacity: cl(prog(t, t0 + 0.55, 0.5) * 4) * (1 - outP), transform: `translateX(${(1 - eo4(prog(t, t0 + 0.55, 0.8))) * 120}px)`, filter: "url(#mbu)" }}>{unit}</span>
+    </div>
+  );
+};
+
 const StatView: React.FC<{ s: Stat; t: number }> = ({ s, t }) => {
   const out = expoOut(prog(t, s.t1 - 0.26, 0.26));
   const c = expoOut(prog(t, s.t0 + 0.05, 0.85));
@@ -131,10 +160,10 @@ const StatView: React.FC<{ s: Stat; t: number }> = ({ s, t }) => {
   const sp = expoOut(prog(t, s.t0 + 0.45, 0.4));
   return (
     <div style={{ position: "absolute", left: s.box.x, top: s.box.y, width: s.box.w, fontFamily: FONT, opacity: 1 - out, transform: `translateY(${out * -26}px) scale(${beatScale(t)})`, filter: `blur(${out * 8}px)` }}>
-      <div style={{ display: "flex", justifyContent: s.box.a === "c" ? "center" : "flex-start", alignItems: "baseline", gap: 18, whiteSpace: "nowrap", opacity: cl(x * 6), transform: `scale(${0.4 + 0.6 * e}) rotate(${(1 - e) * -6}deg)`, transformOrigin: "50% 80%" }}>
+      {s.num >= 1000 ? <MorphNumber chars={`${s.prefix || ""}${s.num}`} t={t} t0={s.t0} t1={s.t1} size={215} unit={s.unit} unitSize={80} /> : <div style={{ display: "flex", justifyContent: s.box.a === "c" ? "center" : "flex-start", alignItems: "baseline", gap: 18, whiteSpace: "nowrap", opacity: cl(x * 6), transform: `scale(${0.4 + 0.6 * e}) rotate(${(1 - e) * -6}deg)`, transformOrigin: "50% 80%" }}>
         <span style={{ fontWeight: 800, fontSize: s.num >= 1000 ? 215 : 280, lineHeight: 1, color: "#fff", letterSpacing: -8, textShadow: SHADOW }}>{s.prefix}{txt}</span>
         <span style={{ fontWeight: 800, fontSize: s.num >= 1000 ? 80 : 100, color: "#fff", textShadow: SHADOW }}>{s.unit}</span>
-      </div>
+      </div>}
       <div style={{ height: 10 }} />
       {s.sub && <div style={{ direction: "rtl", textAlign: s.box.a === "l" ? "left" : "center", fontWeight: 800, fontSize: 52, color: "#fff", textShadow: SHADOW, opacity: sp, transform: `translateY(${(1 - sp) * 30}px)` }}>{s.sub}</div>}
     </div>
