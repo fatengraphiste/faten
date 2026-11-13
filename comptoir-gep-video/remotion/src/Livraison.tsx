@@ -2,7 +2,6 @@ import React from "react";
 import { AbsoluteFill, OffthreadVideo, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { IsoFonts } from "./iso/fonts";
 import { NAVY, YEL as RED, FONT } from "./iso/theme";
-import { LOGO_PATHS } from "./logo";
 
 // ───────── easings façon anime.js ─────────
 const cl = (x: number, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -24,18 +23,18 @@ type Stat = { t0: number; t1: number; box: Box; num: number; prefix?: string; un
 
 // ───────── contenu : derja tunisien (mots techniques en français) ─────────
 const PIECES: Piece[] = [
-  { t0: 1.45, t1: 3.05, box: { x: 70, y: 1080, w: 840, a: "r" }, deco: "under", lines: [{ text: "أكثر من شانطي", size: 118, hl: [2] }, { text: "مربوط بالوقت و الفلوس", size: 54, delay: 0.55, dir: "left" }] },
+  { t0: 1.45, t1: 3.05, box: { x: 70, y: 1080, w: 840, a: "r" }, lines: [{ text: "أكثر من شانطي", size: 118, hl: [2] }, { text: "مربوط بالوقت و الفلوس", size: 54, delay: 0.55, dir: "left" }] },
   { t0: 3.0, t1: 4.35, box: { x: 70, y: 700, w: 940, a: "c" }, lines: [{ text: "وقت = فلوس", size: 190, hl: [2], dir: "down" }] },
-  { t0: 4.7, t1: 6.95, box: { x: 70, y: 390, w: 840, a: "r" }, deco: "under", lines: [{ text: "عنا الحل", size: 140, hl: [1] }, { text: "إلي يربحك فلوس و وقت", size: 58, delay: 0.45, dir: "left" }] },
+  { t0: 4.7, t1: 6.95, box: { x: 70, y: 390, w: 840, a: "r" }, lines: [{ text: "عنا الحل", size: 140, hl: [1] }, { text: "إلي يربحك فلوس و وقت", size: 58, delay: 0.45, dir: "left" }] },
   { t0: 7.35, t1: 8.95, box: { x: 70, y: 880, w: 940, a: "l" }, deco: "brackets", lines: [{ text: "DALLA الحاضرة", size: 118, hl: [1] }, { text: "الحسبة تتبدل", size: 70, delay: 0.75, dir: "up" }] },
   { t0: 9.0, t1: 10.4, box: { x: 70, y: 1130, w: 840, a: "r" }, lines: [{ text: "تنقص برشة", size: 124, hl: [0] }, { text: "في الكفراج", size: 92, delay: 0.3, dir: "left" }] },
-  { t0: 10.45, t1: 11.95, box: { x: 70, y: 390, w: 940, a: "c" }, deco: "under", lines: [{ text: "التركيب", size: 100 }, { text: "ساهل ماكس", size: 138, hl: [1], delay: 0.22, dir: "down" }] },
+  { t0: 10.45, t1: 11.95, box: { x: 70, y: 390, w: 940, a: "c" }, lines: [{ text: "التركيب", size: 100 }, { text: "ساهل ماكس", size: 138, hl: [1], delay: 0.22, dir: "down" }] },
   { t0: 15.85, t1: 17.7, box: { x: 70, y: 980, w: 840, a: "r" }, lines: [{ text: "تخدم تحتها", size: 124, hl: [1] }, { text: "منهارك", size: 112, delay: 0.3, dir: "left" }] },
-  { t0: 17.75, t1: 19.9, box: { x: 70, y: 1210, w: 940, a: "c" }, deco: "under", lines: [{ text: "من غير ما", size: 70 }, { text: "تقعد تستنى", size: 128, hl: [1], delay: 0.25, dir: "up" }] },
+  { t0: 17.75, t1: 19.9, box: { x: 70, y: 1210, w: 940, a: "c" }, lines: [{ text: "من غير ما", size: 70 }, { text: "تقعد تستنى", size: 128, hl: [1], delay: 0.25, dir: "up" }] },
   { t0: 20.1, t1: 22.0, box: { x: 70, y: 390, w: 840, a: "r" }, deco: "arrow", lines: [{ text: "أيامات الخدمة", size: 104 }, { text: "ينقصوا", size: 156, hl: [0], delay: 0.3, dir: "down" }] },
   { t0: 22.1, t1: 24.75, box: { x: 70, y: 880, w: 700, a: "l" }, deco: "brackets", lines: [{ text: "تسكر شانطي", size: 104 }, { text: "فيسع", size: 170, hl: [0], delay: 0.3, dir: "right" }] },
-  { t0: 28.3, t1: 29.5, box: { x: 70, y: 760, w: 940, a: "c" }, deco: "under", lines: [{ text: "ما تضيعش", size: 132 }, { text: "الفرصة", size: 176, hl: [0], delay: 0.25, dir: "up" }] },
-  { t0: 29.55, t1: 31.55, box: { x: 70, y: 1010, w: 840, a: "r" }, deco: "under", lines: [{ text: "كلمنا توا", size: 150, hl: [1] }, { text: "و إحسب ربحك", size: 72, delay: 0.7, dir: "left" }] },
+  { t0: 28.3, t1: 29.5, box: { x: 70, y: 760, w: 940, a: "c" }, lines: [{ text: "ما تضيعش", size: 132 }, { text: "الفرصة", size: 176, hl: [0], delay: 0.25, dir: "up" }] },
+  { t0: 29.55, t1: 31.55, box: { x: 70, y: 1010, w: 840, a: "r" }, lines: [{ text: "كلمنا توا", size: 150, hl: [1] }, { text: "و إحسب ربحك", size: 72, delay: 0.7, dir: "left" }] },
 ];
 const STATS: Stat[] = [
   { t0: 12.0, t1: 13.55, box: { x: 70, y: 600, w: 940, a: "c" }, num: 48, unit: "ساعة" },
@@ -49,7 +48,7 @@ const CASCADE = { t0: 25.0, t1: 28.1, rows: [
 ] };
 
 // fin : flou progressif + logo + swipe vers l'outro (qui porte les contacts)
-const BLUR0 = 30.7, BLUR1 = 32.0, LOGO_T = 31.55, SWIPE_T = 32.62;
+const BLUR0 = 30.7, BLUR1 = 31.85, SWIPE_T = 32.0;
 
 const beatScale = (t: number) => 1 + 0.016 * Math.exp(-(((t * 112) / 60) % 1) * 6);
 
@@ -131,12 +130,12 @@ const StatView: React.FC<{ s: Stat; t: number }> = ({ s, t }) => {
   const sp = expoOut(prog(t, s.t0 + 0.45, 0.4));
   return (
     <div style={{ position: "absolute", left: s.box.x, top: s.box.y, width: s.box.w, fontFamily: FONT, opacity: 1 - out, transform: `translateY(${out * -26}px) scale(${beatScale(t)})`, filter: `blur(${out * 8}px)` }}>
-      <div style={{ display: "flex", justifyContent: s.box.a === "c" ? "center" : "flex-start", alignItems: "baseline", gap: 22, opacity: cl(x * 6), transform: `scale(${0.4 + 0.6 * e}) rotate(${(1 - e) * -6}deg)`, transformOrigin: "50% 80%" }}>
-        <span style={{ fontWeight: 800, fontSize: 280, lineHeight: 1, color: "#fff", letterSpacing: -8, textShadow: SHADOW }}>{s.prefix}{txt}</span>
-        <span style={{ fontWeight: 800, fontSize: 100, color: "#fff", textShadow: SHADOW }}>{s.unit}</span>
+      <div style={{ display: "flex", justifyContent: s.box.a === "c" ? "center" : "flex-start", alignItems: "baseline", gap: 18, whiteSpace: "nowrap", opacity: cl(x * 6), transform: `scale(${0.4 + 0.6 * e}) rotate(${(1 - e) * -6}deg)`, transformOrigin: "50% 80%" }}>
+        <span style={{ fontWeight: 800, fontSize: s.num >= 1000 ? 215 : 280, lineHeight: 1, color: "#fff", letterSpacing: -8, textShadow: SHADOW }}>{s.prefix}{txt}</span>
+        <span style={{ fontWeight: 800, fontSize: s.num >= 1000 ? 80 : 100, color: "#fff", textShadow: SHADOW }}>{s.unit}</span>
       </div>
-      <div style={{ height: 10, width: 560 * bar, background: RED, borderRadius: 5, margin: s.box.a === "c" ? "6px auto 14px" : "6px 0 14px", boxShadow: "0 4px 14px rgba(10,14,60,0.5)" }} />
-      {s.sub && <div style={{ direction: "rtl", textAlign: s.box.a === "l" ? "left" : "center", fontWeight: 800, fontSize: 64, color: "#fff", textShadow: SHADOW, opacity: sp, transform: `translateY(${(1 - sp) * 30}px)` }}>{s.sub}</div>}
+      <div style={{ height: 10 }} />
+      {s.sub && <div style={{ direction: "rtl", textAlign: s.box.a === "l" ? "left" : "center", fontWeight: 800, fontSize: 52, color: "#fff", textShadow: SHADOW, opacity: sp, transform: `translateY(${(1 - sp) * 30}px)` }}>{s.sub}</div>}
     </div>
   );
 };
@@ -150,20 +149,6 @@ const Cascade: React.FC<{ t: number }> = ({ t }) => {
         return <PieceView key={i} p={p} t={t} />;
       })}
     </div>
-  );
-};
-
-const LogoEnd: React.FC<{ t: number }> = ({ t }) => {
-  const x = prog(t, LOGO_T, 1.0); const e = elastic(x, 1.15, 0.55);
-  const ring = expoOut(prog(t, LOGO_T + 0.05, 0.7));
-  const s = 0.56;
-  return (
-    <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0, opacity: cl(x * 5) }}>
-      <circle cx={540} cy={900} r={340} fill="none" stroke="#fff" strokeOpacity={0.55} strokeWidth={4} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - ring} transform="rotate(-90 540 900)" />
-      <g transform={`translate(540 900) scale(${s * (0.5 + 0.5 * e)}) translate(-485 -125)`}>
-        {LOGO_PATHS.map((p, i) => (p.rect ? <rect key={i} x={p.rect[0]} y={p.rect[1]} width={p.rect[2]} height={p.rect[3]} fill="#fff" /> : <path key={i} d={p.d} fill={p.c === "r" ? RED : "#fff"} />))}
-      </g>
-    </svg>
   );
 };
 
@@ -192,7 +177,6 @@ export const Livraison: React.FC = () => {
         {PIECES.map((p, i) => (t >= p.t0 - 0.02 && t <= p.t1 + 0.05 ? <PieceView key={i} p={p} t={t} /> : null))}
         {STATS.map((s, i) => (t >= s.t0 - 0.02 && t <= s.t1 + 0.05 ? <StatView key={i} s={s} t={t} /> : null))}
         {t >= CASCADE.t0 - 0.02 && t <= CASCADE.t1 + 0.05 && <Cascade t={t} />}
-        {t >= LOGO_T && <LogoEnd t={t} />}
         <Swipe t={t} />
       </AbsoluteFill>
     </IsoFonts>

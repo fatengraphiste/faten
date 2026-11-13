@@ -9,6 +9,6 @@ export const Root: React.FC = () => (
   <>
     <Composition id="GepTech" component={GepTech} durationInFrames={TOTAL} fps={FPS} width={1080} height={1920} />
     <Composition id="GepIso" component={GepIso} durationInFrames={2179} fps={FPS} width={1080} height={1920} />
-    <Composition id="Livraison" component={Livraison} durationInFrames={990} fps={FPS} width={1080} height={1920} />
+    <Composition id="Livraison" component={Livraison} durationInFrames={972} fps={FPS} width={1080} height={1920} />
   </>
 );
