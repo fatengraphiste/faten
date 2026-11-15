@@ -13,6 +13,7 @@ import { Reel } from "./Reel";
 import { FPS } from "./theme";
 import { PLANS } from "./masterclass/Storyboard";
 import { CloneReel, CLONE_DURATION, CoverClone } from "./clone/CloneReel";
+import { CloneV2, CLONE2_DURATION, CoverClone2 } from "./clone/CloneV2";
 import { CoverFable, Fable52, FABLE_DURATION } from "./fable/Fable52";
 import { AIContest, AIContestV2, CONTEST_DURATION, CoverContest, CoverContestV2 } from "./contest/AIContest";
 import { CoverMasterclass, MasterclassReel, MC_DURATION } from "./masterclass/MasterclassReel";
@@ -83,6 +84,8 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="CoverFlow" component={CoverFlow} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverClaudeCanva" component={CoverClaudeCanva} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverAme" component={CoverAme} durationInFrames={1} fps={30} width={1080} height={1920} />
+  <Composition id="CloneV2" component={CloneV2} durationInFrames={CLONE2_DURATION} fps={30} width={1080} height={1920} />
+  <Composition id="CoverClone2" component={CoverClone2} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CloneReel" component={CloneReel} durationInFrames={CLONE_DURATION} fps={30} width={1080} height={1920} />
   <Composition id="CoverClone" component={CoverClone} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="Fable52" component={Fable52} durationInFrames={FABLE_DURATION} fps={30} width={1080} height={1920} />
