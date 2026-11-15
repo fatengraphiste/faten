@@ -61,7 +61,7 @@ for i in range(N):
         if t<1.3:
             g=Image.new('RGBA',(W,80),(255,255,255,0)); ImageDraw.Draw(g).rectangle([(W-w)//2,36,(W+w)//2,44],fill=(255,255,255,200))
             fr.alpha_composite(g.filter(ImageFilter.GaussianBlur(8)),(0,CY-40))
-        oa=cl((t-1.45)/0.15); ob=cl((t-1.70)/0.15); fade=1-cl((t-2.15)/0.15)
+        oa=ob=0; fade=0
         for img,o,yo in ((ta,oa,(1-eo(oa))*-50),(tb,ob,(1-eo(ob))*50)):
             if o*fade>0:
                 l=img.copy(); l.putalpha(l.getchannel('A').point(lambda v,o=o:int(v*o*fade))); fr.alpha_composite(l,(0,int(yo)))
