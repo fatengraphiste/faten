@@ -247,11 +247,11 @@ const SCENES: Scene[] = [
   { t0: s(10.29), t1: s(11.88), g: 4, obj: (p) => <ObjImage {...p} /> },
   { t0: s(11.88), t1: s(13.2), g: 4, key: { seg: 5, idx: 7, label: "charte" }, obj: (p) => <ObjPalette {...p} /> },
   { t0: s(13.2), t1: s(14.87), g: 5, obj: (p) => <ObjCheck {...p} /> },
-  { t0: s(14.87), t1: s(15.6), g: 6, key: { seg: 7, idx: 0, label: "الفكرة" }, obj: (p) => <ObjIcon {...p} d={I_BULB} bg={RED} fg={WHITE} /> },
-  { t0: s(15.6), t1: s(16.5), g: 6, key: { seg: 7, idx: 1, label: "السكريبت" }, obj: (p) => <ObjIcon {...p} d={I_DOC} bg={CHAR} fg={WHITE} /> },
+  { t0: s(14.87), t1: s(15.6), g: 6, obj: (p) => <ObjIcon {...p} d={I_BULB} bg={RED} fg={WHITE} /> },
+  { t0: s(15.6), t1: s(16.5), g: 6, obj: (p) => <ObjIcon {...p} d={I_DOC} bg={CHAR} fg={WHITE} /> },
   { t0: s(16.5), t1: s(18.87), g: 6, key: { seg: 7, idx: 3, label: "voix-off" }, obj: (p) => <ObjIcon {...p} d={I_MIC} bg={PINK} fg={CHAR} wave /> },
-  { t0: s(18.87), t1: s(20.3), g: 7, key: { seg: 8, idx: 3, label: "Packs" }, obj: (p) => <ObjDeck {...p} /> },
-  { t0: s(20.3), t1: s(22.98), g: 7, obj: (p) => <ObjPacks {...p} /> },
+  { t0: s(18.87), t1: s(20.0), g: 7, obj: (p) => <ObjDeck {...p} /> },
+  { t0: s(20.0), t1: s(22.98), g: 7, key: { seg: 8, idx: 3, label: "Packs" }, obj: (p) => <ObjPacks {...p} /> },
   { t0: s(22.98), t1: s(24.47), g: 8, key: { seg: 9, idx: 3, label: "Crédits" }, obj: (p) => <ObjCredits {...p} /> },
   { t0: s(24.47), t1: s(26.11), g: 9, obj: (p) => <ObjTiles {...p} /> },
   { t0: s(26.11), t1: s(28.79), g: 9, obj: (p) => <ObjRing {...p} /> },
@@ -285,15 +285,15 @@ const BARS = (() => {
   });
 })();
 
-// Avatar du haut : photo fixe (le visage animé est dans le lecteur)
+// Avatar du haut : ta photo de profil (le visage animé est dans le lecteur)
 const Avatar: React.FC<{ cy: number; k: number }> = ({ cy, k }) => {
   const D = AV.d;
+  const z = D / 900; // on garde la tête + les épaules
   return (
     <div style={{ position: "absolute", left: AV.cx - D / 2, top: cy - D / 2, width: D, height: D, transform: `scale(${k})` }}>
       <div style={{ position: "absolute", left: -10, top: -10, width: D + 20, height: D + 20, borderRadius: 9999, backgroundColor: WHITE }} />
       <div style={{ position: "absolute", inset: 0, borderRadius: 9999, overflow: "hidden", backgroundColor: CHAR }}>
-        <Img src={staticFile("clone/face.jpg")} style={{ position: "absolute", left: -D * 0.5, top: -D * 0.4, width: D * 2.4, height: D * 4.2, objectFit: "cover", filter: "blur(22px) brightness(0.8)" }} />
-        <Img src={staticFile("clone/face.jpg")} style={{ position: "absolute", left: -6, top: D / 2 - 700 * 0.27, width: 1080 * 0.27, height: 1920 * 0.27 }} />
+        <Img src={staticFile("clone/profile.jpg")} style={{ position: "absolute", left: 0, top: -170 * z, width: 1123 * z, height: 2000 * z }} />
       </div>
     </div>
   );
@@ -459,7 +459,7 @@ export const CloneV5: React.FC = () => {
                 })}
               </div>
               {sc.key ? (() => {
-                const at = Math.max(wt(sc.key.seg, sc.key.idx), sc.t0 + 8);
+                const at = Math.max(sc.t0 + 8, Math.min(wt(sc.key.seg, sc.key.idx), sc.t1 - 30));
                 return <Show key={`k${sc.t0}`} t={tt} a={sc.t0} b={sc.t1}><Key t={tt} at={at} label={sc.key.label} /></Show>;
               })() : null}
               <Show t={tt} a={sc.t0} b={sc.t1} scale><Fly t={tt} t0={sc.t0}>{sc.obj({ t: tt, t0: sc.t0, t1: sc.t1 })}</Fly></Show>
