@@ -555,8 +555,8 @@ export const CoverClone4: React.FC = () => (
     <Avatar t={0} k={1} />
     <div style={{ position: "absolute", left: CARD.x, width: CARD.w, top: 628, textAlign: "center" }}><Big size={74} color={CHAR} style={{ display: "inline-block" }}>Faten Torki</Big></div>
     <div style={{ position: "absolute", left: CARD.x, width: CARD.w, top: 724, textAlign: "center", fontFamily: FONT, fontWeight: 400, fontSize: 34, color: CHAR }}>Graphiste & Lead UX/UI Designer</div>
-    <div dir="rtl" style={{ position: "absolute", left: AREA.x, width: AREA.w, top: 900, textAlign: "center" }}><MixedText text="شنوة رايك؟" size={200} color={CHAR} /></div>
-    <div style={{ position: "absolute", left: OBJ_CX - 168, top: 1090 }}><Pack w={250} h={380} reveal={1} shine={0.6} t={100} /></div>
-    <Player t={INTRO} rise={1} press={0} />
+    <div dir="rtl" style={{ position: "absolute", left: AREA.x, width: AREA.w, top: 890, textAlign: "center" }}><MixedText text="شنوة رايك؟" size={130} color={CHAR} /></div>
+    <div style={{ position: "absolute", left: OBJ_CX - 150, top: 1085, transform: "scale(0.9)", transformOrigin: "50% 0" }}><Pack w={250} h={380} reveal={1} shine={0.6} t={100} /></div>
+    <Player t={0} rise={1} press={0} />
   </AbsoluteFill>
 );
