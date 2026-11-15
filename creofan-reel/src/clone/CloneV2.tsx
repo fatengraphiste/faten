@@ -218,9 +218,9 @@ const Pack: React.FC<{ w: number; h: number; plain?: boolean; reveal: number; sh
 const CARD_TOP0 = 1165;
 const CARD_H0 = 315;
 const CARD_H1 = 755;
-const Profile: React.FC<{ t: number; th: Th; open: number; follow: number }> = ({ t, th, open, follow }) => {
+const Profile: React.FC<{ t: number; th: Th; open: number; follow: number; fixedTop?: number }> = ({ t, th, open, follow, fixedTop }) => {
   const h = interpolate(open, [0, 1], [CARD_H0, CARD_H1]);
-  const top = CARD_TOP0 + CARD_H0 - h;
+  const top = fixedTop ?? CARD_TOP0 + CARD_H0 - h;
   const D = 190;
   const speaking = SEG.some(([a, b]) => t >= s(a) && t <= s(b) + 3);
   const e = (f: number) => ENV[Math.max(0, Math.min(ENV.length - 1, f))] ?? 0;
@@ -631,3 +631,6 @@ export const CoverClone2: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+export { ease, outE, el, Big, Pill, Box, Line, Rings, Ico, Pack, Profile, Outro, Ripple, SFX as SFX2, ENV, TXT, SEG, WT, wt, THEME, TH_RED, TH_BEIGE, FONT, RED, PINK, BEIGE, CHAR, WHITE, L, RG, W, CX, I_BULB, I_DOC, I_MIC, I_PLAY, I_STAR, WA, ARABIC };
+export type { Th };
