@@ -616,16 +616,16 @@ export const CloneV2: React.FC = () => {
 };
 
 export const CoverClone2: React.FC = () => {
-  const th = TH_RED;
+  const th = TH_BEIGE;
   return (
-    <AbsoluteFill style={{ backgroundColor: RED, overflow: "hidden" }}>
+    <AbsoluteFill style={{ backgroundColor: BEIGE, overflow: "hidden" }}>
       <Rings t={100} at={0} th={th} cy={640} />
       <div style={{ position: "absolute", left: 0, right: 0, top: 236, display: "flex", justifyContent: "center" }}>
-        <div style={{ width: 84, height: 84, borderRadius: 99, backgroundColor: WHITE, display: "flex", alignItems: "center", justifyContent: "center" }}><Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 62, height: 62 }} /></div>
+        <div style={{ width: 84, height: 84, borderRadius: 99, backgroundColor: CHAR, display: "flex", alignItems: "center", justifyContent: "center" }}><Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 62, height: 62 }} /></div>
       </div>
-      <div dir="rtl" style={{ position: "absolute", left: L, width: W, top: 380, textAlign: "center" }}><MixedText text="شنوة رايك؟" size={190} color={WHITE} /></div>
-      <div style={{ position: "absolute", left: CX - 205, top: 640 }}>
-        <Pack w={250} h={400} reveal={1} shine={0.6} t={100} />
+      <div dir="rtl" style={{ position: "absolute", left: L, width: W, top: 380, textAlign: "center" }}><MixedText text="شنوة رايك؟" size={190} color={CHAR} /></div>
+      <div style={{ position: "absolute", left: CX - 168, top: 640 }}>
+        <Pack w={280} h={400} reveal={1} shine={0.6} t={100} />
       </div>
       <Profile t={100} th={th} open={0} follow={0} />
     </AbsoluteFill>
