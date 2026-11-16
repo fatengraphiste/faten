@@ -39,8 +39,8 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--cream)}
 <!-- S3 trio + brand -->
 <div class="sc" id="s3" style="background:var(--cream)">
   <div class="blob" style="width:1200px;height:1200px;left:-60px;top:560px;background:radial-gradient(circle,#fff7ee 0%,rgba(255,247,238,0) 65%)"></div>
-  <div class="abs ar cx" id="s3a" style="top:150px;font-size:120px;color:var(--ink)">ديمة إدْلاَل مع</div>
-  <img class="abs" id="s3logo" src="logo.png" style="height:330px;left:395px;top:340px">
+  <div class="abs ar cx" id="s3a" style="display:none;top:150px;font-size:120px;color:var(--ink)">ديمة إدْلاَل مع</div>
+  <img class="abs" id="s3logo" src="logo.png" style="height:420px;left:385px;top:230px">
   <img class="abs prod" id="s3sh" src="hp_sh.png" style="height:960px;left:120px;top:820px">
   <img class="abs prod" id="s3mk" src="hp_mask.png" style="width:640px;left:420px;top:800px">
   <img class="abs prod" id="s3li" src="hp_li.png" style="height:820px;left:620px;top:1000px">
@@ -137,7 +137,7 @@ const back=x=>{const c1=1.9,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,
 const elastic=x=>x===0?0:x===1?1:Math.pow(2,-10*x)*Math.sin((x*10-.75)*(2*Math.PI)/3)+1;
 function set(id,{x=0,y=0,s=1,r=0,o=1,sx=null,blur=null}={}){const e=$(id);e.style.transform=`translate(${x}px,${y}px) rotate(${r}deg) scale(${s})${sx!==null?` skewX(${sx}deg)`:''}`;e.style.opacity=o;if(blur!==null)e.style.filter=blur}
 // scene windows [start,end]
-const S={s1:[0,1.54],s2:[1.54,2.77],s3:[2.77,4.79],s4:[4.79,7.25],s5:[7.25,8.35],s6:[8.35,9.45],s7:[9.45,10.5],s8:[10.5,12.85],s9:[12.85,15.1]};
+const S={s1:[0,1.44],s2:[1.44,2.53],s3:[2.53,5.05],s4:[5.05,7.05],s5:[7.05,8.0],s6:[8.0,9.0],s7:[9.0,10.35],s8:[10.35,12.39],s9:[12.39,15.1]};
 const TR=.28;
 function sceneT(t,id,mode){
   const [a,b]=S[id];const e=$(id);
@@ -229,7 +229,7 @@ function render(t){
     set('s9b',{o:p(l,.85,1.05),y:(1-eo(p(l,.85,1.15)))*40});
   }
   // white flash on hard cuts
-  const cuts=[4.79,12.85];let fo=0;for(const c of cuts){fo=Math.max(fo,1-Math.abs(t-c)/.12)}
+  const cuts=[5.05,12.39];let fo=0;for(const c of cuts){fo=Math.max(fo,1-Math.abs(t-c)/.12)}
   $('flash').style.opacity=cl(fo)*.7;
 }
 window.render=render;
