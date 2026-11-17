@@ -9,10 +9,14 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@react-three/fiber": "9.1.2",
     "@remotion/cli": "4.0.536",
+    "@remotion/three": "4.0.536",
+    "@types/three": "0.170.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "remotion": "4.0.536"
+    "remotion": "4.0.536",
+    "three": "0.170.0"
   },
   "devDependencies": {
     "@types/react": "19.1.8",
