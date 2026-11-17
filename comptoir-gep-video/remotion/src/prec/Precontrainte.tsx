@@ -4,13 +4,14 @@ import { FontLoader } from "../fonts";
 import { Outro } from "../Outro";
 import { LOGO_PATHS } from "../logo";
 import { NAVY } from "../lib";
-import { S1, S2, S3, S4, S5, S6, S7, S8, S9 } from "./scenes";
+import { S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12 } from "./scenes";
+import { VOICE_DUR } from "./cues";
 
 export const FPS = 30;
-export const VOICE_END = 61.15;
+export const VOICE_END = VOICE_DUR + 0.1;
 // bornes des scènes (s) : milieux des pauses de la voix off
-const B = [0, 7.06, 13.34, 19.9, 27.1, 34.1, 41.67, 47.86, 54.43, VOICE_END];
-const SCENES = [S1, S2, S3, S4, S5, S6, S7, S8, S9];
+const B = [0, 9.52, 13.34, 19.92, 23.97, 26.94, 31.41, 35.26, 41.67, 47.85, 54.07, 58.76, VOICE_END];
+const SCENES = [S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12];
 
 const Logo: React.FC<{ a: number }> = ({ a }) => (
   <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }} opacity={a}>
@@ -22,7 +23,7 @@ const Scene: React.FC<{ i: number; from: number; to: number }> = ({ i, from, to 
   const f = useCurrentFrame(); const len = Math.round((to - from) * FPS);
   const e = Math.min(i === 0 ? 1 : f / 8, (len - f) / 8, 1);
   const C = SCENES[i];
-  return <AbsoluteFill style={{ opacity: Math.max(0, e) }}><C t={f / FPS} dur={to - from} /></AbsoluteFill>;
+  return <AbsoluteFill style={{ opacity: Math.max(0, e) }}><C t={f / FPS} dur={to - from} s0={from} /></AbsoluteFill>;
 };
 
 export const Precontrainte: React.FC = () => {

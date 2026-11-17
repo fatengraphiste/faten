@@ -40,11 +40,12 @@ const shadowTex = (() => {
 })();
 export const Stage: React.FC<{ shadow?: [number, number, number] }> = ({ shadow = [0, 3.4, 1.6] }) => (
   <>
-    <ambientLight intensity={1.35} />
-    <hemisphereLight args={["#ffffff", "#c8d0e6", 0.9]} />
-    <directionalLight position={[5, 9, 6]} intensity={2.1} />
-    <directionalLight position={[-6, 4, -3]} intensity={0.7} color="#cfd9ff" />
-    {shadowTex && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[shadow[0], 0.005, 0]}><planeGeometry args={[shadow[1] * 2, shadow[2] * 2]} /><meshBasicMaterial map={shadowTex} transparent depthWrite={false} /></mesh>}
+    <ambientLight intensity={1.15} />
+    <hemisphereLight args={["#ffffff", "#cfd6ea", 0.85]} />
+    <directionalLight position={[6, 10, 7]} intensity={2.2} castShadow shadow-mapSize={[2048, 2048]} shadow-camera-left={-9} shadow-camera-right={9} shadow-camera-top={9} shadow-camera-bottom={-9} shadow-camera-near={1} shadow-camera-far={40} shadow-bias={-0.0004} shadow-radius={6} />
+    <directionalLight position={[-7, 4, -4]} intensity={0.6} color="#cfd9ff" />
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0]} receiveShadow><planeGeometry args={[60, 60]} /><shadowMaterial transparent opacity={0.16} /></mesh>
+    {shadowTex && <mesh rotation={[-Math.PI / 2, 0, 0]} position={[shadow[0], 0.004, 0]}><planeGeometry args={[shadow[1] * 2, shadow[2] * 2]} /><meshBasicMaterial map={shadowTex} transparent depthWrite={false} /></mesh>}
   </>
 );
 
@@ -53,8 +54,13 @@ export const Mat: React.FC<MP> = ({ color, opacity = 1, emissive, ei = 0, rough 
   <meshStandardMaterial color={color} transparent={opacity < 1} opacity={opacity} emissive={emissive || "#000000"} emissiveIntensity={ei} roughness={rough} metalness={metal} depthWrite={opacity >= 1} />
 );
 
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+const RoundedBox: React.FC<{ s: [number, number, number] }> = ({ s }) => {
+  const g = useMemo(() => new RoundedBoxGeometry(s[0], s[1], s[2], 3, Math.min(0.045, Math.min(...s) * 0.3)), [s[0], s[1], s[2]]); // eslint-disable-line
+  return <primitive object={g} attach="geometry" />;
+};
 export const Block: React.FC<{ p: [number, number, number]; s: [number, number, number]; m: MP; rot?: [number, number, number] }> = ({ p, s, m, rot }) => (
-  <mesh position={p} rotation={rot}><boxGeometry args={s} /><Mat {...m} /></mesh>
+  <mesh position={p} rotation={rot} castShadow receiveShadow><RoundedBox s={s} /><Mat {...m} /></mesh>
 );
 
 // cylindre entre deux points
@@ -65,7 +71,7 @@ export const Rod: React.FC<{ a: [number, number, number]; b: [number, number, nu
     return { pos: A.clone().add(B).multiplyScalar(0.5), q, len };
   }, [a[0], a[1], a[2], b[0], b[1], b[2]]); // eslint-disable-line
   if (len < 0.001) return null;
-  return <mesh position={pos} quaternion={q}><cylinderGeometry args={[r, r, len, 14]} /><Mat {...m} /></mesh>;
+  return <mesh position={pos} quaternion={q} castShadow receiveShadow><cylinderGeometry args={[r, r, len, 16]} /><Mat {...m} /></mesh>;
 };
 
 // flèche 3D : base en p, direction dir, longueur len
@@ -88,14 +94,14 @@ export const Beam: React.FC<{ L: number; h: number; d: number; sag?: number; m: 
     for (let i = 0; i < pos.count; i++) { const x = pos.getX(i); const u = x / (L / 2); pos.setY(i, pos.getY(i) - sag * (1 - u * u)); }
     pos.needsUpdate = true; g.computeVertexNormals(); return g;
   }, [L, h, d, sag]);
-  return <mesh geometry={geo} position={[0, y, 0]}><Mat {...m} /></mesh>;
+  return <mesh geometry={geo} position={[0, y, 0]} castShadow receiveShadow><Mat {...m} /></mesh>;
 };
 export const sagAt = (x: number, L: number, sag: number) => { const u = x / (L / 2); return -sag * (1 - u * u); };
 
 // ───────── pyramide tronquée (support) : p = centre, s = [largeur base, hauteur, profondeur base] ─────────
 export const Pyr: React.FC<{ p: [number, number, number]; s: [number, number, number]; top?: number; m: MP }> = ({ p, s, top = 0.5, m }) => {
   const geo = useMemo(() => { const g = new THREE.CylinderGeometry(0.7071 * top, 0.7071, 1, 4, 1); g.rotateY(Math.PI / 4); return g; }, [top]);
-  return <mesh geometry={geo} position={p} scale={s}><Mat {...m} /></mesh>;
+  return <mesh geometry={geo} position={p} scale={s} castShadow receiveShadow><Mat {...m} /></mesh>;
 };
 // entonnoir (pyramide inversée) pour le coulage
 export const Funnel: React.FC<{ p: [number, number, number]; size: number; h: number; rot?: [number, number, number]; color: string }> = ({ p, size, h, rot, color }) => {
@@ -111,4 +117,32 @@ export const Liquid: React.FC<{ w: number; d: number; y0: number; level: number;
   }, [w, d, level, t, wave]);
   if (level < 0.005) return null;
   return <mesh geometry={geo} position={[x, y0 + level / 2, 0]}><meshStandardMaterial color={color} roughness={0.35} metalness={0.05} /></mesh>;
+};
+
+// cône tronqué (support « argile blanche »)
+export const Cone: React.FC<{ p: [number, number, number]; rBot: number; rTop: number; h: number; color?: string; opacity?: number }> = ({ p, rBot, rTop, h, color = "#f2f3f8", opacity = 1 }) => (
+  <mesh position={p} castShadow receiveShadow><cylinderGeometry args={[rTop, rBot, h, 64, 1]} /><Mat color={color} opacity={opacity} rough={0.92} /></mesh>
+);
+
+// masse « KG » (symbole de poids) : trapèze arrondi, anneau, étiquette KG
+const kgTex = (() => {
+  if (typeof document === "undefined") return null;
+  const c = document.createElement("canvas"); c.width = 256; c.height = 160; const g = c.getContext("2d")!;
+  g.clearRect(0, 0, 256, 160); g.fillStyle = "#ffffff"; g.font = "900 120px Montserrat, Arial, sans-serif"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillText("KG", 128, 86);
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+})();
+export const Weight: React.FC<{ p: [number, number, number]; s?: number; color?: string; rot?: [number, number, number] }> = ({ p, s = 1, color = "#1d2146", rot }) => {
+  const geo = useMemo(() => {
+    const sh = new THREE.Shape(); sh.moveTo(-0.5, 0); sh.lineTo(0.5, 0); sh.lineTo(0.32, 0.78); sh.lineTo(-0.32, 0.78); sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth: 0.42, bevelEnabled: true, bevelSize: 0.06, bevelThickness: 0.06, bevelSegments: 4, steps: 1 });
+    g.translate(0, 0, -0.21); g.computeVertexNormals(); return g;
+  }, []);
+  return (
+    <group position={p} scale={s} rotation={rot}>
+      <mesh geometry={geo} castShadow receiveShadow><Mat color={color} rough={0.45} metal={0.15} /></mesh>
+      <mesh position={[0, 0.9, 0]} castShadow><torusGeometry args={[0.2, 0.06, 18, 40]} /><Mat color={color} rough={0.4} metal={0.2} /></mesh>
+      <mesh position={[0, 0.8, 0]}><cylinderGeometry args={[0.13, 0.17, 0.06, 20]} /><Mat color={color} rough={0.4} /></mesh>
+      {kgTex && <mesh position={[0, 0.4, 0.274]}><planeGeometry args={[0.6, 0.375]} /><meshBasicMaterial map={kgTex} transparent /></mesh>}
+    </group>
+  );
 };
