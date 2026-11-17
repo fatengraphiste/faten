@@ -91,3 +91,24 @@ export const Beam: React.FC<{ L: number; h: number; d: number; sag?: number; m: 
   return <mesh geometry={geo} position={[0, y, 0]}><Mat {...m} /></mesh>;
 };
 export const sagAt = (x: number, L: number, sag: number) => { const u = x / (L / 2); return -sag * (1 - u * u); };
+
+// ───────── pyramide tronquée (support) : p = centre, s = [largeur base, hauteur, profondeur base] ─────────
+export const Pyr: React.FC<{ p: [number, number, number]; s: [number, number, number]; top?: number; m: MP }> = ({ p, s, top = 0.5, m }) => {
+  const geo = useMemo(() => { const g = new THREE.CylinderGeometry(0.7071 * top, 0.7071, 1, 4, 1); g.rotateY(Math.PI / 4); return g; }, [top]);
+  return <mesh geometry={geo} position={p} scale={s}><Mat {...m} /></mesh>;
+};
+// entonnoir (pyramide inversée) pour le coulage
+export const Funnel: React.FC<{ p: [number, number, number]; size: number; h: number; rot?: [number, number, number]; color: string }> = ({ p, size, h, rot, color }) => {
+  const geo = useMemo(() => { const g = new THREE.CylinderGeometry(0.7071, 0.7071 * 0.28, 1, 4, 1, true); g.rotateY(Math.PI / 4); return g; }, []);
+  return <mesh geometry={geo} position={p} rotation={rot} scale={[size, h, size]}><meshStandardMaterial color={color} side={THREE.DoubleSide} roughness={0.5} /></mesh>;
+};
+// béton liquide : surface ondulée
+export const Liquid: React.FC<{ w: number; d: number; y0: number; level: number; t: number; color: string; wave?: number; x?: number }> = ({ w, d, y0, level, t, color, wave = 1, x = 0 }) => {
+  const geo = useMemo(() => {
+    const g = new THREE.BoxGeometry(w, Math.max(level, 0.001), d, 36, 1, 8); const pos = g.attributes.position;
+    for (let i = 0; i < pos.count; i++) if (pos.getY(i) > 0) pos.setY(i, pos.getY(i) + wave * (0.022 * Math.sin(pos.getX(i) * 4 + t * 5) + 0.016 * Math.cos(pos.getZ(i) * 7 + t * 4)));
+    pos.needsUpdate = true; g.computeVertexNormals(); return g;
+  }, [w, d, level, t, wave]);
+  if (level < 0.005) return null;
+  return <mesh geometry={geo} position={[x, y0 + level / 2, 0]}><meshStandardMaterial color={color} roughness={0.35} metalness={0.05} /></mesh>;
+};
