@@ -5,6 +5,7 @@ import { GepIso } from "./iso/GepIso";
 import { Livraison } from "./Livraison";
 import { Cover } from "./Cover";
 import { Precontrainte } from "./prec/Precontrainte";
+import { BetoVideo } from "./beto/BetoVideo";
 import { CoverIso } from "./CoverIso";
 export const FPS = 30;
 export const TOTAL = 2175; // 72.5 s = 67.5 s de voix + outro 5 s
@@ -16,5 +17,6 @@ export const Root: React.FC = () => (
     <Composition id="Cover" component={Cover} durationInFrames={1} fps={FPS} width={1080} height={1920} />
     <Composition id="CoverIso" component={CoverIso} durationInFrames={1} fps={FPS} width={1080} height={1920} />
     <Composition id="Precontrainte" component={Precontrainte} durationInFrames={2000} fps={FPS} width={1080} height={1920} />
+    <Composition id="BetoVideo" component={BetoVideo} durationInFrames={1170} fps={FPS} width={1080} height={1920} />
   </>
 );
