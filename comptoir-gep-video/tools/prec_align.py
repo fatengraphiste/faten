@@ -5,29 +5,8 @@ import re, subprocess, json, sys
 U = "/root/.claude/uploads/52174de5-6caf-55ef-ac28-58080d10148d/"
 V1 = U + "cab37818-precontarinte_2mezen.mp3"; V2 = U + "f991e3c1-vois_partie_exemple.mp3"
 OUT = "/tmp/foot/out/prec_voice.wav"
-# 1) voix combinée
-subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", V1, "-i", V2, "-filter_complex",
-  "[0:a]atrim=0:47.90,asetpts=N/SR/TB[a];[1:a]asetpts=N/SR/TB[b];[0:a]atrim=51.40,asetpts=N/SR/TB[c];[a][b][c]concat=n=3:v=0:a=1[o]",
-  "-map", "[o]", "-ar", "44100", "-ac", "1", OUT], check=True)
-# 1b) remplacement des mots « des câbles en aciers précontraints » (15.54-16.75) et « fissuration » (34.59-35.17)
-import numpy as np, wave
-CLIP = U + "28ceb5aa-fissuration-des_cables_en_aciers_pr_contraints.mp3"
-def load(path):
-    return np.frombuffer(subprocess.check_output(["ffmpeg", "-v", "error", "-i", path, "-f", "f32le", "-ac", "1", "-ar", "44100", "-"]), dtype=np.float32).copy()
-SR = 44100
-y = load(OUT); c = load(CLIP)
-rms = lambda a: float(np.sqrt(np.mean(a ** 2)) + 1e-9)
-def splice(y, a, b, new, fade=0.006):
-    ia, ib = int(a * SR), int(b * SR); new = new * (rms(y[ia:ib]) / rms(new)); n = int(fade * SR)
-    ramp = np.linspace(0, 1, n)
-    new = new.copy(); new[:n] *= ramp; new[-n:] *= ramp[::-1]
-    return np.concatenate([y[:ia], new, y[ib:]])
-A = c[int(0.0 * SR):int(1.27 * SR)]            # « fissuration »
-B = c[int(1.87 * SR):int(3.22 * SR)]           # « des câbles en aciers précontraints »
-y = splice(y, 34.59, 35.17, A)                 # d'abord le plus tardif (les indices antérieurs ne bougent pas)
-y = splice(y, 15.54, 16.75, B)
-with wave.open(OUT, "wb") as w:
-    w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(y, -1, 1) * 32767).astype("<i2").tobytes())
+# 1) voix : fichier « voix corrigée » complet (remplace l'assemblage précédent)
+subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", "/home/user/faten/comptoir-gep-video/assets/prec_voice_corrigee.mp3", "-ar", "44100", "-ac", "1", OUT], check=True)
 dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", OUT]))
 o = subprocess.run(["ffmpeg", "-hide_banner", "-i", OUT, "-af", "silencedetect=noise=-30dB:d=0.14", "-f", "null", "-"], capture_output=True, text=True).stderr
 st = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", o)]; en = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", o)]
@@ -53,7 +32,7 @@ PH = [
  ("load1", "ويولي ينجم يهز أكثر charge"), ("load2", "على مسافات طويلة"), ("load3", "يعني les grandes portées"), ("load4", "من غير حتى عرصة في الوسط"),
  ("more", "باش تفهمها أكثر"), ("hands1", "اعمل روحك باش تهز صف متاع كتب بيديك الزوز"), ("hands2", "من غير داعم من لوطا"),
  ("press1", "وتكبسهم في بعضهم"), ("press2", "الكتب باش يلصقوا"), ("press3", "وتنجم تهزهم الكل كأنهم قطعة وحدة"), ("exact", "هذا بالضبط شنوة تعمل la précontrainte"),
- ("rec1", "les Cables يكبسوا الـ béton من داخل"), ("rec2", "كيما صار معاك"), ("rec3", "تكبس الكتب باش ما يطيحوش"), ("end", "وهكة نربحو portée طويلة ومساحات مفتوحة"),
+ ("rec1a", "les Cables"), ("rec1", "يكبسوا الـ béton من داخل"), ("rec2", "كيما صار معاك"), ("rec3", "تكبس الكتب باش ما يطيحوش"), ("end", "وهكة نربحو portée طويلة ومساحات مفتوحة"),
 ]
 ch = [len(re.sub(r"[\W_]", "", t)) for _, t in PH]; n = len(PH); m = len(sp)
 rate = tot / sum(ch)
