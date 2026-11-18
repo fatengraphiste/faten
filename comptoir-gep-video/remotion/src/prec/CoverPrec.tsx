@@ -32,9 +32,8 @@ export const CoverPrec: React.FC = () => {
         <div style={{ position: "absolute", left: 60, right: 60, top: 410, textAlign: "center", color: NAVY, fontWeight: 800 }}>
           <div style={{ fontSize: 100, lineHeight: 1.12 }}>C'est quoi</div>
           <div style={{ fontSize: 100, lineHeight: 1.12 }}><span style={{ background: RED, color: "#fff", borderRadius: 24, padding: "0 28px" }}>la précontrainte</span> ?</div>
+          <div style={{ direction: "rtl", fontSize: 40, fontWeight: 700, marginTop: 22, opacity: 0.85 }}>شنوة يعني الـ béton précontraint ؟</div>
         </div>
-        <div style={{ position: "absolute", left: 0, right: 0, top: 1380, textAlign: "center", direction: "rtl", fontSize: 56, fontWeight: 700, color: NAVY }}>شنوة يعني الـ béton précontraint ؟</div>
-        <div style={{ position: "absolute", left: 0, right: 0, top: 1480, textAlign: "center", fontSize: 38, fontWeight: 600, color: NAVY, opacity: 0.7 }}>Comptoir GEP · explication en 3D</div>
       </AbsoluteFill>
     </FontLoader>
   );
