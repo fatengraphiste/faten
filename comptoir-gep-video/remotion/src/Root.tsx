@@ -16,7 +16,7 @@ export const Root: React.FC = () => (
     <Composition id="Livraison" component={Livraison} durationInFrames={972} fps={FPS} width={1080} height={1920} />
     <Composition id="Cover" component={Cover} durationInFrames={1} fps={FPS} width={1080} height={1920} />
     <Composition id="CoverIso" component={CoverIso} durationInFrames={1} fps={FPS} width={1080} height={1920} />
-    <Composition id="Precontrainte" component={Precontrainte} durationInFrames={2000} fps={FPS} width={1080} height={1920} />
+    <Composition id="Precontrainte" component={Precontrainte} durationInFrames={2025} fps={FPS} width={1080} height={1920} />
     <Composition id="BetoVideo" component={BetoVideo} durationInFrames={1170} fps={FPS} width={1080} height={1920} />
   </>
 );

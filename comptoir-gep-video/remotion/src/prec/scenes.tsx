@@ -200,36 +200,41 @@ export const S4: React.FC<SP> = ({ t, s0 }) => {
 };
 
 // ───────── élément béton (scènes 5, 6) ─────────
-const Member: React.FC<{ t: number; op?: number; tint?: number; squeeze?: number; cableCol?: string; cableEi?: number }> = ({ op = 1, tint = 0, squeeze = 0, cableCol = COL.red, cableEi = 0.6 }) => {
-  const sx = 1 - squeeze * 0.04;
+const Member: React.FC<{ t: number; op?: number; tint?: number; squeeze?: number; cableCol?: string; cableEi?: number; camber?: number }> = ({ op = 1, tint = 0, squeeze = 0, cableCol = COL.red, cableEi = 0.6, camber = 0 }) => {
+  const sx = 1 - squeeze * 0.04; const NS = 16;
   return (
     <group scale={[sx, 1, 1]} position={[0, 0.12, 0]}>
-      <Block p={[0, 0.33, 0]} s={[3.4, 0.4, 1.0]} m={{ color: lerpC("#c6cbd5", "#8aa3f5", tint), opacity: op }} />
-      {ZS.map((z, i) => <Rod key={i} a={[-1.7, CY - 0.12, z]} b={[1.7, CY - 0.12, z]} r={0.045} m={{ color: cableCol, emissive: COL.red, ei: cableEi, rough: 0.35, metal: 0.4 }} />)}
+      <Beam L={3.4} h={0.4} d={1.0} y={0.33} sag={-camber} m={{ color: lerpC("#c6cbd5", "#8aa3f5", tint), opacity: op }} />
+      {ZS.map((z, i) => Array.from({ length: NS }, (_, j) => {
+        const x0 = -1.7 + (3.4 * j) / NS, x1 = -1.7 + (3.4 * (j + 1)) / NS; const yy = (x: number) => CY - 0.12 + camber * (1 - (x / 1.7) ** 2);
+        return <Rod key={i + "_" + j} a={[x0, yy(x0), z]} b={[x1, yy(x1), z]} r={0.045} m={{ color: cableCol, emissive: COL.red, ei: cableEi, rough: 0.35, metal: 0.4 }} />;
+      }))}
     </group>
   );
 };
+// va-et-vient « cambrure puis retour à la ligne droite » (comme sur le schéma technique)
+const arch = (t: number, t0: number, up: number, down: number, amp: number) => amp * k(t, t0, t0 + up) * (1 - k(t, t0 + up + 0.1, t0 + up + 0.1 + down));
 
 // ───────── 5. L'effet : les câbles veulent retrouver leur longueur ─────────
 export const S5: React.FC<SP> = ({ t, s0 }) => {
   const c = cue(s0);
-  const cam = orbit(0.8 + 0.5 * k(t, 0, 3), 0.34, 15, [0, 0.55, 0], 34);
-  const tight = k(t, c("back"), c("back", 1.3)); const pul = 0.5 + 0.5 * Math.sin(t * 7);
-  const back = c("back");
+  const cam = orbit(0.55 + 0.4 * k(t, 0, 3), 0.3, 15, [0, 0.55, 0], 34);
+  const back = c("back"); const pul = 0.5 + 0.5 * Math.sin(t * 7);
+  const camber = arch(t, back + 0.05, 0.6, 0.55, 0.2);
+  const ya = CY + 0.12 - 0.12;  // hauteur des câbles
+  const ax = ko(t, back, back + 0.5);
   return (
     <AbsoluteFill>
       <Shell cam={cam} shadow={[0, 3.6, 1.8]}>
-        <Block p={[0, 0.06, 0]} s={[4.4, 0.12, 1.7]} m={{ color: "#e8ebf3" }} />
-        <Member t={t} op={0.38} squeeze={tight * 0.4} cableEi={0.6 + 0.3 * pul} />
-        {/* les câbles se rétractent : flèches vers l'intérieur */}
-        {t > back && <>
-          <Arrow3D p={[-2.45 + 0.15 * pul, CY + 0.12, 0.62]} dir={[1, 0, 0]} len={0.7 * ko(t, back, back + 0.6)} color={COL.red} r={0.05} />
-          <Arrow3D p={[2.45 - 0.15 * pul, CY + 0.12, 0.62]} dir={[-1, 0, 0]} len={0.7 * ko(t, back, back + 0.6)} color={COL.red} r={0.05} />
-        </>}
+        <Block p={[0, 0.06, 0]} s={[4.6, 0.12, 1.7]} m={{ color: "#e8ebf3" }} />
+        <Member t={t} op={0.4} camber={camber} cableEi={0.6 + 0.3 * pul} squeeze={0.3 * k(t, back, back + 0.6)} />
+        {/* flèches rouges à hauteur des câbles, vers l'intérieur : les câbles veulent se raccourcir */}
+        <Arrow3D p={[-2.55 + 0.12 * pul, ya + 0.12, 0]} dir={[1, 0, 0]} len={0.75 * ax} color={COL.red} r={0.07} />
+        <Arrow3D p={[2.55 - 0.12 * pul, ya + 0.12, 0]} dir={[-1, 0, 0]} len={0.75 * ax} color={COL.red} r={0.07} />
       </Shell>
       <Label cam={cam} at={[0, CY + 0.1, 0.26]} text="Câbles tendus" t={t} t0={0.4} t1={back - 0.1} side="r" dx={80} dy={-170} tone="red" />
-      <Label cam={cam} at={[1.4, CY + 0.12, 0.62]} text="Ils veulent retrouver leur longueur" t={t} t0={back + 0.1} side="l" dx={60} dy={-190} tone="red" />
-      <BigTitle t={t} t0={c("eff", -0.05)} t1={c("eff", 1.0)} top={1230} lines={[{ text: "L'effet !", red: true, size: 120 }]} />
+      <Label cam={cam} at={[-1.3, CY + 0.12, 0.2]} text="Ils veulent retrouver leur longueur" t={t} t0={back + 0.1} side="r" dx={70} dy={-190} tone="red" />
+      <BigTitle ltr t={t} t0={c("eff", -0.05)} t1={c("eff", 1.0)} top={1230} lines={[{ text: "L'effet !", red: true, size: 120 }]} />
       <StepChip n={5} total={TOT} ar="هنا يصير الـ effet" t={t} t0={0.2} />
     </AbsoluteFill>
   );
@@ -247,7 +252,7 @@ export const S6: React.FC<SP> = ({ t, s0 }) => {
     <AbsoluteFill>
       <Shell cam={cam} shadow={[0, 3.6, 1.8]}>
         <Block p={[0, 0.06, 0]} s={[4.4, 0.12, 1.7]} m={{ color: "#e8ebf3" }} />
-        <Member t={t} op={0.7} tint={tint} squeeze={sq} cableEi={0.4} />
+        <Member t={t} op={0.7} tint={tint} squeeze={sq} cableEi={0.4} camber={arch(t, c("comp2", -0.1), 0.4, 0.35, 0.13)} />
         {/* plaques d'ancrage rouges qui tirent vers l'intérieur + flèches de compression */}
         {[-1, 1].map((sd, i) => (
           <group key={i}>
@@ -279,8 +284,8 @@ export const S7: React.FC<SP> = ({ t, s0 }) => {
         <Arrow3D p={[-L0 / 2 - 0.95 + 0.2 * pul, BY, 0]} dir={[1, 0, 0]} len={0.85 * ca} color={COL.navyL} r={0.09} />
         <Arrow3D p={[L0 / 2 + 0.95 - 0.2 * pul, BY, 0]} dir={[-1, 0, 0]} len={0.85 * ca} color={COL.navyL} r={0.09} />
       </Shell>
-      <Label cam={cam} at={[L0 / 2 + 0.3, BY, 0]} text="Toujours comprimé" t={t} t0={c("zero0", 0.1)} t1={c("zero", -0.1)} side="l" dx={50} dy={-170} tone="navy" />
-      <Badge text="Zéro fissuration" t={t} t0={c("zero", 0.05)} y={1290} />
+      <Label cam={cam} at={[L0 / 2 + 0.3, BY, 0]} text="Toujours comprimé" t={t} t0={c("zero0", 0.1)} t1={c("zero", 0.3)} side="l" dx={50} dy={-170} tone="navy" />
+      <Badge text="Zéro fissuration" t={t} t0={c("zero", 0.38)} y={1290} />
       <StepChip n={7} total={TOT} ar="الـ béton ديما مكبوس" t={t} t0={0.2} />
     </AbsoluteFill>
   );

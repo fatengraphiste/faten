@@ -5,12 +5,12 @@ import { Outro } from "../Outro";
 import { LOGO_PATHS } from "../logo";
 import { NAVY } from "../lib";
 import { S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12 } from "./scenes";
-import { VOICE_DUR } from "./cues";
+import { VOICE_DUR, BOUNDS } from "./cues";
 
 export const FPS = 30;
 export const VOICE_END = VOICE_DUR + 0.1;
 // bornes des scènes (s) : milieux des pauses de la voix off
-const B = [0, 9.52, 13.34, 19.92, 23.97, 26.94, 31.41, 35.26, 41.67, 47.85, 54.07, 58.76, VOICE_END];
+const B = BOUNDS;
 const SCENES = [S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12];
 
 const Logo: React.FC<{ a: number }> = ({ a }) => (

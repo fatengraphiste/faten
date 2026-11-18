@@ -3,8 +3,10 @@
 import numpy as np, wave, subprocess
 R = "/home/user/faten/comptoir-gep-video"; O = "/tmp/foot/out"
 VOICE = R + "/assets/prec_voice.wav"
-TOTAL = 66.62; SR = 44100
-CUTS = [9.52, 13.34, 19.92, 23.97, 26.94, 31.41, 35.26, 41.67, 47.85, 54.07, 58.76, 61.62]
+import json
+_B = json.load(open('/tmp/foot/out/prec_bounds.json'))
+TOTAL = round(_B['dur'] + 0.1 + 5, 2); SR = 44100
+CUTS = _B['B'][1:]
 rng = np.random.default_rng(5)
 def whoosh(dur=0.5):
     n = int(SR * dur); t = np.arange(n) / SR; noise = rng.standard_normal(n)
