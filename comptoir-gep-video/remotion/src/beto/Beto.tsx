@@ -19,7 +19,7 @@ export const Beto: React.FC<{ svg: string; s: BetoState; width: number }> = ({ s
     root.setAttribute("data-l", s.l); root.setAttribute("data-r", s.r);
     root.querySelector("#mouth")?.setAttribute("data-v", s.v);
     root.classList.toggle("walking", s.raise > 0.02); root.classList.toggle("wiggle", s.wiggle);
-    (root.querySelector("#beto") as SVGElement).style.transform = `translateY(${-78 * s.raise}px)`;
+    (root.querySelector("#beto") as SVGElement).style.transform = `translateY(${-26 * s.raise}px)`;
     const ph = Math.floor(PH(s.t, 0.64) * 4);
     for (let i = 1; i <= 4; i++) root.querySelectorAll<SVGElement>(".wf" + i).forEach((e) => { e.style.opacity = s.walking && ph === i - 1 ? "1" : "0"; });
     const torso = root.querySelector(".torso") as SVGElement;

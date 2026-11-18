@@ -7,6 +7,7 @@ import { Cover } from "./Cover";
 import { Precontrainte } from "./prec/Precontrainte";
 import { CoverPrec } from "./prec/CoverPrec";
 import { BetoVideo } from "./beto/BetoVideo";
+import { BetoV2 } from "./beto/BetoV2";
 import { CoverIso } from "./CoverIso";
 export const FPS = 30;
 export const TOTAL = 2175; // 72.5 s = 67.5 s de voix + outro 5 s
@@ -20,5 +21,6 @@ export const Root: React.FC = () => (
     <Composition id="Precontrainte" component={Precontrainte} durationInFrames={2080} fps={FPS} width={1080} height={1920} />
     <Composition id="BetoVideo" component={BetoVideo} durationInFrames={1170} fps={FPS} width={1080} height={1920} />
     <Composition id="CoverPrec" component={CoverPrec} durationInFrames={1} fps={FPS} width={1080} height={1920} />
+    <Composition id="BetoV2" component={BetoV2} durationInFrames={1210} fps={FPS} width={1080} height={1920} />
   </>
 );
