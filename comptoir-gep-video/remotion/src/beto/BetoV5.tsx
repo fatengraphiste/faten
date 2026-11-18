@@ -162,7 +162,7 @@ const CoinSvg: React.FC<{ cx: number; cy: number; rx?: number; thick?: number; o
     </g>
   );
 };
-const Pile: React.FC<{ t: number; times: number[]; rem?: number[]; y?: number }> = ({ t, times, rem, y = 1385 }) => {
+const Pile: React.FC<{ t: number; times: number[]; rem?: number[]; y?: number }> = ({ t, times, rem, y = 1285 }) => {
   const cols = [380, 540, 700, 460, 620];
   return (
     <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
@@ -319,34 +319,34 @@ export const BetoV5: React.FC = () => {
         <KT t={t} t0={C("calc")} t1={E("calc", 0.25)} y={960} text="وتبدا حاسب حسبة..." size={80} mode="slide" color={NAVY} />
         <KT t={t} t0={C("other")} t1={E("other", 0.6)} y={960} text="ديما حسبة أخرى !" size={86} mode="stretch" color={RED} />
         {t < C("secret") && <Pile t={t} times={tc} rem={rc} />}
-        {t > C("other", 0.5) && t < C("secret", -0.1) && (<div style={{ position: "absolute", left: 790, top: 1180, fontFamily: FONT, fontWeight: 800, fontSize: 130, color: RED, transform: `scale(${elastic(prog(t, C("other", 0.5), 0.5), 1.4, 0.45)}) rotate(10deg)` }}>؟</div>)}
-        {t > E("other", 0.05) && t < C("secret") && <Burst t={t} t0={E("other", 0.05)} cx={540} cy={1250} n={8} d={160} life={0.8} seed={11} />}
+        {t > C("other", 0.5) && t < C("secret", -0.1) && (<div style={{ position: "absolute", left: 790, top: 1090, fontFamily: FONT, fontWeight: 800, fontSize: 130, color: RED, transform: `scale(${elastic(prog(t, C("other", 0.5), 0.5), 1.4, 0.45)}) rotate(10deg)` }}>؟</div>)}
+        {t > E("other", 0.05) && t < C("secret") && <Burst t={t} t0={E("other", 0.05)} cx={540} cy={1150} n={8} d={160} life={0.8} seed={11} />}
 
         {/* ── part2 ── */}
         <MorphPill t={t} t0={C("secret", -0.05)} t1={E("secret", 0.4)} y={1030} text="نحكيلك على سرّ" size={64} color={NAVY} />
         <KT t={t} t0={C("dalle")} t1={E("dalle", 0.3)} y={960} text="الدالة الحاضرة" size={104} mode="pop" color={NAVY} />
         {t > C("dalle") && t < E("dalle", 0.3) && (<>
           <Burst t={t} t0={C("dalle", 0.1)} cx={540} cy={1010} n={16} d={330} seed={21} />
-          <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><g transform={`translate(540 1290) scale(${elastic(prog(t, C("dalle", 0.3), 0.6), 1.2, 0.5)})`}><rect x={-280} y={-60} width={560} height={120} rx={26} fill="#e4e9fb" stroke={NAVY} strokeWidth={7} />{Array.from({ length: 7 }, (_, i) => <circle key={i} cx={-210 + i * 70} cy={0} r={22} fill="#fff" stroke={NAVY} strokeWidth={5} />)}</g></svg>
+          <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><g transform={`translate(540 1190) scale(${elastic(prog(t, C("dalle", 0.3), 0.6), 1.2, 0.5)})`}><rect x={-280} y={-60} width={560} height={120} rx={26} fill="#e4e9fb" stroke={NAVY} strokeWidth={7} />{Array.from({ length: 7 }, (_, i) => <circle key={i} cx={-210 + i * 70} cy={0} r={22} fill="#fff" stroke={NAVY} strokeWidth={5} />)}</g></svg>
         </>)}
         <KT t={t} t0={C("light")} t1={E("light", 0.3)} y={960} text="الحسبة تخفّ برشا" size={88} mode="stretch" color={BLUE} />
         {t >= C("light", -0.15) && t < E("light", 0.35) && <Pile t={t} times={tl} rem={rl} />}
         <KT t={t} t0={C("say")} t1={E("same0", 0.5)} y={960} text="ماهو نفس السوم ؟" size={88} mode="slide" color={RED} />
         {t > C("same0", 0.1) && t < E("same0", 0.5) && (<>
-          <Tag t={t} t0={C("same0", 0.1)} x={290} y={1230} text="الدالة الحاضرة" /><Tag t={t} t0={C("same0", 0.3)} x={790} y={1230} text="الدالة العادية" />
-          <div style={{ position: "absolute", left: 470, top: 1190, width: 140, textAlign: "center", fontFamily: FONT, fontWeight: 800, fontSize: 130, color: RED, transform: `scale(${elastic(prog(t, C("same0", 0.5), 0.5), 1.4, 0.45)})` }}>؟</div>
+          <Tag t={t} t0={C("same0", 0.1)} x={290} y={1120} text="الدالة الحاضرة" /><Tag t={t} t0={C("same0", 0.3)} x={790} y={1120} text="الدالة العادية" />
+          <div style={{ position: "absolute", left: 470, top: 1080, width: 140, textAlign: "center", fontFamily: FONT, fontWeight: 800, fontSize: 130, color: RED, transform: `scale(${elastic(prog(t, C("same0", 0.5), 0.5), 1.4, 0.45)})` }}>؟</div>
         </>)}
         <KT t={t} t0={C("yes")} t1={E("yes", 0.5)} y={960} text="إي، نفس السوم" size={92} mode="pop" color={NAVY} />
         {t > C("yes") && t < E("yes", 0.5) && (<>
-          <Tag t={t} t0={C("yes", 0.1)} x={290} y={1230} text="الدالة الحاضرة" /><Tag t={t} t0={C("yes", 0.25)} x={790} y={1230} text="الدالة العادية" />
-          <div style={{ position: "absolute", left: 470, top: 1190, width: 140, textAlign: "center", fontFamily: FONT, fontWeight: 800, fontSize: 130, color: RED, transform: `scale(${elastic(prog(t, C("yes", 0.4), 0.5), 1.4, 0.45)})` }}>=</div>
-          <Check x={540} y={1380} p={prog(t, C("yes", 0.7), 0.6)} s={0.8} />
+          <Tag t={t} t0={C("yes", 0.1)} x={290} y={1120} text="الدالة الحاضرة" /><Tag t={t} t0={C("yes", 0.25)} x={790} y={1120} text="الدالة العادية" />
+          <div style={{ position: "absolute", left: 470, top: 1080, width: 140, textAlign: "center", fontFamily: FONT, fontWeight: 800, fontSize: 130, color: RED, transform: `scale(${elastic(prog(t, C("yes", 0.4), 0.5), 1.4, 0.45)})` }}>=</div>
+          <Check x={540} y={1270} p={prog(t, C("yes", 0.7), 0.6)} s={0.8} />
         </>)}
         <KT t={t} t0={C("chantier")} t1={E("chantier", 0.5)} y={960} text="تكلفة الشانطي تنقص" size={80} mode="drop" color={NAVY} w={980} />
         {t > C("chantier", 0.2) && t < E("chantier", 0.5) && (
           <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-            {[0, 1, 2, 3].map((i) => { const full = 220 * (1 - 0.2 * i - (i === 3 ? 0.1 : 0)); const h = full * eo(prog(t, C("chantier", 0.25 + i * 0.12), 0.5)); return <rect key={i} x={320 + i * 120} y={1400 - h} width={84} height={h} rx={16} fill={i === 3 ? NAVY : T2} />; })}
-            <path d="M300 1200 L 760 1330" stroke={RED} strokeWidth={12} strokeLinecap="round" strokeDasharray={1} pathLength={1} strokeDashoffset={1 - prog(t, C("chantier", 0.5), 0.6)} />
+            {[0, 1, 2, 3].map((i) => { const full = 220 * (1 - 0.2 * i - (i === 3 ? 0.1 : 0)); const h = full * eo(prog(t, C("chantier", 0.25 + i * 0.12), 0.5)); return <rect key={i} x={320 + i * 120} y={1300 - h} width={84} height={h} rx={16} fill={i === 3 ? NAVY : T2} />; })}
+            <path d="M300 1100 L 760 1230" stroke={RED} strokeWidth={12} strokeLinecap="round" strokeDasharray={1} pathLength={1} strokeDashoffset={1 - prog(t, C("chantier", 0.5), 0.6)} />
           </svg>
         )}
         {/* ── les trois cartes (comme l'écran de résultats) ── */}
@@ -354,9 +354,9 @@ export const BetoV5: React.FC = () => {
         <KT t={t} t0={C("less1")} t1={E("less1", 0.15)} y={960} text="أقل أيّام عمل" size={92} mode="slide" color={RED} />
         <KT t={t} t0={C("less2")} t1={E("less2", 0.3)} y={960} text="وأقل يد عاملة زادة" size={80} mode="stretch" color={BLUE} />
         {t > C("less0") && !closing && (<>
-          <StatCard t={t} t0={C("less0", 0.15)} x={200} y={1230} color={NAVY} head="كوفراج" value="أقل" icon="form" mode="pop" />
-          <StatCard t={t} t0={C("less1", 0.15)} x={540} y={1230} color={RED} head="أيّام عمل" value="أقل" icon="cal" mode="slide" />
-          <StatCard t={t} t0={C("less2", 0.15)} x={880} y={1230} color={BLUE} head="يد عاملة" value="أقل" icon="man" mode="drop" />
+          <StatCard t={t} t0={C("less0", 0.15)} x={200} y={1120} color={NAVY} head="كوفراج" value="أقل" icon="form" mode="pop" />
+          <StatCard t={t} t0={C("less1", 0.15)} x={540} y={1120} color={RED} head="أيّام عمل" value="أقل" icon="cal" mode="slide" />
+          <StatCard t={t} t0={C("less2", 0.15)} x={880} y={1120} color={BLUE} head="يد عاملة" value="أقل" icon="man" mode="drop" />
         </>)}
 
         {/* ── clôture : sablier (temps) et argent à côté de Béto, uniquement aux couleurs de la charte ── */}
