@@ -242,7 +242,7 @@ const Hook: React.FC<{ t: number }> = ({ t }) => {
 };
 
 // particules légères en fond (évite le fond vide)
-const Particles: React.FC<{ t: number }> = ({ t }) => (
+export const Particles: React.FC<{ t: number }> = ({ t }) => (
   <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
     {Array.from({ length: 30 }, (_, i) => {
       const sp = 14 + 26 * rnd(i + 3); const x = rnd(i) * 1080 + 18 * Math.sin(t * 0.8 + i); const y = (((rnd(i + 50) * 2000 - t * sp) % 2000) + 2000) % 2000 - 40;
@@ -254,7 +254,7 @@ const Particles: React.FC<{ t: number }> = ({ t }) => (
   </svg>
 );
 // sablier (sable rouge qui s'écoule) et image « argent » (billet + pièces) aux couleurs de la charte
-const Hourglass: React.FC<{ t: number; t0: number; x: number; y: number; s?: number }> = ({ t, t0, x, y, s = 1 }) => {
+export const Hourglass: React.FC<{ t: number; t0: number; x: number; y: number; s?: number }> = ({ t, t0, x, y, s = 1 }) => {
   if (t < t0) return null; const p = elastic(prog(t, t0, 0.6), 1.3, 0.5); const flip = 180 * eio(prog(t, t0 + 0.7, 0.8)); const fall = cl((t - t0 - 0.6) / 2.2);
   return (
     <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
@@ -268,7 +268,7 @@ const Hourglass: React.FC<{ t: number; t0: number; x: number; y: number; s?: num
     </svg>
   );
 };
-const Money: React.FC<{ t: number; t0: number; x: number; y: number; s?: number }> = ({ t, t0, x, y, s = 1 }) => {
+export const Money: React.FC<{ t: number; t0: number; x: number; y: number; s?: number }> = ({ t, t0, x, y, s = 1 }) => {
   if (t < t0) return null; const p = elastic(prog(t, t0, 0.6), 1.3, 0.5);
   return (
     <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
