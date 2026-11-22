@@ -59,14 +59,29 @@ const Big: React.FC<{ size: number; color: string; children: React.ReactNode; st
   <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: size, lineHeight: 0.95, letterSpacing: -size * 0.035, color, whiteSpace: "nowrap", ...style }}>{children}</div>
 );
 
-// Texte du plan : un seul à la fois, bien lisible, qui « pop » au moment où la phrase commence
-const BeatText: React.FC<{ t: number; a: number; b: number; text: string; kind: string }> = ({ t, a, b, text, kind }) => {
+// Petites illustrations à côté du texte (une seule par plan)
+const Icon: React.FC<{ kind: string; t: number }> = ({ kind, t }) => {
+  const base: React.CSSProperties = { width: 150, height: 150, borderRadius: 99, backgroundColor: WHITE, display: "flex", alignItems: "center", justifyContent: "center" };
+  if (kind === "claude") return <div style={base}><Img src={staticFile("cc/claude-icon.png")} style={{ width: 110, height: 110, borderRadius: 26 }} /></div>;
+  const sv = (d: string, fill = "none") => <svg width={86} height={86} viewBox="0 0 24 24" fill={fill} stroke={RED} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d={d} /></svg>;
+  if (kind === "lock") return <div style={base}>{sv("M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v3")}</div>;
+  if (kind === "spark") return <div style={{ ...base, transform: `rotate(${t * 3}deg)` }}>{sv("M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18")}</div>;
+  if (kind === "hourglass") return <div style={{ ...base, transform: `rotate(${Math.sin(t / 6) * 12}deg)` }}>{sv("M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9")}</div>;
+  if (kind === "bubble") return <div style={{ ...base, borderRadius: 40 }}>{sv("M4 5h16v11H9l-5 4zM8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01")}</div>;
+  return null;
+};
+
+// Texte du plan : un seul à la fois, qui « pop » au moment où la phrase commence
+const BeatText: React.FC<{ t: number; a: number; b: number; text: string; kind: string; icon?: string }> = ({ t, a, b, text, kind, icon }) => {
   const k = el(t, a + 2, 9);
   const out = ease(t, b - 5, 5);
   const words = text.split(" ");
   return (
-    <div style={{ position: "absolute", left: 90, width: 900, top: 300, display: "flex", justifyContent: "center", alignItems: "center", gap: 22, flexWrap: "wrap", opacity: (1 - out) * Math.min(1, k * 2), transform: `scale(${0.6 + 0.4 * k}) translateY(${-out * 30}px)` }} dir={kind === "wait" ? "ltr" : "rtl"}>
-      {kind === "wait" ? <Big size={230} color={WHITE}>wait!!!</Big> : words.map((w, i) => (ARABIC.test(w) ? <MixedText key={i} text={w} size={132} color={WHITE} /> : <span key={i} style={{ backgroundColor: WHITE, borderRadius: 999, padding: "6px 40px 14px" }}><Big size={96} color={RED}>{w}</Big></span>))}
+    <div style={{ position: "absolute", left: 90, width: 900, top: 270, display: "flex", justifyContent: "center", alignItems: "center", gap: 28, flexWrap: "nowrap", opacity: (1 - out) * Math.min(1, k * 2), transform: `scale(${0.6 + 0.4 * k}) translateY(${-out * 30}px)` }} dir={kind === "wait" ? "ltr" : "rtl"}>
+      {icon ? <Icon kind={icon} t={t} /> : null}
+      <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
+        {kind === "wait" ? <Big size={230} color={WHITE}>wait!!!</Big> : words.map((w, i) => (ARABIC.test(w) ? <MixedText key={i} text={w} size={icon ? 112 : 132} color={WHITE} /> : <span key={i} style={{ backgroundColor: WHITE, borderRadius: 999, padding: "6px 40px 14px" }}><Big size={icon ? 80 : 96} color={RED}>{w}</Big></span>))}
+      </div>
     </div>
   );
 };
@@ -86,7 +101,7 @@ export const HabV1: React.FC = () => {
           <div style={{ position: "absolute", left: 0, right: 0, top: 120, display: "flex", justifyContent: "center" }}>
             <div style={{ width: 96, height: 96, borderRadius: 99, backgroundColor: WHITE, display: "flex", alignItems: "center", justifyContent: "center" }}><Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 72, height: 72 }} /></div>
           </div>
-          {HAB_BEATS.map((b, i) => (t >= b.a * FPS - 1 && t < b.b * FPS ? <BeatText key={i} t={t} a={b.a * FPS} b={b.b * FPS} text={b.text} kind={b.kind} /> : null))}
+          {HAB_BEATS.map((b, i) => (t >= b.a * FPS - 1 && t < b.b * FPS ? <BeatText key={i} t={t} a={b.a * FPS} b={b.b * FPS} text={b.text} kind={b.kind} icon={b.icon} /> : null))}
           <div style={{ position: "absolute", left: 540 - 670, top: 540 + bob + (1 - enter) * 600, opacity: Math.min(1, enter * 2) }}>
             <Habouba t={t} l={beat.l} r={beat.r} wiggle={beat.wiggle} talking width={1340} />
           </div>
