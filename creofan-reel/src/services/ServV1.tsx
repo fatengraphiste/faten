@@ -32,8 +32,7 @@ const CARDS: Card[] = [
   { a: 10.3, b: 11.1, kind: "card", text: "Site web", lot: "web2" },
   { a: 11.1, b: 12.05, kind: "card", text: "Social kit", lot: "soc4" },
   { a: 12.05, b: 13.2, kind: "card", text: "Motion\ndesign", lot: "mo1" },
-  { a: 13.2, b: 14.5, kind: "card", text: "رؤية\nطويلة المدى", lot: "v2" },
-  { a: 14.5, b: 16.0, kind: "card", text: "سرعة\nالإنجاز", lot: "sp3" },
+  { a: 13.2, b: 16.0, kind: "card", text: "duo" },
   { a: 16.0, b: 19.3, kind: "logo", text: "نعطيوكم روح لخدمتكم" },
 ];
 // fond rouge : pivot + services (8,2 → 13,2) puis final (16,0 →)
@@ -70,6 +69,27 @@ const dotR = (t: number, i: number) => {
   return 30 + 1700 * (q * q * (3 - 2 * q));
 };
 
+const DuoItem: React.FC<{ lot: string; label: string[]; k: number; x: number }> = ({ lot, label, k, x }) => (
+  <div style={{ position: "absolute", left: x, top: 380, width: 480, transform: `scale(${0.92 + 0.08 * k})`, opacity: k }}>
+    <div style={{ position: "absolute", left: 0, top: 0 }}><Lot name={lot} size={480} /></div>
+    <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: 500, display: "flex", justifyContent: "center" }}>
+      <div style={{ backgroundColor: RED, borderRadius: 56, padding: "6px 36px 20px", transform: "rotate(-2deg)", boxShadow: "0 14px 34px rgba(26,26,26,0.16)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {label.map((l) => <MixedText key={l} text={l} size={72} color={WHITE} style={{ whiteSpace: "nowrap" }} />)}
+      </div>
+    </div>
+  </div>
+);
+const DuoScene: React.FC = () => {
+  const f = useCurrentFrame();   // local (dans la Sequence du plan)
+  const k1 = ease(f, 2, 12, Easing.out(Easing.cubic));
+  const k2 = ease(f, S(14.5) - S(13.2), 12, Easing.out(Easing.cubic));   // « سرعة الإنجاز » à l'attaque de la voix
+  return (
+    <>
+      <DuoItem lot="v2" label={["رؤية", "طويلة المدى"]} k={k1} x={560} />
+      <DuoItem lot="sp3" label={["سرعة", "الإنجاز"]} k={k2} x={40} />
+    </>
+  );
+};
 const lines = (txt: string) => txt.split("\n");
 const Content: React.FC<{ c: Card }> = ({ c }) => {
   const red = isRed(c);
@@ -93,10 +113,11 @@ const Content: React.FC<{ c: Card }> = ({ c }) => {
     <Sequence from={a} layout="none">
       <AbsoluteFill style={{ backgroundColor: red ? RED : BEIGE }}>
         {!red ? <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(#ecd2d0 2.5px, transparent 2.5px)", backgroundSize: "54px 54px", opacity: 0.8 }} /> : null}
+        {c.text === "duo" ? <DuoScene /> : null}
         {c.kind === "card" && c.lot ? <div style={{ position: "absolute", left: 540 - 410, top: 300, ...(c.lot === "brand3" ? { clipPath: "inset(100px 100px 100px 100px round 64px)" } : {}) }}><Lot name={c.lot} size={820} /></div> : null}
         {c.kind === "logo" ? <div style={{ position: "absolute", left: 540 - 150, top: 400, width: 300, height: 300, borderRadius: 84, backgroundColor: WHITE, display: "flex", alignItems: "center", justifyContent: "center" }}><Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 210, height: 210 }} /></div> : null}
         {c.x ? <div style={{ position: "absolute", left: 770, top: 330, width: 110, height: 110, borderRadius: 99, backgroundColor: RED, color: WHITE, fontFamily: FONT, fontWeight: 800, fontSize: 78, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</div> : null}
-        <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: c.kind === "logo" ? 780 : 1090, display: "flex", justifyContent: "center" }}>
+        {c.text === "duo" ? null : <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: c.kind === "logo" ? 780 : 1090, display: "flex", justifyContent: "center" }}>
           {c.kind === "logo" ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
               {(c.a === 16.0 ? ["نعطيوكم روح", "لخدمتكم"] : ["Creofan", "معاكم"]).map((l) => <MixedText key={l} text={l} size={124} color={WHITE} style={{ whiteSpace: "nowrap" }} />)}
@@ -106,7 +127,7 @@ const Content: React.FC<{ c: Card }> = ({ c }) => {
               {ls.map((l) => <MixedText key={l} text={l} size={big} color={red ? RED : WHITE} style={{ whiteSpace: "nowrap" }} />)}
             </div>
           )}
-        </div>
+        </div>}
       </AbsoluteFill>
     </Sequence>
   );
