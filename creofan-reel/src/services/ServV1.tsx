@@ -24,9 +24,9 @@ type Card = { a: number; b: number; kind: "card" | "logo"; text?: string; lot?: 
 const CARDS: Card[] = [
   { a: 0, b: 1.95, kind: "card", text: "مشروعك قوي", lot: "gr1" },
   { a: 1.95, b: 4.3, kind: "card", text: "ما تشوفوش؟", lot: "s3" },
-  { a: 4.3, b: 5.55, kind: "card", text: "صورة\ngénérique", lot: "brand3", x: true },
-  { a: 5.55, b: 6.8, kind: "card", text: "Site web\nقديم", lot: "web2", x: true },
-  { a: 6.8, b: 8.2, kind: "card", text: "سوشيال\nبلا هوية", lot: "soc4", x: true },
+  { a: 4.3, b: 5.55, kind: "card", text: "صورة\ngénérique", lot: "p3", x: true },
+  { a: 5.55, b: 6.8, kind: "card", text: "Site web\nقديم", lot: "p9", x: true },
+  { a: 6.8, b: 8.2, kind: "card", text: "سوشيال\nبلا هوية", lot: "p11", x: true },
   { a: 8.2, b: 9.5, kind: "logo", text: "Creofan معاكم" },
   { a: 9.5, b: 10.3, kind: "card", text: "Branding", lot: "brand3" },
   { a: 10.3, b: 11.1, kind: "card", text: "Site web", lot: "web2" },

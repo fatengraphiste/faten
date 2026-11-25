@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import { Lot } from "./LottieUse";
-const NAMES = ["s1","s2","s3","s4","s5","v1","v2","v3","v4","v5","v6"];
+const NAMES = ["p1","p2","p3","p4","p5","p6","p7","p8","p9","p10","p11","p12"];
 export const OLD = ["brand1","brand2","brand3","brand4","web1","web2","web3","web4","soc1","soc2","soc3","soc4","mo1","mo2","mo3","gr1","gr2","gr3","sp1","sp2","sp3","hr1","hr2"];
 export const LottieSheet: React.FC<{ recolor: boolean }> = ({ recolor }) => (
   <AbsoluteFill style={{ backgroundColor: "#cfcfcf", display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 10, padding: 10 }}>
