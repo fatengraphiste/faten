@@ -263,3 +263,17 @@ export const HabV5: React.FC = () => {
   );
 };
 void CHAR; void PINK; void RED; void BEIGE; void Big; void HAB_ENV;
+
+// Couverture Reel (1080×1920, zone centrale 4:5 pour la grille)
+export const CoverHab5: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: BEIGE, overflow: "hidden" }}>
+    <Decor kind="bands" lf={99} />
+    <LogoTop />
+    <div style={{ position: "absolute", left: 540 - 500, top: 270, width: 1000, display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }} dir="rtl">
+      <div style={{ backgroundColor: RED, borderRadius: 70, padding: "6px 56px 22px" }}><MixedText text="شكون حبوبة؟" size={150} color={WHITE} /></div>
+      <div style={{ backgroundColor: WHITE, border: `6px solid ${RED}`, borderRadius: 60, padding: "4px 40px 14px", boxShadow: SH }}><MixedText text="سر بيناتنا 🤫" size={78} color={RED} /></div>
+    </div>
+    <div style={{ position: "absolute", left: 540 - 400, top: 675, width: 800 }}>{rig(0, 800, "hips", "wave", false)}</div>
+    <div style={{ position: "absolute", left: 540 - 230, top: 1385, width: 460, height: 42, borderRadius: "50%", backgroundColor: "rgba(26,26,26,0.10)" }} />
+  </AbsoluteFill>
+);
