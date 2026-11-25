@@ -69,24 +69,23 @@ const dotR = (t: number, i: number) => {
   return 30 + 1700 * (q * q * (3 - 2 * q));
 };
 
-const DuoItem: React.FC<{ lot: string; label: string[]; k: number; x: number }> = ({ lot, label, k, x }) => (
-  <div style={{ position: "absolute", left: x, top: 380, width: 480, transform: `scale(${0.92 + 0.08 * k})`, opacity: k }}>
-    <div style={{ position: "absolute", left: 0, top: 0 }}><Lot name={lot} size={480} /></div>
-    <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: 500, display: "flex", justifyContent: "center" }}>
-      <div style={{ backgroundColor: RED, borderRadius: 56, padding: "6px 36px 20px", transform: "rotate(-2deg)", boxShadow: "0 14px 34px rgba(26,26,26,0.16)", display: "flex", flexDirection: "column", alignItems: "center" }}>
-        {label.map((l) => <MixedText key={l} text={l} size={72} color={WHITE} style={{ whiteSpace: "nowrap" }} />)}
-      </div>
-    </div>
-  </div>
-);
 const DuoScene: React.FC = () => {
   const f = useCurrentFrame();   // local (dans la Sequence du plan)
+  const T2 = S(14.5) - S(13.2);  // « سرعة الإنجاز » : attaque de la voix
   const k1 = ease(f, 2, 12, Easing.out(Easing.cubic));
-  const k2 = ease(f, S(14.5) - S(13.2), 12, Easing.out(Easing.cubic));   // « سرعة الإنجاز » à l'attaque de la voix
+  const sw = ease(f, T2, 10, Easing.out(Easing.cubic));
+  const label = (l: string[], k: number, rot: number) => (
+    <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: 1090, display: "flex", justifyContent: "center", opacity: k, transform: `translateY(${(1 - k) * 30}px) scale(${0.94 + 0.06 * k})` }}>
+      <div style={{ backgroundColor: RED, borderRadius: 64, padding: "6px 56px 22px", transform: `rotate(${rot}deg)`, boxShadow: "0 14px 34px rgba(26,26,26,0.16)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {l.map((x) => <MixedText key={x} text={x} size={90} color={WHITE} style={{ whiteSpace: "nowrap" }} />)}
+      </div>
+    </div>
+  );
   return (
     <>
-      <DuoItem lot="v2" label={["رؤية", "طويلة المدى"]} k={k1} x={560} />
-      <DuoItem lot="sp3" label={["سرعة", "الإنجاز"]} k={k2} x={40} />
+      <div style={{ position: "absolute", left: 540 - 410, top: 330, opacity: k1 }}><Lot name="v2" size={820} /></div>
+      {f >= T2 ? <div style={{ position: "absolute", left: 540 - 170, top: 250 - (1 - sw) * 40, width: 340, height: 340, opacity: sw, transform: `scale(${0.7 + 0.3 * sw})` }}><Lot name="sp3" size={340} /></div> : null}
+      {f < T2 ? label(["رؤية", "طويلة المدى"], k1 * (1 - ease(f, T2 - 4, 4)), -2.5) : label(["سرعة", "الإنجاز"], sw, -2.5)}
     </>
   );
 };
