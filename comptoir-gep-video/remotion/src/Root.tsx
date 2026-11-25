@@ -12,6 +12,7 @@ import { BetoV3 } from "./beto/BetoV3";
 import { BetoV4 } from "./beto/BetoV4";
 import { BetoV5 } from "./beto/BetoV5";
 import { CoverBeto } from "./beto/CoverBeto";
+import { TruckImage } from "./TruckImage";
 import { CoverIso } from "./CoverIso";
 export const FPS = 30;
 export const TOTAL = 2175; // 72.5 s = 67.5 s de voix + outro 5 s
@@ -30,5 +31,6 @@ export const Root: React.FC = () => (
     <Composition id="BetoV4" component={BetoV4} durationInFrames={1160} fps={FPS} width={1080} height={1920} />
     <Composition id="BetoV5" component={BetoV5} durationInFrames={1160} fps={FPS} width={1080} height={1920} />
     <Composition id="CoverBeto" component={CoverBeto} durationInFrames={1} fps={FPS} width={1080} height={1920} />
+    <Composition id="TruckImage" component={TruckImage} durationInFrames={1} fps={FPS} width={1080} height={1920} />
   </>
 );
