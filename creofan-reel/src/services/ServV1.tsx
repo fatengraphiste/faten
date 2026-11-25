@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Audio, Easing, Img, interpolate, Sequence, spring, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Easing, Img, interpolate, Sequence, staticFile, useCurrentFrame } from "remotion";
 import { MixedText } from "../components";
 import { OutroIcon } from "../outro/OutroIcon";
 import { Lot } from "./LottieUse";
@@ -39,35 +39,45 @@ const CARDS: Card[] = [
 const REDS: [number, number][] = [[8.2, 13.2], [16.0, 99]];
 
 
-// Pendule d'arrière-plan : lent, ample mais doux (période 4,4 s, ±13°)
-const BgPendulum: React.FC<{ t: number; red: boolean; front: number }> = ({ t, red, front }) => {
-  const th = 13 * Math.sin((t / FPS) * ((Math.PI * 2) / 4.4)) * (1 - 0.35 * front);
-  const L = 1000 - front * 560, size = 330 + front * 130;
-  return (
-    <div style={{ position: "absolute", left: PIV.x, top: PIV.y, width: 0, height: 0, transform: `rotate(${th}deg)`, transformOrigin: "0 0", opacity: 0.22 + 0.78 * front, zIndex: front > 0.5 ? 20 : 1 }}>
-      <div style={{ position: "absolute", left: -3, top: 0, width: 6, height: L, backgroundColor: red ? WHITE : RED, opacity: 0.5 }} />
-      <div style={{ position: "absolute", left: -size / 2, top: L, width: size, height: size, borderRadius: size * 0.28, backgroundColor: red ? WHITE : RED, display: "flex", alignItems: "center", justifyContent: "center", transform: `rotate(${-th * 0.6}deg)` }}>
-        <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: size * 0.68, filter: red ? "none" : "brightness(0) invert(1)" }} />
-      </div>
-    </div>
-  );
-};
 
-const Scene: React.FC<{ t: number; c: Card; red: boolean }> = ({ t, c, red }) => {
-  const a = S(c.a), b = S(c.b);
-  const lf = t - a;
-  const inn = ease(t, a, 16, Easing.out(Easing.cubic));
-  const out = ease(t, b - 8, 8);
-  const o = inn * (1 - out);
+const isRed = (c: Card) => REDS.some(([a, b]) => c.a >= a && c.a < b);
+
+// ── pendule-essuie-glace : à chaque changement de plan il balaie l'écran d'un bord à l'autre ; ──
+// ── ce qu'il a déjà dépassé montre le plan suivant (illustration + texte), calé sur la voix.  ──
+const LP = 1000, REST = 36, SW = 26, PRE = 9;           // longueur du fil, angle de repos (°), durée du balayage (images), avance
+const sweepStart = (i: number) => S(CARDS[i].a) - PRE;
+const dirOf = (i: number) => (i % 2 === 1 ? -1 : 1);   // balayage vers la gauche (−1) pour les plans impairs
+const theta = (t: number) => {
+  let j = -1;
+  for (let i = 1; i < CARDS.length; i++) if (t >= sweepStart(i)) j = i;
+  if (j < 0) return REST + Math.sin(t / 24) * 1.4;
+  const d = dirOf(j);                                   // d = −1 : de +REST vers −REST
+  const q = Math.min(1, Math.max(0, (t - sweepStart(j)) / SW));
+  const e = 0.5 - 0.5 * Math.cos(Math.PI * q);
+  const from = -d * REST, to = d * REST;
+  return from + (to - from) * e + (q >= 1 ? Math.sin(t / 26 + j) * 1.4 : 0);
+};
+const edgeX = (th: number) => PIV.x + LP * Math.sin((th * Math.PI) / 180);
+
+const Content: React.FC<{ c: Card }> = ({ c }) => {
+  const red = isRed(c);
+  const a = S(c.a);
   return (
     <Sequence from={a} layout="none">
-      <div style={{ position: "absolute", inset: 0, opacity: o, transform: `translateY(${(1 - inn) * 40 - out * 20}px) scale(${0.96 + 0.04 * inn})` }}>
-        {c.lot ? <div style={{ position: "absolute", left: 540 - 450, top: 250, ...(c.lot === "brand3" ? { clipPath: "inset(110px 110px 110px 110px round 70px)" } : {}) }}><Lot name={c.lot} size={900} /></div> : null}
-        {c.x ? <div style={{ position: "absolute", left: 780, top: 360, width: 110, height: 110, borderRadius: 99, backgroundColor: RED, color: WHITE, fontFamily: FONT, fontWeight: 800, fontSize: 78, display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${spring({ frame: lf - 12, fps: FPS, config: { damping: 14 } })})` }}>✕</div> : null}
-        <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: 1090, display: "flex", justifyContent: "center" }}>
-          <div style={{ backgroundColor: red ? WHITE : RED, borderRadius: 999, padding: "4px 50px 18px" }}><MixedText text={c.text ?? ""} size={c.text && c.text.length > 12 ? 82 : 104} color={red ? RED : WHITE} style={{ whiteSpace: "nowrap" }} /></div>
+      <AbsoluteFill style={{ backgroundColor: red ? RED : BEIGE }}>
+        {c.kind === "card" && c.lot ? <div style={{ position: "absolute", left: 540 - 450, top: 250, ...(c.lot === "brand3" ? { clipPath: "inset(110px 110px 110px 110px round 70px)" } : {}) }}><Lot name={c.lot} size={900} /></div> : null}
+        {c.kind === "logo" ? <div style={{ position: "absolute", left: 540 - 150, top: 420, width: 300, height: 300, borderRadius: 84, backgroundColor: WHITE, display: "flex", alignItems: "center", justifyContent: "center" }}><Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 210, height: 210 }} /></div> : null}
+        {c.x ? <div style={{ position: "absolute", left: 780, top: 360, width: 110, height: 110, borderRadius: 99, backgroundColor: RED, color: WHITE, fontFamily: FONT, fontWeight: 800, fontSize: 78, display: "flex", alignItems: "center", justifyContent: "center" }}>✕</div> : null}
+        <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: c.kind === "logo" ? 800 : 1090, display: "flex", justifyContent: "center" }}>
+          {c.kind === "logo" ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              {(c.text ?? "").split(c.a === 16.0 ? " " : "\n").length && c.a === 16.0 ? (<><MixedText text="نعطيوكم روح" size={120} color={WHITE} style={{ whiteSpace: "nowrap" }} /><MixedText text="لخدمتكم" size={120} color={WHITE} style={{ whiteSpace: "nowrap" }} /></>) : <MixedText text={c.text ?? ""} size={118} color={WHITE} style={{ whiteSpace: "nowrap" }} />}
+            </div>
+          ) : (
+            <div style={{ backgroundColor: red ? WHITE : RED, borderRadius: 999, padding: "4px 50px 18px" }}><MixedText text={c.text ?? ""} size={c.text && c.text.length > 12 ? 82 : 104} color={red ? RED : WHITE} style={{ whiteSpace: "nowrap" }} /></div>
+          )}
         </div>
-      </div>
+      </AbsoluteFill>
     </Sequence>
   );
 };
@@ -75,23 +85,36 @@ const Scene: React.FC<{ t: number; c: Card; red: boolean }> = ({ t, c, red }) =>
 export const ServV1: React.FC = () => {
   const t = useCurrentFrame();
   const inOutro = t >= OUT;
-  const redNow = REDS.some(([a, b]) => t >= S(a) && t < S(b));
-  const wipe = (a: number) => ease(t, S(a), 9, Easing.out(Easing.cubic));
-  // le pendule passe au premier plan sur le pivot « Creofan معاكم » et sur le final
-  const front = Math.max(ease(t, S(8.2), 14) * (1 - ease(t, S(9.4), 12)), ease(t, S(16.0), 14));
-  const logoScene = CARDS.find((c) => c.kind === "logo")!;
+  const th = theta(t);
+  const ex = edgeX(th);
+  const tr = (th * Math.PI) / 180;
+  const bx = PIV.x + LP * Math.sin(tr), by = PIV.y + LP * Math.cos(tr);
   return (
     <AbsoluteFill style={{ backgroundColor: BEIGE, overflow: "hidden" }}>
       {!inOutro ? (<>
-        {REDS.map(([a, b], i) => <div key={i} style={{ position: "absolute", inset: 0, backgroundColor: RED, transform: `translateY(${(1 - wipe(a)) * 100}%)`, opacity: t >= S(b) ? 0 : 1 }} />)}
-        <BgPendulum t={t} red={redNow} front={front} />
-        {CARDS.filter((c) => c.kind === "card" && t >= S(c.a) - 1 && t < S(c.b) + 1).map((c) => <Scene key={c.a} t={t} c={c} red={redNow} />)}
-        {/* pivot : texte sous le pendule passé au premier plan */}
-        {t >= S(logoScene.a) && t < S(logoScene.b) + 6 ? (() => { const k = ease(t, S(8.5), 14, Easing.out(Easing.cubic)) * (1 - ease(t, S(logoScene.b) - 6, 8)); return <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: 1200, display: "flex", justifyContent: "center", opacity: k, transform: `translateY(${(1 - k) * 30}px)`, zIndex: 30 }}><MixedText text="Creofan معاكم" size={118} color={WHITE} style={{ whiteSpace: "nowrap" }} /></div>; })() : null}
-        {t >= S(16.0) ? (() => { const k = ease(t, S(16.6), 14, Easing.out(Easing.cubic)); return <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: 1160, display: "flex", flexDirection: "column", alignItems: "center", opacity: k, transform: `translateY(${(1 - k) * 30}px)`, zIndex: 30 }}><MixedText text="نعطيوكم روح" size={120} color={WHITE} style={{ whiteSpace: "nowrap" }} /><MixedText text="لخدمتكم" size={120} color={WHITE} style={{ whiteSpace: "nowrap" }} /></div>; })() : null}
+        {CARDS.map((c, i) => {
+          const start = i === 0 ? 0 : sweepStart(i);
+          const nextDone = i + 1 < CARDS.length ? sweepStart(i + 1) + SW : 1e9;
+          if (t < start || t >= nextDone) return null;
+          let clip: string | undefined;
+          if (i > 0 && t < sweepStart(i) + SW) {
+            const e = Math.max(0, Math.min(1080, ex));
+            clip = dirOf(i) < 0 ? `inset(0px 0px 0px ${e}px)` : `inset(0px ${1080 - e}px 0px 0px)`;
+          }
+          return <div key={i} style={{ position: "absolute", inset: 0, clipPath: clip }}><Content c={c} /></div>;
+        })}
+        {/* fil + masse du pendule */}
+        <div style={{ position: "absolute", left: 0, top: 0, width: 1080, height: 1920, pointerEvents: "none", zIndex: 25 }}>
+          <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
+            <line x1={PIV.x} y1={PIV.y} x2={bx} y2={by} stroke={CHAR} strokeWidth={6} strokeOpacity={0.55} />
+          </svg>
+          <div style={{ position: "absolute", left: bx - 125, top: by - 125, width: 250, height: 250, borderRadius: 70, backgroundColor: WHITE, border: `8px solid ${RED}`, boxShadow: "0 20px 50px rgba(26,26,26,0.25)", display: "flex", alignItems: "center", justifyContent: "center", transform: `rotate(${th * 0.7}deg)` }}>
+            <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 170, height: 170 }} />
+          </div>
+        </div>
         <div style={{ position: "absolute", left: 0, right: 0, top: PIV.y - 46, display: "flex", justifyContent: "center", zIndex: 40 }}>
-          <div style={{ width: 92, height: 92, borderRadius: 99, backgroundColor: redNow ? WHITE : RED, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 70, height: 70, filter: redNow ? "none" : "brightness(0) invert(1)" }} />
+          <div style={{ width: 92, height: 92, borderRadius: 99, backgroundColor: WHITE, border: `6px solid ${RED}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 62, height: 62 }} />
           </div>
         </div>
       </>) : (
@@ -100,9 +123,9 @@ export const ServV1: React.FC = () => {
 
       <Audio src={staticFile(SERV1_VOICE)} />
       <Audio src={staticFile("services/music-v1.mp3")} volume={(f) => interpolate(f, [0, S(8), S(8.3), SERV1_TOTAL - 30, SERV1_TOTAL], [0.2, 0.2, 0.26, 0.26, 0], clamp)} />
-      {CARDS.map((c) => <Sequence key={c.a} from={S(c.a)} durationInFrames={14}><Audio src={staticFile("habouba/sfx-whoosh.wav")} volume={0.18} /></Sequence>)}
-      {CARDS.slice(1).map((c) => <Sequence key={"k" + c.a} from={S(c.a) + 6} durationInFrames={15}><Audio src={staticFile("cc/pop.wav")} volume={0.22} /></Sequence>)}
+      {CARDS.slice(1).map((c) => <Sequence key={c.a} from={sweepStart(CARDS.indexOf(c))} durationInFrames={18}><Audio src={staticFile("habouba/sfx-whoosh.wav")} volume={0.3} /></Sequence>)}
+      {CARDS.slice(1).map((c) => <Sequence key={"k" + c.a} from={S(c.a) + 2} durationInFrames={15}><Audio src={staticFile("cc/pop.wav")} volume={0.25} /></Sequence>)}
     </AbsoluteFill>
   );
 };
-void PINK; void CHAR;
+void PINK; void CHAR; void ease;
