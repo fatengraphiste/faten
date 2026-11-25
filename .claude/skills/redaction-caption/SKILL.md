@@ -40,7 +40,7 @@ La caption n'est jamais un résumé du script de la vidéo : elle indique **l'ob
 1. Identifier la nature (Reel ou post) ; si ce n'est pas clair, le demander.
 2. Formuler en une phrase l'objectif du partage (ce que l'audience doit retenir).
 3. Rédiger selon le format ci-dessus, en derja + français, en vouvoyant.
-5. Relire : formel (vouvoiement) ? mélange derja/français ? court ? pas de numéro ? pas de CTA non demandé ? pas de copie du script ?
+4. Relire : formel (vouvoiement) ? mélange derja/français ? court ? pas de numéro ? pas de CTA non demandé ? pas de copie du script ?
 
 ## Exemple (Reel, mascotte créée avec Claude)
 ```
