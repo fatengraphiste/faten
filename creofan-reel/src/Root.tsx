@@ -22,7 +22,7 @@ import { HabV2, HAB2_TOTAL } from "./habouba/HabV2";
 import { HabV3, HAB3_TOTAL } from "./habouba/HabV3";
 import { HabV4, HAB4_TOTAL } from "./habouba/HabV4";
 import { HabV5, HAB5_TOTAL, CoverHab5 } from "./habouba/HabV5";
-import { ServV1, SERV1_TOTAL } from "./services/ServV1";
+import { ServV1, SERV1_TOTAL, CoverServ1 } from "./services/ServV1";
 import { ServV2, SERV2_TOTAL, CoverServ2 } from "./services/ServV2";
 import { LottieSheet } from "./services/LottieSheet";
 import { CoverFable, Fable52, FABLE_DURATION } from "./fable/Fable52";
@@ -99,6 +99,7 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="LottieSheet" component={LottieSheet} defaultProps={{ recolor: false }} durationInFrames={90} fps={30} width={1800} height={1300} />
   <Composition id="CoverServ2" component={CoverServ2} durationInFrames={1} fps={30} width={1080} height={1350} />
   <Composition id="ServV2" component={ServV2} durationInFrames={SERV2_TOTAL} fps={30} width={1080} height={1350} />
+  <Composition id="CoverServ1" component={CoverServ1} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="ServV1" component={ServV1} durationInFrames={SERV1_TOTAL} fps={30} width={1080} height={1920} />
   <Composition id="HabV5" component={HabV5} durationInFrames={HAB5_TOTAL} fps={30} width={1080} height={1920} />
   <Composition id="HabV4" component={HabV4} durationInFrames={HAB4_TOTAL} fps={30} width={1080} height={1920} />

@@ -210,3 +210,23 @@ export const ServV1: React.FC = () => {
   );
 };
 void PINK; void CHAR; void ease;
+
+// Couverture Reel (9:16) — contenu dans la zone centrale
+export const CoverServ1: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: BEIGE, overflow: "hidden" }}>
+    <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(#ecd2d0 2.5px, transparent 2.5px)", backgroundSize: "54px 54px", opacity: 0.8 }} />
+    <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><line x1={540} y1={158} x2={470} y2={640} stroke={CHAR} strokeWidth={6} strokeOpacity={0.55} /></svg>
+    <div style={{ position: "absolute", left: 470 - 150, top: 640 - 20, width: 300, height: 300, borderRadius: 84, backgroundColor: WHITE, border: `10px solid ${RED}`, boxShadow: "0 24px 60px rgba(26,26,26,0.22)", display: "flex", alignItems: "center", justifyContent: "center", transform: "rotate(-8deg)" }}>
+      <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 200, height: 200 }} />
+    </div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: PIV.y - 46, display: "flex", justifyContent: "center" }}>
+      <div style={{ width: 92, height: 92, borderRadius: 99, backgroundColor: WHITE, border: `6px solid ${RED}`, display: "flex", alignItems: "center", justifyContent: "center" }}><Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 62, height: 62 }} /></div>
+    </div>
+    <div dir="rtl" style={{ position: "absolute", left: 40, right: 40, top: 1040, display: "flex", flexDirection: "column", alignItems: "center", gap: 22 }}>
+      <div style={{ backgroundColor: RED, borderRadius: 70, padding: "6px 60px 24px", transform: "rotate(-2.5deg)", boxShadow: "0 14px 34px rgba(26,26,26,0.18)" }}><MixedText text="Creofan معاكم" size={126} color={WHITE} style={{ whiteSpace: "nowrap" }} /></div>
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14, maxWidth: 940 }} dir="ltr">
+        {["Branding", "Site web", "Social kit", "Motion design"].map((x) => <div key={x} style={{ backgroundColor: WHITE, border: `4px solid ${RED}`, borderRadius: 40, padding: "6px 30px 12px", fontFamily: FONT, fontWeight: 700, fontSize: 44, color: RED }}>{x}</div>)}
+      </div>
+    </div>
+  </AbsoluteFill>
+);
