@@ -15,15 +15,15 @@ const K = 1 / 0.9; // voix ralentie à 90 %
 const INTRO = 50; // alarme d'ouverture (≈ 1,7 s) avant le début de la voix
 const S = (x: number) => Math.round(x * K * FPS) + INTRO;
 export const SERV1_VOICE = "services/v1-slow.mp3";
-const OUT = S(19.3);
-export const SERV1_TOTAL = OUT + 90;
+const OUT = 1e9;
+export const SERV1_TOTAL = S(16.0) + 125;
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 const ease = (t: number, a: number, d: number, e = Easing.bezier(0.65, 0, 0.35, 1)) => interpolate(t, [a, a + d], [0, 1], { ...clamp, easing: e });
 const PIV = { x: 540, y: 158 };   // centre du logo = point d'accroche du pendule
 type Card = { a: number; b: number; kind: "card" | "logo"; text?: string; lot?: string; lotSize?: number; x?: boolean; sub?: string };
 const CARDS: Card[] = [
   { a: 0, b: 1.95, kind: "card", text: "مشروعك قوي", lot: "gr1" },
-  { a: 1.95, b: 4.3, kind: "card", text: "ما تشوفوش؟", lot: "web1" },
+  { a: 1.95, b: 4.3, kind: "card", text: "ما تشوفوش؟", lot: "s3" },
   { a: 4.3, b: 5.55, kind: "card", text: "صورة\ngénérique", lot: "brand3", x: true },
   { a: 5.55, b: 6.8, kind: "card", text: "Site web\nقديم", lot: "web2", x: true },
   { a: 6.8, b: 8.2, kind: "card", text: "سوشيال\nبلا هوية", lot: "soc4", x: true },
@@ -32,7 +32,7 @@ const CARDS: Card[] = [
   { a: 10.3, b: 11.1, kind: "card", text: "Site web", lot: "web2" },
   { a: 11.1, b: 12.05, kind: "card", text: "Social kit", lot: "soc4" },
   { a: 12.05, b: 13.2, kind: "card", text: "Motion\ndesign", lot: "mo1" },
-  { a: 13.2, b: 14.5, kind: "card", text: "رؤية\nطويلة المدى", lot: "gr1" },
+  { a: 13.2, b: 14.5, kind: "card", text: "رؤية\nطويلة المدى", lot: "v2" },
   { a: 14.5, b: 16.0, kind: "card", text: "سرعة\nالإنجاز", lot: "sp3" },
   { a: 16.0, b: 19.3, kind: "logo", text: "نعطيوكم روح لخدمتكم" },
 ];
@@ -74,6 +74,19 @@ const lines = (txt: string) => txt.split("\n");
 const Content: React.FC<{ c: Card }> = ({ c }) => {
   const red = isRed(c);
   const a = S(c.a);
+  const lt = useCurrentFrame() - S(c.a);
+  if (c.kind === "logo" && c.a === 16.0) {
+    const k = ease(lt, S(16.9) - S(16.0), 14, Easing.out(Easing.cubic));
+    return (
+      <AbsoluteFill style={{ backgroundColor: RED }}>
+        <OutroIcon f={lt} fg={WHITE} bg="transparent" size={440} cy={640} />
+        <div dir="rtl" style={{ position: "absolute", left: 0, right: 0, top: 980, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, opacity: k, transform: `translateY(${(1 - k) * 30}px)` }}>
+          <MixedText text="نعطيوكم روح" size={124} color={WHITE} style={{ whiteSpace: "nowrap" }} />
+          <MixedText text="لخدمتكم" size={124} color={WHITE} style={{ whiteSpace: "nowrap" }} />
+        </div>
+      </AbsoluteFill>
+    );
+  }
   const ls = lines(c.text ?? "");
   const big = ls.some((l) => l.length > 11) ? 84 : 98;
   return (
