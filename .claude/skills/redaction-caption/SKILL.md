@@ -9,7 +9,7 @@ description: Rédiger la caption (légende) d'un contenu pour les réseaux socia
 La caption n'est jamais un résumé du script de la vidéo : elle indique **l'objectif de partager ce contenu** (ce que le contenu prouve ou apporte à l'audience). Elle est toujours courte.
 
 ## Règles communes
-- Langue : **français**, ton **formel : vouvoiement** (« votre marque », jamais « ta marque »).
+- Langue : **mélange derja tunisienne (en lettres arabes) et français**, les termes métier restant en français (mascotte, marque, branding…). Ton **formel : vouvoiement** — en derja, forme du pluriel de politesse (« ماركتكم », « تنجموا », jamais « ماركتك », « تنجم »).
 - Pas de numéro de téléphone ni de coordonnées dans la caption.
 - Pas de répétition du texte ou du script du contenu.
 - 1 à 2 emojis maximum, en rapport avec le sujet.
@@ -30,12 +30,12 @@ La caption n'est jamais un résumé du script de la vidéo : elle indique **l'ob
 ## Méthode
 1. Identifier la nature (Reel ou post) ; si ce n'est pas clair, le demander.
 2. Formuler en une phrase l'objectif du partage (ce que l'audience doit retenir).
-3. Rédiger selon le format ci-dessus, en vouvoyant.
-4. Relire : formel ? court ? pas de numéro ? pas de CTA non demandé ? pas de copie du script ?
+3. Rédiger selon le format ci-dessus, en derja + français, en vouvoyant.
+4. Relire : formel (vouvoiement) ? mélange derja/français ? court ? pas de numéro ? pas de CTA non demandé ? pas de copie du script ?
 
 ## Exemple (Reel, mascotte créée avec Claude)
 ```
-Créer la mascotte de votre marque avec Claude ? C'est possible 🤯
+تنجموا تصنعوا mascotte لماركتكم بـ Claude 🤯
 
 #creofan #mascotte #claude #ai #branding #contentcreation #tunisie
 ```
