@@ -375,3 +375,23 @@ export const ServV2: React.FC = () => {
   );
 };
 void PINK; void CHAR;
+
+// Couverture LinkedIn (4:5)
+export const CoverServ2: React.FC = () => {
+  const COLS = 5, ROWS = 3, TS = 140, G = 22;
+  const w = COLS * TS + (COLS - 1) * G, x0 = (1080 - w) / 2;
+  return (
+    <AbsoluteFill style={{ backgroundColor: BEIGE, overflow: "hidden" }}>
+      <Backdrop />
+      <Logo />
+      <div dir="rtl" style={{ position: "absolute", left: 40, right: 40, top: 190, display: "flex", flexDirection: "column", alignItems: "center", gap: 22 }}>
+        <div style={{ backgroundColor: RED, borderRadius: 64, padding: "4px 54px 20px" }}><MixedText text="ماكش معروف؟" size={150} color={WHITE} style={{ whiteSpace: "nowrap" }} /></div>
+        <div dir="ltr" style={{ fontFamily: FONT, fontWeight: 700, fontSize: 48, color: CHAR, textAlign: "center", lineHeight: 1.15 }}>Votre marque mérite d'être <span style={{ color: RED }}>vue</span>.</div>
+      </div>
+      {Array.from({ length: COLS * ROWS }).map((_, k) => {
+        const r = Math.floor(k / COLS), c = k % COLS, mine = k === 7;
+        return <div key={k} style={{ position: "absolute", left: x0 + c * (TS + G), top: 640 + r * (TS + G), width: TS, height: TS, borderRadius: 36, backgroundColor: mine ? RED : "#e2dede", opacity: mine ? 1 : 0.7, boxShadow: mine ? "0 18px 40px rgba(247,50,42,0.35)" : "none", transform: mine ? "scale(1.12)" : "none", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 800, fontSize: 64, color: mine ? WHITE : "#b4aeae" }}>{mine ? <Img src={staticFile("outro/logo-creofan-icon.svg")} style={{ width: 96, filter: "brightness(0) invert(1)" }} /> : "★"}</div>;
+      })}
+    </AbsoluteFill>
+  );
+};

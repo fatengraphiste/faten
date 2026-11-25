@@ -11,8 +11,9 @@ import "../theme";
 const FPS = 30;
 const RED = "#f7322a", PINK = "#fa8985", BEIGE = "#fff5f5", CHAR = "#1A1A1A", WHITE = "#ffffff";
 const FONT = "Poppins, sans-serif";
-const S = (x: number) => Math.round(x * FPS);
-export const SERV1_VOICE = "services/v1-final.mp3";
+const K = 1 / 0.9; // voix ralentie à 90 %
+const S = (x: number) => Math.round(x * K * FPS);
+export const SERV1_VOICE = "services/v1-slow.mp3";
 const OUT = S(19.3);
 export const SERV1_TOTAL = OUT + 90;
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
