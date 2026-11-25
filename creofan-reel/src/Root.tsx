@@ -23,6 +23,7 @@ import { HabV3, HAB3_TOTAL } from "./habouba/HabV3";
 import { HabV4, HAB4_TOTAL } from "./habouba/HabV4";
 import { HabV5, HAB5_TOTAL, CoverHab5 } from "./habouba/HabV5";
 import { ServV1, SERV1_TOTAL } from "./services/ServV1";
+import { ServV2, SERV2_TOTAL } from "./services/ServV2";
 import { CoverFable, Fable52, FABLE_DURATION } from "./fable/Fable52";
 import { AIContest, AIContestV2, CONTEST_DURATION, CoverContest, CoverContestV2 } from "./contest/AIContest";
 import { CoverMasterclass, MasterclassReel, MC_DURATION } from "./masterclass/MasterclassReel";
@@ -94,6 +95,7 @@ export const RemotionRoot: React.FC = () => (
   <Composition id="CoverClaudeCanva" component={CoverClaudeCanva} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverAme" component={CoverAme} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="CoverHab5" component={CoverHab5} durationInFrames={1} fps={30} width={1080} height={1920} />
+  <Composition id="ServV2" component={ServV2} durationInFrames={SERV2_TOTAL} fps={30} width={1080} height={1350} />
   <Composition id="ServV1" component={ServV1} durationInFrames={SERV1_TOTAL} fps={30} width={1080} height={1920} />
   <Composition id="HabV5" component={HabV5} durationInFrames={HAB5_TOTAL} fps={30} width={1080} height={1920} />
   <Composition id="HabV4" component={HabV4} durationInFrames={HAB4_TOTAL} fps={30} width={1080} height={1920} />
