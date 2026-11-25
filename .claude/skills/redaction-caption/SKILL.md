@@ -49,6 +49,14 @@ La caption n'est jamais un résumé du script de la vidéo : elle indique **l'ob
 #creofan #mascotte #claude #ai #branding #contentcreation #tunisie
 ```
 
+### Post / vidéo LinkedIn
+- Rédigée pour LinkedIn, pas copiée d'un Reel : ton posé et professionnel, mélange derja + français, vouvoiement.
+- **Ligne 1 (hook) : une phrase en derja qui crée la tension** ; les 3 premières lignes avant « voir plus » doivent donner envie de lire la suite.
+- Phrases courtes, **une idée par ligne, lignes vides entre les paragraphes** ; 4 à 6 lignes de texte au total.
+- Le fond : le problème, la promesse (système cohérent, vision long terme, résultats visibles tôt, qualité maîtrisée), puis **une question ouverte** qui invite à commenter (sans CTA commercial).
+- 3 à 5 hashtags seulement ; aucun lien ni numéro dans le texte (le lien va en premier commentaire).
+- Publier depuis le profil personnel, mardi–jeudi 8 h–10 h, répondre aux commentaires dans la première heure.
+
 ## Image de couverture
 - Format 1080×1920 (PNG), contenu important dans la zone centrale (compatible grille 4:5) ; rendue avec Remotion (`npx remotion still … <CompId> out/couvertures/<nom>.png`), sur le modèle de la composition `CoverHab5` (`creofan-reel/src/habouba/HabV5.tsx`).
 - Charte Creofan : rouge #f7322a, beige #fff5f5, blanc ; Poppins + Salma ; fond plat (pas de cercles empilés) ; pas de rouge sur rouge.
