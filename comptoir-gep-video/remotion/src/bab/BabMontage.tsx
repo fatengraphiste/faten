@@ -243,6 +243,33 @@ const Stick: React.FC<{ x: number; y: number; face: 1 | -1; pose: Pose; tool?: T
   );
 };
 
+/* bonhomme de face : bras normaux le long du corps, grand sourire et clin d'œil */
+const FrontStick: React.FC<{ x: number; y: number; s?: number; lt: number; wave?: boolean }> = ({ x, y, s = 1, lt, wave = false }) => {
+  const bob = Math.sin(lt * 4) * 1.5, sw = Math.sin(lt * 2.2) * 3;
+  const hy = -140 + bob, sy = -240 + bob, hd = -282 + bob;
+  const ph = (lt - 0.5) % 1.9; const wink = lt > 0.5 && ph < 0.45;
+  const lw = (a: number[], b: number[], c: number[], w = 11) => <path d={`M${a[0]} ${a[1]} L${b[0]} ${b[1]} L${c[0]} ${c[1]}`} stroke={NAVY} strokeWidth={w} fill="none" strokeLinecap="round" strokeLinejoin="round" />;
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <ellipse cx={0} cy={4} rx={70} ry={12} fill="#000" opacity={0.08} />
+      {lw([-12, hy], [-18, hy + 72], [-22, 0])}{lw([12, hy], [18, hy + 72], [22, 0])}
+      <path d="M-22 0 l-22 0 M22 0 l22 0" stroke={NAVY} strokeWidth={11} strokeLinecap="round" />
+      {lw([-24, sy + 10], [-46 - sw, sy + 72], [-44 - sw, sy + 130])}<circle cx={-44 - sw} cy={sy + 134} r={9} fill="#fff" stroke={NAVY} strokeWidth={5} />
+      {wave ? <>{lw([24, sy + 10], [62, sy - 8], [76 + 16 * Math.sin(lt * 12), sy - 78])}<circle cx={76 + 16 * Math.sin(lt * 12)} cy={sy - 84} r={10} fill="#fff" stroke={NAVY} strokeWidth={5} /></> : <>{lw([24, sy + 10], [46 + sw, sy + 72], [44 + sw, sy + 130])}<circle cx={44 + sw} cy={sy + 134} r={9} fill="#fff" stroke={NAVY} strokeWidth={5} /></>}
+      <path d={`M-30 ${sy + 4} L30 ${sy + 4} L25 ${hy} L-25 ${hy} Z`} fill={YEL} stroke={NAVY} strokeWidth={4} strokeLinejoin="round" />
+      <path d={`M-28 ${sy + 36} L28 ${sy + 36} M-26 ${sy + 64} L26 ${sy + 64}`} stroke="#fff" strokeWidth={6} />
+      <path d={`M0 ${sy + 4} L0 ${hy}`} stroke={NAVY} strokeWidth={3} opacity={0.5} />
+      <circle cx={0} cy={hd} r={30} fill="#fff" stroke={NAVY} strokeWidth={7} />
+      <circle cx={-11} cy={hd + 2} r={3.8} fill={NAVY} />
+      {wink ? <path d={`M${3} ${hd + 3} q8 -9 16 0`} stroke={NAVY} strokeWidth={4.5} fill="none" strokeLinecap="round" /> : <circle cx={11} cy={hd + 2} r={3.8} fill={NAVY} />}
+      <path d={`M-14 ${hd + 13} q14 17 28 0`} stroke={NAVY} strokeWidth={4.5} fill="none" strokeLinecap="round" />
+      <path d={`M-34 ${hd - 6} A34 34 0 0 1 34 ${hd - 6} Z`} fill={YEL} stroke={NAVY} strokeWidth={6} strokeLinejoin="round" />
+      <path d={`M-46 ${hd - 5} L46 ${hd - 5}`} stroke={NAVY} strokeWidth={9} strokeLinecap="round" />
+      <path d={`M0 ${hd - 38} L0 ${hd - 10}`} stroke="#fff" strokeWidth={7} strokeLinecap="round" />
+    </g>
+  );
+};
+
 /* ───────────────────────── chorégraphie : état du bonhomme à chaque instant ───────────────────────── */
 type WState = { x: number; face: 1 | -1; pose: Pose; tool: Tool; ta: number; hop?: number };
 const base = (): Pose => ({ aL: [8, 6], aR: [8, 6], lL: [5, -5], lR: [-5, 5], lean: 0, bob: 0 });
@@ -344,6 +371,7 @@ const workerAt = (t: number): WState => {
 };
 const Worker: React.FC<{ t: number }> = ({ t }) => {
   const w = workerAt(t); const f0 = P(w.x, laneAt(t), 0);
+  if (planAt(t) === 9) return <FrontStick x={f0[0]} y={f0[1] - (w.hop ?? 0) * 0} s={SC} lt={t - S[9]} />;
   return <Stick x={f0[0]} y={f0[1] - (w.hop ?? 0)} face={w.face} pose={w.pose} tool={w.tool} toolAng={w.ta} s={SC} />;
 };
 // filet de béton qui sort du seau (va-et-vient)
@@ -354,6 +382,40 @@ const PourStream: React.FC<{ t: number }> = ({ t }) => {
   const tgt = P(xPour(t), 0.1, Z0 + 1.0 + 0.02);
   const a = eo(seg(t, TL.pour[0] - 0.05, TL.pour[0] + 0.2)) * (1 - eo(seg(t, TL.pour[1], TL.pour[1] + 0.25)));
   return <g opacity={a}><path d={`M${lipX} ${lipY} Q${(lipX + tgt[0]) / 2 + 6} ${lipY + 20} ${tgt[0]} ${tgt[1]}`} stroke={YEL} strokeWidth={13} fill="none" strokeLinecap="round" strokeDasharray="24 10" strokeDashoffset={-t * 170} /><circle cx={tgt[0]} cy={tgt[1]} r={14 + 6 * Math.sin(t * 20)} fill="#f9d9d9" stroke={YEL} strokeWidth={3} opacity={0.9} /></g>;
+};
+
+/* ───────────────────────── hook : titre géant + bonhomme de face qui salue ───────────────────────── */
+const Hook: React.FC<{ t: number }> = ({ t }) => {
+  const a1 = ebo(seg(t, 0.1, 0.55)), a2 = ebo(seg(t, 0.45, 0.9)), a3 = ebo(seg(t, 2.0, 2.5)), pop = ebo(seg(t, 0.2, 0.75));
+  const burst = eo(seg(t, 0.5, 1.2));
+  return (
+    <g>
+      {/* rayons derrière le bonhomme */}
+      <g opacity={0.9 * (0.75 + 0.25 * Math.sin(t * 6))}>
+        {Array.from({ length: 12 }, (_, k) => { const a = (k / 12) * Math.PI * 2, r0 = 250 + 10 * Math.sin(t * 5 + k), r1 = r0 + 70 * burst; return <path key={k} d={`M${540 + Math.cos(a) * r0} ${1050 + Math.sin(a) * r0 * 0.75} L${540 + Math.cos(a) * r1} ${1050 + Math.sin(a) * r1 * 0.75}`} stroke={k % 2 ? YEL : NAVY} strokeWidth={7} strokeLinecap="round" />; })}
+      </g>
+      <g transform={`translate(540 ${430}) scale(${clamp(a1, 0, 1.08)})`} opacity={clamp(a1 * 2)}>
+        <foreignObject x={-470} y={0} width={940} height={130}>
+          <div style={{ direction: "rtl", textAlign: "center", fontFamily: FONT, fontWeight: 800, color: NAVY, fontSize: 96, lineHeight: 1.2 }}>تحب تبني حيط</div>
+        </foreignObject>
+      </g>
+      <g transform={`translate(540 ${545}) scale(${clamp(a2, 0, 1.08)})`} opacity={clamp(a2 * 2)}>
+        <foreignObject x={-470} y={0} width={940} height={130}>
+          <div style={{ direction: "rtl", textAlign: "center", fontFamily: FONT, fontWeight: 800, color: NAVY, fontSize: 92, lineHeight: 1.2 }}>بالـ <span dir="ltr" style={{ unicodeBidi: "isolate", display: "inline-block", color: YEL }}>Bloc à Bancher</span> ؟</div>
+        </foreignObject>
+      </g>
+      <g transform={`translate(540 740) scale(${clamp(a3, 0, 1.08)})`} opacity={clamp(a3 * 2)}>
+        <rect x={-300} y={-42} width={600} height={84} rx={42} fill={NAVY} />
+        <circle cx={-250} cy={0} r={24} fill={YEL} />
+        <foreignObject x={-215} y={-40} width={500} height={80}>
+          <div style={{ height: 80, display: "flex", alignItems: "center", justifyContent: "center", direction: "rtl", fontFamily: FONT, fontWeight: 800, color: "#fff", fontSize: 44 }}>تبع معايا <span dir="ltr" style={{ unicodeBidi: "isolate", margin: "0 12px", display: "inline-block" }}>les étapes</span></div>
+        </foreignObject>
+      </g>
+      <g transform={`translate(0 ${(1 - clamp(pop, 0, 1)) * 40})`} opacity={clamp(pop * 2)}>
+        <FrontStick x={540} y={1330} s={1.28 * clamp(pop, 0.001, 1.06)} lt={t} wave />
+      </g>
+    </g>
+  );
 };
 
 /* ───────────────────────── textes ───────────────────────── */
@@ -408,6 +470,7 @@ const FOCUS: [number, number, [number, number, number]][] = [
 
 const Plan: React.FC<{ t: number; pi: number }> = ({ t, pi }) => {
   const lt = t - S[pi];
+  if (pi === 0) return <Hook t={t} />;
   const [z0, z1, fw] = FOCUS[pi]; const z = lerp(z0, z1, lt / LEN[pi]) * KZ; const f = P(fw[0], fw[1], fw[2]);
   const cam = `translate(540 880) scale(${z.toFixed(4)}) translate(${-f[0]} ${-f[1]})`;
   return (
@@ -460,14 +523,27 @@ const Cta: React.FC<{ t: number }> = ({ t }) => {
 };
 
 /* ───────────────────────── transitions + logo + montage ───────────────────────── */
+const WD = 200, WW = 1400, XS0 = -160, XS1 = 2680, WDUR = 0.55, WPRE = 0.3;
 const Wipe: React.FC<{ t: number }> = ({ t }) => {
   const els: React.ReactNode[] = [];
   S.slice(1).concat([END_T]).forEach((T, i) => {
-    const q = (t - (T - 0.2)) / 0.4; if (q <= 0 || q >= 1) return;
-    const xs = (qq: number) => -1080 + 2160 * clamp(qq);
-    els.push(<rect key={"r" + i} x={xs(q + 0.1)} y={0} width={1080} height={1920} fill={YEL} />, <rect key={"n" + i} x={xs(q)} y={0} width={1080} height={1920} fill={NAVY} />);
+    const q = (t - (T - WPRE)) / WDUR; if (q <= 0 || q >= 1) return;
+    const xs = XS0 + (XS1 - XS0) * q; const ys = 1250;
+    const ph = t * 19; const pose: Pose = { aL: [10 + 30 * Math.sin(ph + Math.PI), 14], aR: [-58, 16], lL: [32 * Math.sin(ph + Math.PI), -24 * Math.max(0, Math.sin(ph + Math.PI + 1))], lR: [32 * Math.sin(ph), -24 * Math.max(0, Math.sin(ph + 1))], lean: 14, bob: -5 * Math.abs(Math.sin(ph)) };
+    const hand = fk(pose).aR.h; const hx = xs + 1.15 * hand[0], hy = ys + 1.15 * hand[1]; const ex = xs - WD, ey = hy + 14;
+    els.push(
+      <g key={i}>
+        <rect x={ex - WW} y={0} width={WW} height={1920} fill="#ffffff" />
+        <rect x={ex} y={0} width={46} height={1920} fill="url(#wshade)" />
+        <path d={`M${ex} 0 L${ex} 1920`} stroke={NAVY} strokeWidth={6} />
+        <path d={`M${hx} ${hy} Q${(hx + ex) / 2} ${hy + 46} ${ex} ${ey}`} stroke={YEL} strokeWidth={6} fill="none" strokeLinecap="round" />
+        <circle cx={ex} cy={ey} r={10} fill={YEL} stroke={NAVY} strokeWidth={4} />
+        <Stick x={xs} y={ys} face={1} pose={pose} s={1.15} />
+      </g>,
+    );
   });
-  return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>{els}</svg>;
+  if (!els.length) return null;
+  return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><defs><linearGradient id="wshade" x1="0" x2="1"><stop offset="0" stopColor={NAVY} stopOpacity="0.16" /><stop offset="1" stopColor={NAVY} stopOpacity="0" /></linearGradient></defs>{els}</svg>;
 };
 const LogoSmall: React.FC<{ t: number }> = ({ t }) => (
   <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }} opacity={Math.min(1, t / 0.4) * (t < END_T ? 1 : 0)}>
@@ -489,7 +565,7 @@ export const BabMontage: React.FC = () => {
           {t < END_T && !inCta && (
             <>
               <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><Plan t={t} pi={pi} /></svg>
-              <Legend pi={pi} lt={t - S[pi]} />
+              {pi !== 0 && <Legend pi={pi} lt={t - S[pi]} />}
             </>
           )}
           {inCta && <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><Cta t={t} /></svg>}
