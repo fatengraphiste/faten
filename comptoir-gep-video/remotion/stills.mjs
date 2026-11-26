@@ -7,6 +7,6 @@ const serveUrl = await bundle({ entryPoint: path.resolve("src/index.ts") });
 const comp = await selectComposition({ serveUrl, id: process.env.COMP || "GepTech", browserExecutable: BROWSER, logLevel: "error", chromiumOptions: { gl: "swangle" } });
 for (const t of times) {
   const frame = Math.round(t * 30);
-  await renderStill({ composition: comp, serveUrl, output: `out/${process.env.COMP||"x"}_${t.toFixed(2)}.png`, frame, browserExecutable: BROWSER, logLevel: "error", imageFormat: "png", chromiumOptions: { gl: "swangle" } });
+  await renderStill({ composition: comp, serveUrl, output: `out/${process.env.COMP||"x"}_${t.toFixed(2)}.png`, frame, browserExecutable: BROWSER, logLevel: process.env.LOGV ? "verbose" : "error", imageFormat: "png", chromiumOptions: { gl: "swangle" } });
   console.log("still", t);
 }
