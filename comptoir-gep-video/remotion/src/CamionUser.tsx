@@ -20,7 +20,7 @@ const TRUCK_IN = 1.7;                         // le camion entre dans la scène 
 type City = { ar: string; t0: number; t1: number; fx: string };
 const FX = ["pop", "stretch", "drop", "slide", "morph"];
 // villes d'une partie : onsets = début de chaque ville dans le fichier de voix ; D = durée du fichier de voix des villes
-const INTRO = 1.13;                                   // « أحنا نوصلو » (1.03 s de voix2) + 0.1 s, avant la voix des villes
+const INTRO = 1.10;                                   // « أحنا نوصلو » (1.0 s de voix2, coupé à la fin de نوصلو) + 0.1 s, avant la voix des villes
 const mk = (names: string[], on: number[], D: number): City[] => names.map((ar, i) => ({ ar, t0: V2_OFF + INTRO + on[i] + 0.03, t1: V2_OFF + INTRO + (i < names.length - 1 ? on[i + 1] - 0.01 : D), fx: FX[i % 5] }));
 const TAIL_CUT = 5.72; const TAIL_LEN = 9.95 - TAIL_CUT; // fin commune de voix2 (« وين ما تكون… ») à partir de 5.72 s
 const tailPart = (cities: City[], D: number) => ({ cities, tail0: V2_OFF + INTRO + D - TAIL_CUT, end: V2_OFF + INTRO + D + TAIL_LEN + 0.4 });
