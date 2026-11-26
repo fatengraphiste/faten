@@ -14,6 +14,7 @@ import { BetoV5 } from "./beto/BetoV5";
 import { CoverBeto } from "./beto/CoverBeto";
 import { TruckImage } from "./TruckImage";
 import { TruckPlanet } from "./TruckPlanet";
+import { BabMontage, BAB_FRAMES } from "./bab/BabMontage";
 import { CamionUser, CamionUser2, CamionUser3, partFrames } from "./CamionUser";
 import { CoverIso } from "./CoverIso";
 export const FPS = 30;
@@ -36,6 +37,7 @@ export const Root: React.FC = () => (
     <Composition id="TruckImage" component={TruckImage} durationInFrames={1} fps={FPS} width={1080} height={1920} />
     <Composition id="TruckPlanet" component={TruckPlanet} durationInFrames={720} fps={FPS} width={1080} height={1920} />
     <Composition id="CamionUser" component={CamionUser} durationInFrames={partFrames(1)} fps={FPS} width={1080} height={1920} />
+    <Composition id="BabMontage" component={BabMontage} durationInFrames={BAB_FRAMES} fps={FPS} width={1080} height={1920} />
     <Composition id="CamionUser2" component={CamionUser2} durationInFrames={partFrames(2)} fps={FPS} width={1080} height={1920} />
     <Composition id="CamionUser3" component={CamionUser3} durationInFrames={partFrames(3)} fps={FPS} width={1080} height={1920} />
   </>
