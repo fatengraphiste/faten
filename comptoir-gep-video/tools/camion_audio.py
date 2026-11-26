@@ -2,8 +2,8 @@
 """Audio « camion GEP » : voix2 (villes) + voix1 (signature) + musique rythmique 120 BPM calée sur les villes (temps forts à 1.85, 2.85, 3.85, 4.85 s) + SFX."""
 import numpy as np, subprocess, wave
 R = "/home/user/faten/comptoir-gep-video"; O = "/tmp/foot/out"; SR = 44100
-V1_OFF = 10.25; END = V1_OFF + 4.206 + 0.4; TOTAL = round(END + 5, 2)
-subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", R + "/assets/camion_voix2.mp3", "-i", R + "/assets/camion_voix1.mp3", "-filter_complex",
+V2_OFF = 4.506; END = V2_OFF + 9.95 + 0.4; TOTAL = round(END + 5, 2)
+subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", R + "/assets/camion_voix1.mp3", "-i", R + "/assets/camion_voix2.mp3", "-filter_complex",
   "[0:a]aresample=44100,apad=pad_dur=0.3[a];[1:a]aresample=44100[b];[a][b]concat=n=2:v=0:a=1[o]", "-map", "[o]", "-ac", "1", O + "/camion_voice.wav"], check=True)
 rng = np.random.default_rng(5); n = int(SR * TOTAL); mus = np.zeros(n)
 BEAT = 0.5; OFF = 0.35
@@ -34,15 +34,15 @@ for b in range(nb):
     add(pluck(ARP[b % 8], 0.3, 0.22), t + BEAT / 2, 0.8)
     if b % 2 == 0: add(pluck(ARP[(b + 3) % 8] * 2, 0.25, 0.12), t, 0.8)
 # montée avant la signature et coup à l'arrivée de la phrase finale
-t = np.arange(int(SR * 1.2)) / SR; riser = rng.standard_normal(len(t)) * (t / 1.2) ** 2 * 0.35; riser = riser - np.convolve(riser, np.ones(10) / 10, mode="same"); add(riser, V1_OFF - 0.95, 0.7)
-imp = np.sin(2 * np.pi * np.cumsum(70 + 90 * np.exp(-np.arange(int(SR * 0.7)) / SR * 6)) / SR) * np.exp(-np.arange(int(SR * 0.7)) / SR * 4); add(imp, V1_OFF + 1.38, 1.0)
+t = np.arange(int(SR * 1.2)) / SR; riser = rng.standard_normal(len(t)) * (t / 1.2) ** 2 * 0.35; riser = riser - np.convolve(riser, np.ones(10) / 10, mode="same"); add(riser, V2_OFF - 0.95, 0.7)
+imp = np.sin(2 * np.pi * np.cumsum(70 + 90 * np.exp(-np.arange(int(SR * 0.7)) / SR * 6)) / SR) * np.exp(-np.arange(int(SR * 0.7)) / SR * 4); add(imp, V2_OFF + 0.05, 1.0); add(imp, 0.1, 0.8); add(riser[::-1], 0.1, 0.6)
 add(imp, END, 1.0)
 mus *= np.minimum(1, np.arange(n) / (SR * 0.2)) * np.minimum(1, (n - np.arange(n)) / (SR * 1.5)); mus = mus / (np.abs(mus).max() + 1e-9) * 0.8
 def pop(f0, f1, d=0.12, a=0.45):
     m = int(SR * d); tt = np.arange(m) / SR; ff = f0 + (f1 - f0) * (tt / d); return a * np.sin(2 * np.pi * np.cumsum(ff) / SR) * np.exp(-tt * 20)
 sfx = np.zeros(n)
-for t0 in [0.8, 1.84, 2.84, 3.81, 4.85]: i = int((t0 + 0.05) * SR); sfx[i:i + int(SR * 0.12)] += pop(500, 1500)
-for t0 in [5.79, 6.78, 8.63, V1_OFF]: i = int(t0 * SR); sfx[i:i + int(SR * 0.12)] += pop(700, 1700, 0.12, 0.35)
+for t0 in [V2_OFF + x for x in (0.8, 1.84, 2.84, 3.81, 4.85)]: i = int((t0 + 0.05) * SR); sfx[i:i + int(SR * 0.12)] += pop(500, 1500)
+for t0 in [V2_OFF + x for x in (5.79, 6.78, 8.63)] + [0.05]: i = int(t0 * SR); sfx[i:i + int(SR * 0.12)] += pop(700, 1700, 0.12, 0.35)
 for nm, arr in [("music", mus), ("sfx", sfx)]:
     with wave.open(f"{O}/camion_{nm}.wav", "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(arr, -1, 1) * 32767).astype("<i2").tobytes())
 fc = (f"[0:a]aresample={SR},aformat=channel_layouts=stereo,apad,atrim=0:{TOTAL},asplit[v1][v2];"
