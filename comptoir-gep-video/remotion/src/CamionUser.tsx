@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AbsoluteFill, Sequence, continueRender, delayRender, staticFile, useCurrentFrame, interpolate } from "remotion";
 import { FontLoader } from "./fonts";
 import { Outro } from "./Outro";
-import { LOGO_PATHS } from "./logo";
 
 export const FPS = 30;
 const NAVY = "#19226d", RED = "#db4041", T2 = "#bfc5e4";
@@ -27,7 +26,7 @@ export const CITIES = [
   { ar: "جندوبة", t0: V2_OFF + 3.81, t1: V2_OFF + 4.84, fx: "slide" },
   { ar: "باجة", t0: V2_OFF + 4.85, t1: V2_OFF + 5.78, fx: "morph" },
 ] as const;
-const PH = { where: [V2_OFF + 5.79, V2_OFF + 6.76], time: [V2_OFF + 6.78, V2_OFF + 8.56], quality: [V2_OFF + 8.63, V2_OFF + 9.95], with: [0, V2_OFF - 0.05] };
+const PH = { where: [V2_OFF + 5.79, V2_OFF + 6.76], time: [V2_OFF + 6.78, V2_OFF + 8.56], quality: [V2_OFF + 8.63, V2_OFF + 9.95] };
 
 const WHEELS: [number[], number, number][] = [[[100, 101, 102, 120, 121], 751.5, 1256.5], [[124, 125, 126, 144, 145], 598.5, 1256.5], [[175, 176, 177, 196], 377.5, 1256.5], [[199, 200, 201, 220], 325.5, 1256.5], [[223, 224, 225, 244], 273.5, 1256.5]];
 const TRUCK0 = 37, TRUCK1 = 298;
@@ -60,8 +59,7 @@ const Inner: React.FC = () => {
     const dec = s.querySelector("#planet-decor") as SVGElement | null; if (dec) dec.setAttribute("transform", `rotate(${((-SPEED * t) / PR) * 180 / Math.PI * 0.6} ${PCX} ${PCY})`);
     // camion : rebond + roues
     const wheelAngle = ((SPEED * t) / 22.5) * 180 / Math.PI; const bob = 1.6 * Math.sin(t * 9) + 0.8 * Math.sin(t * 21);
-    const ent = eo(prog(t, 0.1, TRUCK_IN)); const tx0 = -950 * (1 - ent); const bobK = 0.4 + 0.6 * ent;
-    const wa2 = wheelAngle + (950 * ent) / 22.5 * 180 / Math.PI;
+    const tx0 = 0; const bobK = 1; const wa2 = wheelAngle;
     for (let i = TRUCK0; i <= TRUCK1; i++) { const e = q(i); if (e) e.setAttribute("transform", `translate(${tx0.toFixed(1)} ${(bob * bobK).toFixed(2)})`); }
     for (const [ids, cx, cy] of WHEELS) for (const i of ids) { const e = q(i); if (e) e.setAttribute("transform", `translate(${tx0.toFixed(1)} ${(bob * bobK).toFixed(2)}) rotate(${wa2.toFixed(2)} ${cx} ${cy})`); }
     // nuages / soleil : dérive douce
@@ -76,7 +74,7 @@ const Inner: React.FC = () => {
         const tspan = tx.querySelector("tspan"); if (tspan && tspan.textContent !== c.ar) tspan.textContent = c.ar;
         tx.setAttribute("text-anchor", "middle"); tx.style.fontFamily = "GEPF, Cairo, sans-serif"; tx.style.fontWeight = "800";
         if (tspan) tspan.setAttribute("x", "0");
-        const raw = tx.getBBox().width || 400; const fit = Math.min(1, 520 / raw);
+        const raw = tx.getBBox().width || 400; const fit = Math.min(0.92, 440 / raw);
         const lt = t - c.t0; const outP = prog(t, c.t1 - 0.14, 0.14);
         let sx = 1, sy = 1, dy = 0, dx = 0, op = 1, blur = 0, rot = 0;
         if (c.fx === "pop") { const e = elastic(prog(lt, 0, 0.55), 1.3, 0.5); sx = sy = e; rot = (1 - e) * -10; }
@@ -87,11 +85,12 @@ const Inner: React.FC = () => {
         op *= 1 - outP; blur += outP * 6;
         tx.setAttribute("transform", `translate(${430 + dx} ${887 + dy}) rotate(${rot}) scale(${(sx * fit).toFixed(3)} ${(sy * fit).toFixed(3)})`);
         tx.style.opacity = String(op); tx.style.filter = blur > 0.1 ? `blur(${blur.toFixed(1)}px)` : "none";
-        // l'épingle apparaît, puis la ligne rouge se dessine depuis l'icône vers le bas jusqu'à la zone bleue ; sortie en sens inverse
-        const outR = prog(t, c.t1 - 0.2, 0.2);
-        const ps = elastic(prog(lt, 0.05, 0.5), 1.4, 0.5) * (1 - eo(outR)); const pg = eo(prog(lt, 0.18, 0.42)) * (1 - eio(outR));
-        pin.setAttribute("transform", `translate(893.4 967) scale(${ps.toFixed(3)}) translate(-893.4 -967)`); pin.style.opacity = String(cl(lt * 12));
-        pole.setAttribute("transform", `translate(0 917.6) scale(1 ${pg.toFixed(3)}) translate(0 -917.6)`); pole.style.opacity = "1";
+        // épingle + ligne = UN SEUL objet : tombe d'en haut, rebondit, s'écrase légèrement sur la planète, puis rentre dans le sol
+        const outR = eio(prog(t, c.t1 - 0.22, 0.2)); const pd = prog(lt, 0.02, 0.5);
+        const pdy = pd < 0.6 ? -300 * (1 - ei(pd / 0.6)) : -46 * Math.sin(Math.PI * (pd - 0.6) / 0.4) * (1 - pd) * 2.2;
+        const sq = pd > 0.58 && pd < 0.78 ? Math.sin(Math.PI * (pd - 0.58) / 0.2) : 0;
+        const k1 = 1 - outR; const M = `translate(893.4 1461.6) scale(${((1 + 0.1 * sq) * k1).toFixed(3)} ${((1 - 0.1 * sq) * k1).toFixed(3)}) translate(-893.4 -1461.6) translate(0 ${pdy.toFixed(1)})`;
+        for (const e of [pin, pole]) { e.setAttribute("transform", M); e.style.opacity = String(cl(lt * 14)); }
         void k;
       } else { tx.style.opacity = "0"; pin.style.opacity = "0"; pole.style.opacity = "0"; }
     }
@@ -105,7 +104,7 @@ const Inner: React.FC = () => {
       <AbsoluteFill style={{ background: "#fff" }}>
         <div ref={host} style={{ position: "absolute", inset: 0, opacity: 1 }} dangerouslySetInnerHTML={svg ? { __html: svg } : undefined} />
         <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}>
-          {CITIES.map((c, i) => t >= c.t0 + 0.4 && t < c.t0 + 1.4 ? Array.from({ length: 14 }, (_, k) => { const a = (k / 14) * Math.PI * 2, p = (t - c.t0 - 0.4) / 0.9, d = 70 + 90 * eo(p) * (0.5 + 0.5 * rnd(k + i)); return <rect key={i + "_" + k} x={893 + Math.cos(a) * d - 6} y={800 + Math.sin(a) * d * 0.7 - 6} width={12} height={12} rx={k % 2 ? 6 : 3} fill={k % 3 ? RED : NAVY} opacity={1 - p} />; }) : null)}
+          {CITIES.map((c, i) => t >= c.t0 + 0.3 && t < c.t0 + 1.2 ? Array.from({ length: 14 }, (_, k) => { const a = (k / 14) * Math.PI * 2, p = (t - c.t0 - 0.3) / 0.9, d = 40 + 110 * eo(p) * (0.5 + 0.5 * rnd(k + i)); return <rect key={i + "_" + k} x={893 + Math.cos(a) * d - 6} y={1440 - Math.abs(Math.sin(a)) * d * 0.6 - 6} width={12} height={12} rx={k % 2 ? 6 : 3} fill={k % 3 ? RED : "#fff"} opacity={1 - p} />; }) : null)}
         </svg>
         <Overlay t={t} />
         <div style={{ position: "absolute", inset: 0, opacity: 1 - 0 }} />
@@ -118,16 +117,17 @@ const Inner: React.FC = () => {
 export const CamionUser: React.FC = () => <FontLoader><Inner /></FontLoader>;
 
 const FONTF = "GEPF, Cairo, sans-serif";
+const L1 = 1.38, L2 = 2.5, SH0 = V2_OFF - 0.65, SH1 = V2_OFF + 0.55;
 const Banner: React.FC<{ t: number }> = ({ t }) => {
-  // « سلعة متاعك توصل لوين إنت موجود! » : au-dessus du nom de la ville ; s'agrandit à la fin (signature)
-  const t0 = CITIES[0].t0 - 0.1, t1 = CITIES[CITIES.length - 1].t1;
-  if (t < t0 || t > t1 + 0.05) return null;
-  const a = elastic(prog(t, t0, 0.6), 1.2, 0.55); const w1 = prog(t, t0, 0.2) * (1 - prog(t, t1 - 0.2, 0.2));
-  const sc = 1; const y = 500;
-  const lines = ["سلعة متاعك توصل", "لوين إنت موجود !"];
+  // « سلعة متاعك توصل / لوين إنت موجود ! » : grand, calé sur voix1, puis réduit en haut du plan des villes
+  const t1 = CITIES[CITIES.length - 1].t1;
+  if (t < L1 - 0.05 || t > t1 + 0.05) return null;
+  const m = eio(prog(t, SH0, SH1 - SH0)); const y = 680 + (500 - 680) * m; const sc = 1 - 0.42 * m;
+  const fade = 1 - prog(t, t1 - 0.2, 0.2);
+  const lines = [["سلعة متاعك توصل", L1, RED], ["لوين إنت موجود !", L2, NAVY]] as const;
   return (
-    <div style={{ position: "absolute", left: 0, right: 0, top: y, textAlign: "center", direction: "rtl", fontFamily: FONTF, fontWeight: 800, color: RED, fontSize: 60, lineHeight: 1.18, transform: `scale(${a * sc})`, opacity: w1, transformOrigin: "50% 0%" }}>
-      {lines.map((l, i) => <div key={i} style={{ color: i === 1 ? NAVY : RED }}>{l}</div>)}
+    <div style={{ position: "absolute", left: 0, right: 0, top: y, textAlign: "center", direction: "rtl", fontFamily: FONTF, fontWeight: 800, fontSize: 84, lineHeight: 1.22, transform: `scale(${sc})`, transformOrigin: "50% 0%", opacity: fade }}>
+      {lines.map(([l, t0, c], i) => <div key={i} style={{ color: c, transform: `scale(${elastic(prog(t, t0, 0.55), 1.25, 0.5)})`, opacity: prog(t, t0, 0.12) }}>{l}</div>)}
     </div>
   );
 };
@@ -138,26 +138,24 @@ const Overlay: React.FC<{ t: number }> = ({ t }) => {
     const e = mode === "pop" ? elastic(prog(lt2, 0, 0.5), 1.3, 0.5) : eo(prog(lt2, 0, 0.35)); const tr = mode === "slide" ? `translateX(${(1 - e) * -600}px)` : mode === "stretch" ? `scaleX(${1 + (1 - e) * 2.5})` : `scale(${e})`;
     return <div style={{ position: "absolute", left: 0, right: 0, top: y, textAlign: "center", direction: "rtl", fontFamily: FONTF, fontWeight: 800, fontSize: size, color, transform: tr, opacity: cl(lt2 * 8) * (1 - out), filter: mode === "stretch" ? `blur(${(1 - e) * 10}px)` : "none" }}>{text}</div>;
   };
-  const withLogo = t < PH.with[1];
   return (
     <>
       <div style={{ opacity: 1 - outro }}><Banner t={t} /></div>
-      {txt("where", "وين ما تكون", 760, 130, NAVY, "pop")}
-      {txt("time", "سلعتك توصللك", 700, 92, NAVY, "slide")}
-      {txt("time", "في وقتها", 800, 130, RED, "pop")}
-      {txt("quality", "جودة مضمونة", 720, 118, NAVY, "stretch")}
+      {txt("where", "وين ما تكون", 700, 112, NAVY, "pop")}
+      {txt("time", "سلعتك توصللك", 690, 78, NAVY, "slide")}
+      {txt("time", "في وقتها", 780, 112, RED, "pop")}
+      {txt("quality", "جودة مضمونة", 700, 100, NAVY, "stretch")}
       {t > PH.time[0] + 0.1 && t < PH.time[1] + 0.1 && <Clock t={t - PH.time[0] - 0.1} />}
       {t > PH.quality[0] + 0.1 && t < PH.quality[1] + 0.4 && <Shield t={t - PH.quality[0] - 0.1} />}
-      {withLogo && (() => { const p = elastic(prog(t, 0.05, 0.6), 1.3, 0.5); return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><g transform={`translate(540 700) scale(${0.62 * p * (1 - eo(prog(t, PH.with[1] - 0.25, 0.25)))}) translate(-485 -125)`}>{LOGO_PATHS.map((p2, i) => (p2.rect ? <rect key={i} x={p2.rect[0]} y={p2.rect[1]} width={p2.rect[2]} height={p2.rect[3]} fill={NAVY} /> : <path key={i} d={p2.d} fill={p2.c === "r" ? RED : NAVY} />))}</g></svg>; })()}
     </>
   );
 };
 const Clock: React.FC<{ t: number }> = ({ t }) => {
   const p = elastic(prog(t, 0, 0.5), 1.3, 0.5);
-  return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><g transform={`translate(540 570) scale(${p})`}><circle r={64} fill="#fff" stroke={NAVY} strokeWidth={10} /><path d={`M0 -36 V0 L${28 * Math.cos(t * 8)} ${28 * Math.sin(t * 8)}`} stroke={RED} strokeWidth={10} strokeLinecap="round" fill="none" /><circle r={8} fill={NAVY} /></g></svg>;
+  return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><g transform={`translate(540 560) scale(${p * 0.85})`}><circle r={64} fill="#fff" stroke={NAVY} strokeWidth={10} /><path d={`M0 -36 V0 L${28 * Math.cos(t * 8)} ${28 * Math.sin(t * 8)}`} stroke={RED} strokeWidth={10} strokeLinecap="round" fill="none" /><circle r={8} fill={NAVY} /></g></svg>;
 };
 const Shield: React.FC<{ t: number }> = ({ t }) => {
   const p = elastic(prog(t, 0, 0.5), 1.3, 0.5); const tick = prog(t, 0.25, 0.4);
-  return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><g transform={`translate(540 565) scale(${p})`}><path d="M0 -70 L58 -48 V6 Q58 52 0 78 Q-58 52 -58 6 V-48 Z" fill={NAVY} /><path d="M-26 4 L-8 24 L28 -20" stroke="#fff" strokeWidth={13} strokeLinecap="round" strokeLinejoin="round" fill="none" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - tick} /></g></svg>;
+  return <svg width={1080} height={1920} style={{ position: "absolute", left: 0, top: 0 }}><g transform={`translate(540 560) scale(${p * 0.85})`}><path d="M0 -70 L58 -48 V6 Q58 52 0 78 Q-58 52 -58 6 V-48 Z" fill={NAVY} /><path d="M-26 4 L-8 24 L28 -20" stroke="#fff" strokeWidth={13} strokeLinecap="round" strokeLinejoin="round" fill="none" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - tick} /></g></svg>;
 };
 const OutroW: React.FC = () => { const f = useCurrentFrame(); return <div style={{ position: "absolute", inset: 0, background: "#fff" }}><div style={{ position: "absolute", inset: 0, opacity: Math.min(1, f / 10) }}><Outro t={f / FPS} /></div></div>; };

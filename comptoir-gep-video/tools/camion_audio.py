@@ -35,14 +35,14 @@ for b in range(nb):
     if b % 2 == 0: add(pluck(ARP[(b + 3) % 8] * 2, 0.25, 0.12), t, 0.8)
 # montée avant la signature et coup à l'arrivée de la phrase finale
 t = np.arange(int(SR * 1.2)) / SR; riser = rng.standard_normal(len(t)) * (t / 1.2) ** 2 * 0.35; riser = riser - np.convolve(riser, np.ones(10) / 10, mode="same"); add(riser, V2_OFF - 0.95, 0.7)
-imp = np.sin(2 * np.pi * np.cumsum(70 + 90 * np.exp(-np.arange(int(SR * 0.7)) / SR * 6)) / SR) * np.exp(-np.arange(int(SR * 0.7)) / SR * 4); add(imp, V2_OFF + 0.05, 1.0); add(imp, 0.1, 0.8); add(riser[::-1], 0.1, 0.6)
+imp = np.sin(2 * np.pi * np.cumsum(70 + 90 * np.exp(-np.arange(int(SR * 0.7)) / SR * 6)) / SR) * np.exp(-np.arange(int(SR * 0.7)) / SR * 4); add(imp, V2_OFF + 0.05, 1.0); add(imp, 1.38, 0.8)
 add(imp, END, 1.0)
 mus *= np.minimum(1, np.arange(n) / (SR * 0.2)) * np.minimum(1, (n - np.arange(n)) / (SR * 1.5)); mus = mus / (np.abs(mus).max() + 1e-9) * 0.8
 def pop(f0, f1, d=0.12, a=0.45):
     m = int(SR * d); tt = np.arange(m) / SR; ff = f0 + (f1 - f0) * (tt / d); return a * np.sin(2 * np.pi * np.cumsum(ff) / SR) * np.exp(-tt * 20)
 sfx = np.zeros(n)
 for t0 in [V2_OFF + x for x in (0.8, 1.84, 2.84, 3.81, 4.85)]: i = int((t0 + 0.05) * SR); sfx[i:i + int(SR * 0.12)] += pop(500, 1500)
-for t0 in [V2_OFF + x for x in (5.79, 6.78, 8.63)] + [0.05]: i = int(t0 * SR); sfx[i:i + int(SR * 0.12)] += pop(700, 1700, 0.12, 0.35)
+for t0 in [V2_OFF + x for x in (5.79, 6.78, 8.63)] + [1.38, 2.5]: i = int(t0 * SR); sfx[i:i + int(SR * 0.12)] += pop(700, 1700, 0.12, 0.35)
 for nm, arr in [("music", mus), ("sfx", sfx)]:
     with wave.open(f"{O}/camion_{nm}.wav", "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(arr, -1, 1) * 32767).astype("<i2").tobytes())
 fc = (f"[0:a]aresample={SR},aformat=channel_layouts=stereo,apad,atrim=0:{TOTAL},asplit[v1][v2];"
