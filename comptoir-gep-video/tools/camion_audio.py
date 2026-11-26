@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 """Audio « camion GEP » : voix2 (villes) + voix1 (signature) + musique rythmique 120 BPM calée sur les villes (temps forts à 1.85, 2.85, 3.85, 4.85 s) + SFX."""
-import numpy as np, subprocess, wave
+import numpy as np, subprocess, wave, sys
 R = "/home/user/faten/comptoir-gep-video"; O = "/tmp/foot/out"; SR = 44100
-V2_OFF = 4.506; END = V2_OFF + 9.95 + 0.4; TOTAL = round(END + 5, 2)
-subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", R + "/assets/camion_voix1.mp3", "-i", R + "/assets/camion_voix2.mp3", "-filter_complex",
-  "[0:a]aresample=44100,apad=pad_dur=0.3[a];[1:a]aresample=44100[b];[a][b]concat=n=2:v=0:a=1[o]", "-map", "[o]", "-ac", "1", O + "/camion_voice.wav"], check=True)
+PART = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+V2_OFF = 4.506
+# partie : (fichier voix des villes | None, durée D, onsets des villes relatifs à V2_OFF)
+CFG = {1: (None, 9.95, [0.8, 1.84, 2.84, 3.81, 4.85]),
+       2: ("camion_p2_villes.mp3", 4.911, [0.03, 1.38, 2.42, 3.38, 4.30]),
+       3: ("camion_p3_villes.mp3", 4.8326, [0.03, 1.23, 2.22, 3.16, 4.15])}
+VFILE, D, ONS = CFG[PART]
+TAIL_CUT = 5.72; TAIL0 = V2_OFF if PART == 1 else V2_OFF + D - TAIL_CUT
+END = (V2_OFF + 9.95 + 0.4) if PART == 1 else (V2_OFF + D + (9.95 - TAIL_CUT) + 0.4); TOTAL = round(END + 5, 2)
+SUF = "" if PART == 1 else f"_p{PART}"
+if PART == 1:
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", R + "/assets/camion_voix1.mp3", "-i", R + "/assets/camion_voix2.mp3", "-filter_complex",
+      "[0:a]aresample=44100,apad=pad_dur=0.3[a];[1:a]aresample=44100[b];[a][b]concat=n=2:v=0:a=1[o]", "-map", "[o]", "-ac", "1", O + "/camion_voice.wav"], check=True)
+else:
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", R + "/assets/camion_voix1.mp3", "-i", R + "/assets/" + VFILE, "-ss", str(TAIL_CUT), "-i", R + "/assets/camion_voix2.mp3", "-filter_complex",
+      "[0:a]aresample=44100,apad=pad_dur=0.3[a];[1:a]aresample=44100[b];[2:a]aresample=44100[c];[a][b][c]concat=n=3:v=0:a=1[o]", "-map", "[o]", "-ac", "1", O + "/camion_voice.wav"], check=True)
 rng = np.random.default_rng(5); n = int(SR * TOTAL); mus = np.zeros(n)
-BEAT = 0.5; OFF = 0.35
+BEAT = 0.5; OFF = (V2_OFF + sorted(ONS)[2]) % BEAT
 def add(sig, t0, g=1.0):
     i = int(t0 * SR)
     if 0 <= i < n: mus[i:i + len(sig)] += g * sig[:max(0, n - i)]
@@ -41,13 +54,13 @@ mus *= np.minimum(1, np.arange(n) / (SR * 0.2)) * np.minimum(1, (n - np.arange(n
 def pop(f0, f1, d=0.12, a=0.45):
     m = int(SR * d); tt = np.arange(m) / SR; ff = f0 + (f1 - f0) * (tt / d); return a * np.sin(2 * np.pi * np.cumsum(ff) / SR) * np.exp(-tt * 20)
 sfx = np.zeros(n)
-for t0 in [V2_OFF + x for x in (0.8, 1.84, 2.84, 3.81, 4.85)]: i = int((t0 + 0.05) * SR); sfx[i:i + int(SR * 0.12)] += pop(500, 1500)
-for t0 in [V2_OFF + x for x in (5.79, 6.78, 8.63)] + [1.38, 2.5]: i = int(t0 * SR); sfx[i:i + int(SR * 0.12)] += pop(700, 1700, 0.12, 0.35)
+for t0 in [V2_OFF + x for x in ONS]: i = int((t0 + 0.05) * SR); sfx[i:i + int(SR * 0.12)] += pop(500, 1500)
+for t0 in [TAIL0 + x for x in (5.79, 6.78, 8.63)] + [1.38, 2.5]: i = int(t0 * SR); sfx[i:i + int(SR * 0.12)] += pop(700, 1700, 0.12, 0.35)
 for nm, arr in [("music", mus), ("sfx", sfx)]:
-    with wave.open(f"{O}/camion_{nm}.wav", "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(arr, -1, 1) * 32767).astype("<i2").tobytes())
+    with wave.open(f"{O}/camion_{nm}{SUF}.wav", "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(arr, -1, 1) * 32767).astype("<i2").tobytes())
 fc = (f"[0:a]aresample={SR},aformat=channel_layouts=stereo,apad,atrim=0:{TOTAL},asplit[v1][v2];"
       f"[1:a]aresample={SR},aformat=channel_layouts=stereo,atrim=0:{TOTAL},volume=0.5[m1];[m1][v1]sidechaincompress=threshold=0.03:ratio=5:attack=10:release=250[md];"
       f"[2:a]aresample={SR},aformat=channel_layouts=stereo,atrim=0:{TOTAL}[sx];"
       f"[v2][md][sx]amix=inputs=3:normalize=0:weights=1.6 1.1 0.8,afade=t=out:st={TOTAL-1.2}:d=1.2[a]")
-subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", O + "/camion_voice.wav", "-i", O + "/camion_music.wav", "-i", O + "/camion_sfx.wav", "-filter_complex", fc, "-map", "[a]", "-t", str(TOTAL), "-c:a", "aac", "-b:a", "192k", O + "/camion_audio.m4a"], check=True)
+subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", O + "/camion_voice.wav", "-i", O + f"/camion_music{SUF}.wav", "-i", O + f"/camion_sfx{SUF}.wav", "-filter_complex", fc, "-map", "[a]", "-t", str(TOTAL), "-c:a", "aac", "-b:a", "192k", O + f"/camion_audio{SUF}.m4a"], check=True)
 print("ok", TOTAL)

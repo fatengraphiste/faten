@@ -15,18 +15,28 @@ const rnd = (n: number) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
 
 // ───────── chronologie (voix2 = villes + promesse, voix1 = signature) ─────────
 const V2_OFF = 4.506;                         // voix1 (4.206 s) d'abord, puis voix2 à V2_OFF
-const VOICE_END = V2_OFF + 9.95;
-export const END = VOICE_END + 0.4;           // début de l'outro
 const TRUCK_IN = 1.7;                         // le camion entre dans la scène puis roule au centre
 // les villes, dans l'ordre de la voix ; d'autres points de livraison pourront être ajoutés ici (suite)
-export const CITIES = [
-  { ar: "بنزرت", t0: V2_OFF + 0.8, t1: V2_OFF + 1.82, fx: "pop" },
-  { ar: "سليانة", t0: V2_OFF + 1.84, t1: V2_OFF + 2.83, fx: "stretch" },
-  { ar: "الكاف", t0: V2_OFF + 2.84, t1: V2_OFF + 3.8, fx: "drop" },
-  { ar: "جندوبة", t0: V2_OFF + 3.81, t1: V2_OFF + 4.84, fx: "slide" },
-  { ar: "باجة", t0: V2_OFF + 4.85, t1: V2_OFF + 5.78, fx: "morph" },
-] as const;
-const PH = { where: [V2_OFF + 5.79, V2_OFF + 6.76], time: [V2_OFF + 6.78, V2_OFF + 8.56], quality: [V2_OFF + 8.63, V2_OFF + 9.95] };
+type City = { ar: string; t0: number; t1: number; fx: string };
+const FX = ["pop", "stretch", "drop", "slide", "morph"];
+// villes d'une partie : onsets = début de chaque ville dans le fichier de voix ; D = durée du fichier de voix des villes
+const mk = (names: string[], on: number[], D: number): City[] => names.map((ar, i) => ({ ar, t0: V2_OFF + on[i] + 0.03, t1: V2_OFF + (i < names.length - 1 ? on[i + 1] - 0.01 : D), fx: FX[i % 5] }));
+const TAIL_CUT = 5.72; const TAIL_LEN = 9.95 - TAIL_CUT; // fin commune de voix2 (« وين ما تكون… ») à partir de 5.72 s
+const tailPart = (cities: City[], D: number) => ({ cities, tail0: V2_OFF + D - TAIL_CUT, end: V2_OFF + D + TAIL_LEN + 0.4 });
+// ➜ pour une partie suivante : ajouter ici les 5 villes (ordre de la voix) + onsets + durée du fichier voix
+export const PARTS: Record<number, { cities: City[]; tail0: number; end: number }> = {
+  1: { cities: [
+    { ar: "بنزرت", t0: V2_OFF + 0.8, t1: V2_OFF + 1.82, fx: "pop" }, { ar: "سليانة", t0: V2_OFF + 1.84, t1: V2_OFF + 2.83, fx: "stretch" },
+    { ar: "الكاف", t0: V2_OFF + 2.84, t1: V2_OFF + 3.8, fx: "drop" }, { ar: "جندوبة", t0: V2_OFF + 3.81, t1: V2_OFF + 4.84, fx: "slide" },
+    { ar: "باجة", t0: V2_OFF + 4.85, t1: V2_OFF + 5.78, fx: "morph" }], tail0: V2_OFF, end: V2_OFF + 9.95 + 0.4 },
+  2: tailPart(mk(["سيدي بوزيد", "القصرين", "قفصة", "القيروان", "سوسة"], [0, 1.3505, 2.389, 3.3538, 4.275], 4.911), 4.911),
+  3: tailPart(mk(["جربة", "مدنين", "قابس", "صفاقس", "المهدية"], [0, 1.2, 2.193, 3.13, 4.116], 4.8326), 4.8326),
+};
+export const partFrames = (n: number) => Math.round(PARTS[n].end * FPS) + 150;
+let CITIES: City[] = PARTS[1].cities; let END = PARTS[1].end;
+let PH = { where: [0, 0], time: [0, 0], quality: [0, 0] } as Record<"where" | "time" | "quality", number[]>;
+const setPart = (n: number) => { const P = PARTS[n]; CITIES = P.cities; END = P.end; const T = P.tail0; PH = { where: [T + 5.79, T + 6.76], time: [T + 6.78, T + 8.56], quality: [T + 8.63, T + 9.95] }; };
+setPart(1);
 
 const WHEELS: [number[], number, number][] = [[[100, 101, 102, 120, 121], 751.5, 1256.5], [[124, 125, 126, 144, 145], 598.5, 1256.5], [[175, 176, 177, 196], 377.5, 1256.5], [[199, 200, 201, 220], 325.5, 1256.5], [[223, 224, 225, 244], 273.5, 1256.5]];
 const TRUCK0 = 37, TRUCK1 = 298;
@@ -114,7 +124,8 @@ const Inner: React.FC = () => {
     </>
   );
 };
-export const CamionUser: React.FC = () => <FontLoader><Inner /></FontLoader>;
+const mkPart = (n: number): React.FC => () => { setPart(n); return <FontLoader><Inner /></FontLoader>; };
+export const CamionUser = mkPart(1); export const CamionUser2 = mkPart(2); export const CamionUser3 = mkPart(3);
 
 const FONTF = "GEPF, Cairo, sans-serif";
 const L1 = 1.38, L2 = 2.5, SH0 = V2_OFF - 0.65, SH1 = V2_OFF + 0.55;
