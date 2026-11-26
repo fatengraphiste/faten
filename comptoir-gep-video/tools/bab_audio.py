@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Audio « Montage BAB » : musique 120 BPM qui monte en intensité avec le montage + bruitages calés sur la chronologie (remotion/src/bab/timeline.json)."""
-import json, wave, subprocess, numpy as np
+import json, wave, subprocess, tempfile, os, numpy as np
 R = "/home/user/faten/comptoir-gep-video"; O = "/tmp/foot/out"; SR = 44100
 TL = json.load(open(R + "/remotion/src/bab/timeline.json"))
 TOTAL = TL["total"]; S = TL["starts"]; n = int(SR * TOTAL)
@@ -81,14 +81,14 @@ W = whoosh()
 for T in S[1:] + [TL["outro"]]: put(sfx, W, T - 0.3, 0.8)
 put(sfx, W, 0.05, 0.5)
 # tags : petits « pop » (même liste que TAGS dans BabMontage.tsx)
-TAGDT = {0: [0.6, 1.1], 1: [0.8, 1.4], 2: [0.7, 1.3], 3: [0.8, 1.2], 4: [0.6, 1.2], 5: [0.6, 1.1], 6: [0.6, 1.5], 7: [0.4, 1.2], 8: [0.6, 1.5], 9: [0.7]}
+TAGDT = {0: [0.6, 1.3], 1: [0.6, 1.2], 2: [0.6, 1.3], 3: [0.4, 0.8], 4: [0.4, 1.0], 5: [0.3, 0.8], 6: [0.4, 1.4], 7: [0.2, 1.0], 8: [0.3, 1.4], 9: [1.1]}
 for pi, l in TAGDT.items():
     for dt in l: put(sfx, pop(520 + 60 * pi, 1500), S[pi] + dt + 0.05, 0.55)
 put(sfx, scrape(0.7, 1200), TL["semelle"][0], 0.8); put(sfx, thud(), TL["semelle"][1], 0.9)
 for t in TL["rebarV"]: put(sfx, ting(2100 + rng.uniform(-200, 300)), t + 0.3, 0.85)
 put(sfx, scrape(TL["mortier"][1] - TL["mortier"][0], 1500), TL["mortier"][0], 1.0)
-for row in TL["drops"]:
-    for ts in row: put(sfx, clack() * rng.uniform(0.7, 1.0), ts + TL["dropDur"], 0.9)
+for row in TL["land"]:
+    for ts in row: put(sfx, clack() * rng.uniform(0.7, 1.0), ts, 0.9)
 for t in TL["about"]: put(sfx, bell(1318.5, 0.7, 0.35), t + 0.25, 0.8)
 for k, t in enumerate(TL["rebarH"]): put(sfx, scrape(0.3, 5000), t, 0.5); put(sfx, ting(2500 + 150 * k), t + 0.38, 0.8)
 put(sfx, twang(), TL["cordeau"][1], 0.9)
@@ -105,9 +105,22 @@ put(sfx, bell(880, 1.1, 0.4), TL["cta"][0] + 0.2, 0.9); put(sfx, pop(700, 1900),
 put(sfx, bell(1760, 0.9, 0.3), TL["cta"][1] + 0.3, 0.9); put(sfx, pop(800, 2100), TL["cta"][1] + 0.05, 0.7)
 sfx = sfx / (np.abs(sfx).max() + 1e-9) * 0.95
 
-mix = mus * 0.55 + sfx * 0.9
+voice = buf(); VS, VE, SRC, SP = TL["voiceStart"], TL["voiceEnd"], TL["src"], TL["speed"]
+tmp = tempfile.mkdtemp()
+for i, (a0, b0) in enumerate(SRC):
+    w0 = max(0.0, a0 - 0.05); dur = (b0 + 0.10) - w0; fn = f"{tmp}/v{i}.wav"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(w0), "-t", str(dur), "-i", R + "/assets/bab_voix.mp3", "-af", f"atempo={SP}", "-ar", str(SR), "-ac", "1", fn], check=True)
+    with wave.open(fn) as wv: seg = np.frombuffer(wv.readframes(wv.getnframes()), dtype="<i2") / 32768.0
+    seg = seg * np.minimum(1, np.arange(len(seg)) / (SR * 0.01)) * np.minimum(1, (len(seg) - np.arange(len(seg))) / (SR * 0.03))
+    put(voice, seg, VS[i] - (a0 - w0) / SP, 1.0)
+voice = voice / (np.abs(voice).max() + 1e-9) * 0.9
+# la musique et les bruitages baissent quand la voix parle
+act = np.convolve(np.abs(voice), np.ones(int(SR * 0.25)) / int(SR * 0.25), mode="same"); act = np.clip(act / 0.08, 0, 1)
+act = np.convolve(act, np.ones(int(SR * 0.2)) / int(SR * 0.2), mode="same")
+mus = mus * (1 - 0.55 * act); sfx = sfx * (1 - 0.3 * act)
+mix = voice * 1.0 + mus * 0.5 + sfx * 0.8
 mix = mix / max(1.0, np.abs(mix).max() / 0.94)
-for nm, a in [("bab_music", mus), ("bab_sfx", sfx), ("bab_mix", mix)]:
+for nm, a in [("bab_music", mus), ("bab_sfx", sfx), ("bab_voice", voice), ("bab_mix", mix)]:
     with wave.open(f"{O}/{nm}.wav", "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((np.clip(a, -1, 1) * 32767).astype("<i2").tobytes())
 subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", O + "/bab_mix.wav", "-af", "aformat=channel_layouts=stereo", "-c:a", "aac", "-b:a", "192k", O + "/bab_audio.m4a"], check=True)
 print("ok", TOTAL)
