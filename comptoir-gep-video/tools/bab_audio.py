@@ -78,9 +78,11 @@ mus = mus / (np.abs(mus).max() + 1e-9) * 0.85
 # ───────────── bruitages ─────────────
 sfx = buf()
 W = whoosh()
-for T in S[1:] + [TL["outro"]]:
-    put(sfx, W, T - 0.3, 0.8)
-    for k in range(6): put(sfx, clave(520 + 40 * (k % 2)) * 0.8, T - 0.3 + 0.04 + 0.085 * k, 0.5)
+for j, T in enumerate(S[1:] + [TL["outro"]]):
+    if j == 0:   # bonhomme qui marche et tire le rectangle blanc (lent)
+        put(sfx, whoosh(1.1), T - 0.85, 0.7)
+        for k in range(14): put(sfx, clave(520 + 40 * (k % 2)) * 0.8, T - 0.8 + 0.09 * k, 0.55)
+    else: put(sfx, W, T - 0.3, 0.8)
 put(sfx, W, 0.05, 0.5)
 # tags : petits « pop » (même liste que TAGS dans BabMontage.tsx)
 TAGDT = {0: [0.15, 0.5, 2.0], 1: [0.6, 1.2], 2: [0.6, 1.3], 3: [0.4, 0.8], 4: [0.4, 1.0], 5: [0.3, 0.8], 6: [0.4, 1.4], 7: [0.2, 1.0], 8: [0.3, 1.4], 9: [1.1]}

@@ -371,7 +371,7 @@ const workerAt = (t: number): WState => {
 };
 const Worker: React.FC<{ t: number }> = ({ t }) => {
   const w = workerAt(t); const f0 = P(w.x, laneAt(t), 0);
-  if (planAt(t) === 9) return <FrontStick x={f0[0]} y={f0[1] - (w.hop ?? 0) * 0} s={SC} lt={t - S[9]} />;
+  if (planAt(t) === 9) return null;
   return <Stick x={f0[0]} y={f0[1] - (w.hop ?? 0)} face={w.face} pose={w.pose} tool={w.tool} toolAng={w.ta} s={SC} />;
 };
 // filet de béton qui sort du seau (va-et-vient)
@@ -465,7 +465,7 @@ const TAGS: Record<number, { t: string; dt: number; check?: boolean }[]> = {
 const KZ = 1.22;
 const FOCUS: [number, number, [number, number, number]][] = [
   [1.0, 1.04, [1.0, 0.5, 0.5]], [1.0, 1.05, [0.9, 0.5, 0.4]], [1.02, 1.08, [1.0, 0.5, 0.4]], [1.02, 1.08, [1.0, 0.5, 0.4]], [1.0, 1.03, [1.1, 0.5, 0.6]],
-  [1.0, 1.04, [0.9, 0.5, 0.6]], [1.05, 1.1, [1.0, 0.4, 0.8]], [1.05, 1.12, [1.0, 0.4, 0.9]], [1.05, 1.12, [1.0, 0.4, 0.9]], [1.0, 1.04, [1.0, 0.5, 0.6]],
+  [1.0, 1.04, [0.9, 0.5, 0.6]], [1.05, 1.1, [1.0, 0.4, 0.8]], [1.05, 1.12, [1.0, 0.4, 0.9]], [1.05, 1.12, [1.0, 0.4, 0.9]], [0.92, 0.95, [1.0, 0.5, 0.2]],
 ];
 
 const Plan: React.FC<{ t: number; pi: number }> = ({ t, pi }) => {
@@ -481,6 +481,7 @@ const Plan: React.FC<{ t: number; pi: number }> = ({ t, pi }) => {
         <PourStream t={t} />
         {pi === 9 && Array.from({ length: 16 }, (_, k) => { const ph = seg(lt, TL.result - S[9] - 0.05, TL.result - S[9] + 1.2); const a = (k / 16) * Math.PI * 2, r = 60 + 230 * eo(ph) * (0.6 + 0.4 * Math.abs(Math.sin(k * 7.3))); const c = P(1.0, 0.1, 0.7); return ph > 0 && ph < 1 ? <rect key={k} x={c[0] + Math.cos(a) * r - 7} y={c[1] + Math.sin(a) * r * 0.55 - 7} width={14} height={14} rx={k % 2 ? 7 : 3} fill={k % 3 ? YEL : NAVY} opacity={1 - ph} /> : null; })}
       </g>
+      {pi === 9 && <g opacity={eo(seg(lt, 0.0, 0.3))}><FrontStick x={540} y={1275} s={1.02} lt={lt} /></g>}
       {(TAGS[pi] ?? []).map((tg, k) => <Tag key={k} x={540} y={395 + k * 70} text={tg.t} t={t} t0={S[pi] + tg.dt} check={tg.check} size={29} />)}
     </g>
   );
@@ -491,10 +492,10 @@ const Star: React.FC<{ r: number }> = ({ r }) => <polygon points={Array.from({ l
 const Cta: React.FC<{ t: number }> = ({ t }) => {
   const lt = t - S[10];
   const a1 = ebo(seg(lt, 0.1, 0.55)), a2 = ebo(seg(lt, TL.cta[0] - S[10], TL.cta[0] - S[10] + 0.45)), a3 = ebo(seg(lt, TL.cta[1] - S[10], TL.cta[1] - S[10] + 0.45));
-  const wave = Math.sin(lt * 9) * 14; const pulse = 1 + 0.035 * Math.sin(lt * 6);
+  const pulse = 1 + 0.035 * Math.sin(lt * 6);
   return (
     <g>
-      <Stick x={540} y={790} s={0.62} face={1} pose={{ ...base(), aR: [165 + wave, -14], bob: Math.sin(lt * 4) * 1.5 }} />
+      <FrontStick x={540} y={800} s={0.62} lt={lt} wave />
       <g transform={`translate(540 860) scale(${clamp(a1, 0, 1.1)})`} opacity={clamp(a1 * 2)}>
         <foreignObject x={-440} y={0} width={880} height={170}>
           <div style={{ direction: "rtl", textAlign: "center", fontFamily: FONT, fontWeight: 800, color: NAVY, fontSize: 68, lineHeight: 1.25 }}>
@@ -523,13 +524,19 @@ const Cta: React.FC<{ t: number }> = ({ t }) => {
 };
 
 /* ───────────────────────── transitions + logo + montage ───────────────────────── */
-const WD = 200, WW = 1400, XS0 = -160, XS1 = 2680, WDUR = 0.55, WPRE = 0.3;
+const WD = 200, WW = 1400, XS0 = -160, XS1 = 2680, WDUR = 1.45, WPRE = 0.85;
 const Wipe: React.FC<{ t: number }> = ({ t }) => {
   const els: React.ReactNode[] = [];
   S.slice(1).concat([END_T]).forEach((T, i) => {
+    if (i > 0) {   // coupes classiques : bandes rouge + navy
+      const qb = (t - (T - 0.2)) / 0.4; if (qb <= 0 || qb >= 1) return;
+      const xb = (qq: number) => -1080 + 2160 * clamp(qq);
+      els.push(<g key={i}><rect x={xb(qb + 0.1)} y={0} width={1080} height={1920} fill={YEL} /><rect x={xb(qb)} y={0} width={1080} height={1920} fill={NAVY} /></g>);
+      return;
+    }
     const q = (t - (T - WPRE)) / WDUR; if (q <= 0 || q >= 1) return;
     const xs = XS0 + (XS1 - XS0) * q; const ys = 1250;
-    const ph = t * 19; const pose: Pose = { aL: [10 + 30 * Math.sin(ph + Math.PI), 14], aR: [-58, 16], lL: [32 * Math.sin(ph + Math.PI), -24 * Math.max(0, Math.sin(ph + Math.PI + 1))], lR: [32 * Math.sin(ph), -24 * Math.max(0, Math.sin(ph + 1))], lean: 14, bob: -5 * Math.abs(Math.sin(ph)) };
+    const ph = t * 15; const pose: Pose = { aL: [10 + 30 * Math.sin(ph + Math.PI), 14], aR: [-58, 16], lL: [32 * Math.sin(ph + Math.PI), -24 * Math.max(0, Math.sin(ph + Math.PI + 1))], lR: [32 * Math.sin(ph), -24 * Math.max(0, Math.sin(ph + 1))], lean: 14, bob: -5 * Math.abs(Math.sin(ph)) };
     const hand = fk(pose).aR.h; const hx = xs + 1.15 * hand[0], hy = ys + 1.15 * hand[1]; const ex = xs - WD, ey = hy + 14;
     els.push(
       <g key={i}>
