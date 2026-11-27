@@ -6,10 +6,10 @@ PART = int(sys.argv[1]) if len(sys.argv) > 1 else 1
 V2_OFF = 4.506
 # partie : (fichier voix des villes | None, durée D, onsets des villes relatifs à V2_OFF)
 CFG = {1: (None, 9.95, [0.8, 1.84, 2.84, 3.81, 4.85]),
-       2: ("camion_p2_villes.mp3", 4.911, [0.03, 1.38, 2.42, 3.38, 4.30]),
-       3: ("camion_p3_villes.mp3", 4.8326, [0.03, 1.23, 2.22, 3.16, 4.15])}
+       2: ("camion_p2_cp.mp3", 5.486, [0.85, 1.99, 2.99, 3.91, 4.83]),
+       3: ("camion_p3_cp.mp3", 5.068, [0.80, 1.61, 2.57, 3.45, 4.37])}
 VFILE, D, ONS = CFG[PART]
-INTRO = 0 if PART == 1 else 1.10                      # « أحنا نوصلو » = voix2[0:1.0], coupé à la fin du mot
+INTRO = 0                       # « أحنا نوصلو » = voix2[0:1.0], coupé à la fin du mot
 ONS = [x + INTRO for x in ONS]; D = D + INTRO if PART != 1 else D
 TAIL_CUT = 5.72; TAIL0 = V2_OFF if PART == 1 else V2_OFF + D - TAIL_CUT   # D inclut déjà INTRO
 END = (V2_OFF + 9.95 + 0.4) if PART == 1 else (V2_OFF + D + (9.95 - TAIL_CUT) + 0.4); TOTAL = round(END + 5, 2)
@@ -18,8 +18,8 @@ if PART == 1:
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", R + "/assets/camion_voix1.mp3", "-i", R + "/assets/camion_voix2.mp3", "-filter_complex",
       "[0:a]aresample=44100,apad=pad_dur=0.3[a];[1:a]aresample=44100[b];[a][b]concat=n=2:v=0:a=1[o]", "-map", "[o]", "-ac", "1", O + "/camion_voice.wav"], check=True)
 else:
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", R + "/assets/camion_voix1.mp3", "-t", "1.0", "-i", R + "/assets/camion_voix2.mp3", "-i", R + "/assets/" + VFILE, "-ss", str(TAIL_CUT), "-i", R + "/assets/camion_voix2.mp3", "-filter_complex",
-      "[0:a]aresample=44100,apad=pad_dur=0.3[a];[1:a]aresample=44100,afade=t=out:st=0.965:d=0.035,apad=pad_dur=0.1[i];[2:a]aresample=44100[b];[3:a]aresample=44100[c];[a][i][b][c]concat=n=4:v=0:a=1[o]", "-map", "[o]", "-ac", "1", O + "/camion_voice.wav"], check=True)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", R + "/assets/camion_voix1.mp3", "-i", R + "/assets/" + VFILE, "-ss", str(TAIL_CUT), "-i", R + "/assets/camion_voix2.mp3", "-filter_complex",
+      "[0:a]aresample=44100,apad=pad_dur=0.3[a];[1:a]aresample=44100[b];[2:a]aresample=44100[c];[a][b][c]concat=n=3:v=0:a=1[o]", "-map", "[o]", "-ac", "1", O + "/camion_voice.wav"], check=True)
 rng = np.random.default_rng(5); n = int(SR * TOTAL); mus = np.zeros(n)
 BEAT = 0.5; OFF = (V2_OFF + sorted(ONS)[2]) % BEAT
 def add(sig, t0, g=1.0):

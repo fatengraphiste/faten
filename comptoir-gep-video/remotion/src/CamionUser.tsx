@@ -20,7 +20,7 @@ const TRUCK_IN = 1.7;                         // le camion entre dans la scène 
 type City = { ar: string; t0: number; t1: number; fx: string };
 const FX = ["pop", "stretch", "drop", "slide", "morph"];
 // villes d'une partie : onsets = début de chaque ville dans le fichier de voix ; D = durée du fichier de voix des villes
-const INTRO = 1.10;                                   // « أحنا نوصلو » (1.0 s de voix2, coupé à la fin de نوصلو) + 0.1 s, avant la voix des villes
+const INTRO = 0;                                      // « أحنا نوصلو » (1.0 s de voix2, coupé à la fin de نوصلو) + 0.1 s, avant la voix des villes
 const mk = (names: string[], on: number[], D: number): City[] => names.map((ar, i) => ({ ar, t0: V2_OFF + INTRO + on[i] + 0.03, t1: V2_OFF + INTRO + (i < names.length - 1 ? on[i + 1] - 0.01 : D), fx: FX[i % 5] }));
 const TAIL_CUT = 5.72; const TAIL_LEN = 9.95 - TAIL_CUT; // fin commune de voix2 (« وين ما تكون… ») à partir de 5.72 s
 const tailPart = (cities: City[], D: number) => ({ cities, tail0: V2_OFF + INTRO + D - TAIL_CUT, end: V2_OFF + INTRO + D + TAIL_LEN + 0.4 });
@@ -30,8 +30,8 @@ export const PARTS: Record<number, { cities: City[]; tail0: number; end: number 
     { ar: "بنزرت", t0: V2_OFF + 0.8, t1: V2_OFF + 1.82, fx: "pop" }, { ar: "سليانة", t0: V2_OFF + 1.84, t1: V2_OFF + 2.83, fx: "stretch" },
     { ar: "الكاف", t0: V2_OFF + 2.84, t1: V2_OFF + 3.8, fx: "drop" }, { ar: "جندوبة", t0: V2_OFF + 3.81, t1: V2_OFF + 4.84, fx: "slide" },
     { ar: "باجة", t0: V2_OFF + 4.85, t1: V2_OFF + 5.78, fx: "morph" }], tail0: V2_OFF, end: V2_OFF + 9.95 + 0.4 },
-  2: tailPart(mk(["سيدي بوزيد", "القصرين", "قفصة", "القيروان", "سوسة"], [0, 1.3505, 2.389, 3.3538, 4.275], 4.911), 4.911),
-  3: tailPart(mk(["جربة", "مدنين", "قابس", "صفاقس", "المهدية"], [0, 1.2, 2.193, 3.13, 4.116], 4.8326), 4.8326),
+  2: tailPart(mk(["سيدي بوزيد", "القصرين", "قفصة", "القيروان", "سوسة"], [0.85, 1.99, 2.99, 3.91, 4.83], 5.486), 5.486),
+  3: tailPart(mk(["جربة", "مدنين", "قابس", "صفاقس", "المهدية"], [0.80, 1.61, 2.57, 3.45, 4.37], 5.068), 5.068),
 };
 export const partFrames = (n: number) => Math.round(PARTS[n].end * FPS) + 150;
 let CITIES: City[] = PARTS[1].cities; let END = PARTS[1].end;
